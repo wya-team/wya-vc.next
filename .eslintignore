@@ -1,0 +1,8 @@
+dist
+node_modules
+static
+assets
+**/*.css
+**/*.html
+**/*.min.js
+**/*.test.js

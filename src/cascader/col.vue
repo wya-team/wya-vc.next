@@ -1,0 +1,117 @@
+<template>
+	<div class="vc-cascader-col">
+		<div class="vc-cascader-col__wrapper">
+			<div
+				v-for="(item, $index) in dataSource"
+				:key="$index"
+				:class="{ 'is-select': value == item.value }"
+				class="vc-cascader-col__item"
+				@click="handleClick"
+				@mouseenter="handleEnter(item.value, $index)"
+			>
+				<span>
+					{{ item.label }}
+				</span>
+				<vc-icon v-if="item.hasChildren && !item.loading" type="right" class="vc-cascader-col__icon" />
+				<!-- TODO loading -->
+				<vc-spin
+					v-else-if="item.loading" 
+					:size="14"
+					class="vc-cascader-col__loading"
+				/>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+import Icon from '../icon/index';
+import Spin from '../spin/index';
+
+export default defineComponent({
+	name: 'vcm-picker-col',
+	components: {
+		'vc-icon': Icon,
+		'vc-spin': Spin,
+	},
+	props: {
+		dataSource: {
+			type: Array,
+			default: () => []
+		},
+		itemStyle: {
+			type: Object,
+			default: () => {}
+		},
+		value: {
+			type: [String, Number]
+		},
+		index: {
+			type: Number
+		}
+	},
+	emits: ['click', 'change'],
+	setup(props, { emit }) {
+		const handleClick = () => {
+			emit('click');
+		};
+
+		const handleEnter = (value, rowIndex) => {
+			emit('change', { value, rowIndex, colIndex: props.index });
+		};
+
+		return {
+			handleClick,
+			handleEnter
+		};
+	}
+});
+
+</script>
+
+<style lang='scss'>
+@import '../style/vars.scss';
+
+$block: vc-cascader-col;
+
+@include block($block) {
+	display: inline-block;
+	padding: 5px 0!important;
+	margin: 0;
+	@include commonBorder1PX(right);
+	&:last-child {
+		&:before, &:after {
+			display: none;
+		}
+	}
+	@include element(wrapper) {
+		min-width: 100px;
+		height: 180px;
+		overflow: auto;
+	}
+	@include element(item) {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		line-height: normal;
+		padding: 7px 16px;
+		color: #666;
+		font-size: 12px!important;
+		line-height: 16px;
+		white-space: nowrap;
+		cursor: pointer;
+		@include when(select) {
+			background-color: #e6f7ff;
+			color: #5495f6;
+		}
+	}
+	@include element(icon) {
+		transform: scale(0.7);
+	}
+	@include element(loading) {
+		margin-right: 5px;
+	}
+}
+
+</style>

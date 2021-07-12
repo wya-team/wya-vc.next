@@ -1,0 +1,288 @@
+import { reactive, nextTick, ref, computed, getCurrentInstance, inject, onBeforeMount, onUnmounted, onMounted, onUpdated } from 'vue';
+import { Utils } from '@wya/utils';
+import { parseHeight } from '../utils';
+import { IS_SERVER } from '../../utils/constant';
+import { VcError } from '../../vc';
+
+let scrollBarWidth;
+/**
+ * TODO: 抽离
+ */
+const getScrollBarWidth = () => {
+	// 注: 服务端渲染为0, 在客服端激活前，展示端存在问题【高度不定】
+	if (IS_SERVER) return 0;
+	if (scrollBarWidth !== undefined) return scrollBarWidth;
+
+	const outer = document.createElement('div');
+	outer.className = 'vc-scrollbar__wrap';
+	outer.style.visibility = 'hidden';
+	outer.style.width = '100px';
+	outer.style.position = 'absolute';
+	outer.style.top = '-9999px';
+	document.body.appendChild(outer);
+
+	const widthNoScroll = outer.offsetWidth;
+	outer.style.overflow = 'scroll';
+
+	const inner = document.createElement('div');
+	inner.style.width = '100%';
+	outer.appendChild(inner);
+
+	const widthWithScroll = inner.offsetWidth;
+	outer.parentNode.removeChild(outer);
+	scrollBarWidth = widthNoScroll - widthWithScroll;
+
+	return scrollBarWidth;
+};
+
+class TableLayout {
+	constructor(options) {
+		this.table = options.table;
+		this.store = options.store;
+
+		if (!this.table) {
+			throw new VcError('table', 'Table Layout 必须包含table实例');
+		}
+		if (!this.store) {
+			throw new VcError('table', 'Table Layout 必须包含store实例');
+		}
+
+		const { props } = this.table;
+
+		this.states = reactive({
+			fit: ref(props.fit),
+			showHeader: ref(props.showHeader),
+			height: ref(null),
+			scrollX: ref(false),
+			scrollY: ref(false),
+			bodyWidth: ref(null),
+			fixedWidth: ref(null),
+			rightFixedWidth: ref(null),
+			tableHeight: ref(null),
+			headerHeight: ref(44), // Table Header Height
+			appendHeight: ref(0), // Append Slot Height
+			footerHeight: ref(44), // Table Footer Height
+			viewportHeight: ref(null), // Table Height - Scroll Bar Height
+			bodyHeight: ref(null), // Table Height - Table Header Height
+			fixedBodyHeight: ref(null), // Table Height - Table Header Height - Scroll Bar Heigh
+			gutterWidth: ref(getScrollBarWidth()),
+		});
+
+		this.updateScroller = this.updateScroller.bind(this);
+		this.updateColumns = this.updateColumns.bind(this);
+
+		// TODO: remove
+		onMounted(() => {
+			this.updateColumns();
+			this.updateScroller();
+		});
+
+		let __updated__;
+		onUpdated(() => {
+			if (__updated__) return;
+			this.updateColumns();
+			this.updateScroller();
+			__updated__ = true;
+		});
+	}
+
+	updateScrollY() {
+		const { height, bodyHeight } = this.states;
+		if (height === null) return;
+		const bodyWrapper = this.table.proxy.bodyWrapper;
+		if (this.table.vnode.el && bodyWrapper) {
+			const body = bodyWrapper.querySelector('.vc-table__body');
+			this.states.scrollY = body.offsetHeight > bodyHeight;
+		}
+	}
+
+	setHeight(value, prop = 'height') {
+		if (IS_SERVER) return;
+		const el = this.table.vnode.el;
+		value = parseHeight(value);
+		this.states.height = value;
+
+		if (!el && (value || value === 0)) return nextTick(() => this.setHeight(value, prop));
+
+		if (value) {
+			el.style[prop] = `${value}px`;
+			this.updateElsHeight();
+		}
+	}
+
+	setMaxHeight(value) {
+		this.setHeight(value, 'max-height');
+	}
+
+	getFlattenColumns() {
+		const flattenColumns = [];
+		const columns = this.store.states.columns;
+		columns.forEach((column) => {
+			if (column.isColumnGroup) {
+				flattenColumns.push(...column.columns);
+			} else {
+				flattenColumns.push(column);
+			}
+		});
+
+		return flattenColumns;
+	}
+
+	updateElsHeight() {
+		if (!this.table.proxy.isReady) return nextTick(() => this.updateElsHeight());
+		const { headerWrapper, appendWrapper, footerWrapper, } = this.table.proxy;
+		const { showHeader, scrollX, gutterWidth } = this.states; 
+		this.states.appendHeight = appendWrapper ? appendWrapper.offsetHeight : 0;
+
+		if (showHeader && !headerWrapper) return;
+		const headerHeight = !showHeader ? 0 : headerWrapper.offsetHeight;
+		this.states.headerHeight = headerHeight;
+
+		if (showHeader && headerWrapper.offsetWidth > 0 && (this.store.states.columns || []).length > 0 && headerHeight < 2) {
+			return nextTick(() => this.updateElsHeight());
+		}
+
+		const tableHeight = this.table.vnode.el.clientHeight;
+
+		this.states.tableHeight = tableHeight;
+		const footerHeight = footerWrapper ? footerWrapper.offsetHeight : 0;
+		this.states.footerHeight = footerHeight;
+
+		if (this.states.height !== null) {
+			this.states.bodyHeight = tableHeight - headerHeight - footerHeight + (footerWrapper ? 1 : 0);
+		}
+		const { bodyHeight } = this.states;
+		this.states.fixedBodyHeight = scrollX ? (bodyHeight - gutterWidth) : bodyHeight;
+
+		const noData = !this.table.props.dataSource || this.table.props.dataSource.length === 0;
+		this.states.viewportHeight = scrollX ? tableHeight - (noData ? 0 : gutterWidth) : tableHeight;
+
+		this.updateScrollY();
+		this.updateScroller();
+	}
+
+	updateColumnsWidth() {
+		if (IS_SERVER) return;
+		const bodyWidth = this.table.vnode.el.clientWidth;
+		let bodyMinWidth = 0;
+
+		const flattenColumns = this.getFlattenColumns();
+		let flexColumns = flattenColumns.filter((column) => typeof column.width !== 'number');
+
+		flattenColumns.forEach((column) => { // Clean those columns whose width changed from flex to unflex
+			if (typeof column.width === 'number' && column.realWidth) column.realWidth = null;
+		});
+
+		const { fit, gutterWidth, scrollY } = this.states;
+
+		if (flexColumns.length > 0 && fit) {
+			flattenColumns.forEach((column) => {
+				bodyMinWidth += column.width || column.minWidth || 80;
+			});
+
+			const scrollYWidth = scrollY ? gutterWidth : 0;
+
+			if (bodyMinWidth <= bodyWidth - scrollYWidth) { // DON'T HAVE SCROLL BAR
+				this.states.scrollX = false;
+
+				const totalFlexWidth = bodyWidth - scrollYWidth - bodyMinWidth;
+
+				if (flexColumns.length === 1) {
+					flexColumns[0].realWidth = (flexColumns[0].minWidth || 80) + totalFlexWidth;
+				} else {
+					const allColumnsWidth = flexColumns.reduce((prev, column) => prev + (column.minWidth || 80), 0);
+					const flexWidthPerPixel = totalFlexWidth / allColumnsWidth;
+					let noneFirstWidth = 0;
+
+					flexColumns.forEach((column, index) => {
+						if (index === 0) return;
+						const flexWidth = Math.floor((column.minWidth || 80) * flexWidthPerPixel);
+						noneFirstWidth += flexWidth;
+						column.realWidth = (column.minWidth || 80) + flexWidth;
+					});
+
+					flexColumns[0].realWidth = (flexColumns[0].minWidth || 80) + totalFlexWidth - noneFirstWidth;
+				}
+			} else { // HAVE HORIZONTAL SCROLL BAR
+				this.states.scrollX = true;
+				flexColumns.forEach(function (column) {
+					column.realWidth = column.minWidth;
+				});
+			}
+
+			this.states.bodyWidth = Math.max(bodyMinWidth, bodyWidth);
+			this.table.proxy.resizeState.width = this.states.bodyWidth;
+		} else {
+			flattenColumns.forEach((column) => {
+				if (!column.width && !column.minWidth) {
+					column.realWidth = 80;
+				} else {
+					column.realWidth = column.width || column.minWidth;
+				}
+
+				bodyMinWidth += column.realWidth;
+			});
+
+			this.states.scrollX = bodyMinWidth > bodyWidth;
+			this.states.bodyWidth = bodyMinWidth;
+		}
+
+		const fixedColumns = this.store.states.fixedColumns;
+
+		if (fixedColumns.length > 0) {
+			let fixedWidth = 0;
+			fixedColumns.forEach(function (column) {
+				fixedWidth += column.realWidth || column.width;
+			});
+
+			this.states.fixedWidth = fixedWidth;
+		}
+
+		const rightFixedColumns = this.store.states.rightFixedColumns;
+		if (rightFixedColumns.length > 0) {
+			let rightFixedWidth = 0;
+			rightFixedColumns.forEach(function (column) {
+				rightFixedWidth += column.realWidth || column.width;
+			});
+
+			this.states.rightFixedWidth = rightFixedWidth;
+		}
+
+		this.updateColumns();
+	}
+
+	// v2.x中的 notifyObservers
+	updateColumns() {
+		const cols = this.table.vnode.el.querySelectorAll('colgroup > col');
+		if (!cols.length) return;
+		const flattenColumns = this.getFlattenColumns();
+		const columnsMap = {};
+		flattenColumns.forEach((column) => {
+			columnsMap[column.id] = column;
+		});
+		for (let i = 0, j = cols.length; i < j; i++) {
+			const col = cols[i];
+			const name = col.getAttribute('name');
+			const column = columnsMap[name];
+			if (column) {
+				col.setAttribute('width', column.realWidth || column.width);
+			}
+		}
+	}
+
+	updateScroller() {
+		const cols = this.table.vnode.el.querySelectorAll('colgroup > col[name=gutter]');
+		for (let i = 0, j = cols.length; i < j; i++) {
+			const col = cols[i];
+			col.setAttribute('width', this.states.scrollY ? this.states.gutterWidth : '0');
+		}
+		const ths = this.table.vnode.el.querySelectorAll('th.vc-table__gutter');
+		for (let i = 0, j = ths.length; i < j; i++) {
+			const th = ths[i];
+			th.style.width = this.states.scrollY ? this.states.gutterWidth + 'px' : '0';
+			th.style.display = this.states.scrollY ? '' : 'none';
+		}
+	}
+}
+
+export default TableLayout;

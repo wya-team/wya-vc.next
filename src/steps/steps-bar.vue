@@ -1,0 +1,133 @@
+<template>
+	<div class="vc-steps-bar">
+		<div
+			v-for="(item, index) in dataSource"
+			:key="item[step]"
+			:class="{ 'is-active': modelValue >= item[step], 'is-disabled': readonly }"
+			:style="{ 'zIndex': dataSource.length - index }"
+			class="vc-steps-bar__item"
+			@click="handleClick(item)"
+		>
+			{{ item[label] }}
+		</div>
+	</div>
+</template>
+
+<script lang="ts">
+import { defineComponent, computed } from 'vue';
+
+export default defineComponent({
+	name: 'vc-steps-bar',
+	props: {
+		modelValue: {
+			type: [String, Number],
+			default: ''
+		},
+		dataSource: {
+			type: Array,
+			default: () => ([])
+		},
+		dataSourceKey: {
+			type: Object,
+			default: () => ({
+				value: 'value',
+				label: 'label'
+			})
+		},
+		// 是否只读，非只读状态可点击切换
+		readonly: {
+			type: Boolean,
+			default: false
+		}
+	},
+	emits: ['update:modelValue', 'change'],
+	setup(props, { emit }) {
+		const step = computed(() => {
+			return props.dataSourceKey.value;
+		});
+		const label = computed(() => {
+			return props.dataSourceKey.label;
+		});
+
+		/**
+		 * 点击事件委托
+		 */
+		const handleClick = (item) => {
+			if (!props.readonly) {
+				emit('update:modelValue', item[step.value], item);
+				emit('change', item[step.value], item);
+			}
+		};
+
+		return {
+			step,
+			label,
+			handleClick
+		};
+
+
+	}
+});
+</script>
+
+<style lang="scss">
+@import '../style/vars.scss';
+
+@include block(vc-steps-bar) {
+	display: flex;
+	align-items: center;
+	@include element(item) {
+		position: relative;
+		height: 56px;
+		line-height: 56px;
+		background-color: #f9f9f9;
+		flex: 1;
+		text-align: center;
+		cursor: pointer;
+
+		&:not(:first-child) {
+			margin-left: 10px;
+			&::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				width: 0;
+				height: 0;
+				border-width: 28px 20px 28px 20px;
+				border-color: transparent transparent transparent #fff;
+				border-style: solid;
+			}
+			
+		}
+		&:not(:last-child) {
+			&::after {
+				content: '';
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				right: -40px;
+				width: 0;
+				height: 0;
+				border-width: 28px 20px 28px 20px;
+				border-color: transparent transparent transparent #f9f9f9;
+				border-style: solid;
+			}
+		}
+		@include when(active) {
+			color: #fff;
+			background-color: #5495f6;
+			&:before {
+				border-left-color: #fff;
+			}
+			&::after {
+				border-left-color: #5495f6;
+			}
+		}
+		@include when(disabled) {
+			cursor: default;
+		}
+	}
+}
+</style>
