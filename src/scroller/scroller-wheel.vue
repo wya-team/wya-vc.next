@@ -198,8 +198,7 @@ export default defineComponent({
 
 		const setScrollLeft = (value: number) => {
 			wrapper.value.scrollLeft = value;
-			scrollY.value = value;
-
+			scrollX.value = value;
 		};
 
 		onMounted(() => {

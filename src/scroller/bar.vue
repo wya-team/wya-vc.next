@@ -45,7 +45,7 @@ const BAR_MAP = {
 };
 
 export default defineComponent({
-	name: 'vc-scroller',
+	name: 'vc-scroller-bar',
 	components: {
 		'vc-transition-fade': Transition.Fade
 	},
