@@ -97,20 +97,20 @@
 			</vc-button>
 			<br>	
 			<br>
-			<vc-button @click="handleCloumn('add')">
+			<vc-button @click="handleColumn('add')">
 				Add Columns
 			</vc-button>
-			<vc-button @click="handleCloumn('remove')">
+			<vc-button @click="handleColumn('remove')">
 				Remove Columns
 			</vc-button>
-			<vc-button @click="handleCloumn('update')">
+			<vc-button @click="handleColumn('update')">
 				Update Columns
 			</vc-button>
-			<vc-button @click="handleCloumnAttr('fixed')">
+			<vc-button @click="handleColumnAttr('fixed')">
 				fixed: {{ columnAttrs.fixed }}(需要多个columns)
 			</vc-button>
 			<vc-button 
-				@click="handleCloumnAttr('showPopover')"
+				@click="handleColumnAttr('showPopover')"
 			>
 				showPopover: {{ columnAttrs.showPopover }}(需要更多的文字)
 			</vc-button>
@@ -143,7 +143,7 @@
 	</div>
 </template>
 <script>
-import { defineComponent, ref, watch, reactive } from 'vue';
+import { defineComponent, ref, watch, reactive, onMounted } from 'vue';
 import { random } from 'lodash';
 import Table from '..';
 import Button from '../../button';
@@ -166,8 +166,8 @@ export default defineComponent({
 			border: true,
 			stripe: true,
 			rowClassName: '',
-			maxHeight: undefined,
-			showSummary: false,
+			maxHeight: 500,
+			showSummary: true,
 			getSummary(param) {
 				const { columns, data } = param;
 				return columns.map((item, index) => (index || '合计'));
@@ -199,7 +199,7 @@ export default defineComponent({
 		});
 		const hooks = ref({});
 		const columnAttrs = reactive({
-			fixed: false,
+			fixed: true,
 			showPopover: true,
 		});
 		const cloumnHooks = ref({});
@@ -284,7 +284,7 @@ export default defineComponent({
 			}
 		};
 
-		const handleCloumnAttr = (type) => {
+		const handleColumnAttr = (type) => {
 			switch (type) {
 				default: 
 					columnAttrs[type] = !columnAttrs[type];
@@ -292,7 +292,7 @@ export default defineComponent({
 			}
 		};
 
-		const handleCloumn = (type) => {
+		const handleColumn = (type) => {
 			switch (type) {
 				case 'add':
 					dynamicColumns.value.push(Math.random());
@@ -338,7 +338,12 @@ export default defineComponent({
 			}
 		};
 		
-
+		onMounted(() => {
+			Array.from({ length: 20 }).forEach(() => {
+				handleColumn('add');
+				handleRow('add');
+			});
+		});
 		return {
 			table,
 			attrs,
@@ -351,8 +356,8 @@ export default defineComponent({
 			selection,
 			dataSource,
 			handleRow,
-			handleCloumn,
-			handleCloumnAttr,
+			handleColumn,
+			handleColumnAttr,
 			handleTableAttr,
 			handleChange
 		};

@@ -171,13 +171,12 @@ export default defineComponent({
 			const { scrollLeft, scrollWidth, clientWidth, scrollTop, scrollHeight, clientHeight } = el;
 
 			// 阻止X，Y轴上的滚动时，父层滚动（mac下的父层滚动越界会带有回弹）
-			if (data.pixelY < 0 && scrollTop !== 0) {
-				e.preventDefault();
-			} else if (data.pixelY > 0 && scrollHeight - clientHeight > scrollTop) {
-				e.preventDefault();
-			} else if (data.pixelX < 0 && scrollLeft !== 0) {
-				e.preventDefault();
-			} else if (data.pixelX > 0 && scrollWidth - clientWidth > scrollLeft) {
+			if (
+				(data.pixelY < 0 && scrollTop !== 0)
+				|| (data.pixelY > 0 && scrollHeight - clientHeight > scrollTop)
+				|| (data.pixelX < 0 && scrollLeft !== 0)
+				|| (data.pixelX > 0 && scrollWidth - clientWidth > scrollLeft)
+			) {
 				e.preventDefault();
 			}
 
