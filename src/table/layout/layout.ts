@@ -50,22 +50,22 @@ class TableLayout {
 		const { props } = this.table;
 
 		this.states = reactive({
-			fit: ref(props.fit),
-			showHeader: ref(props.showHeader),
-			height: ref(null),
-			scrollX: ref(false),
-			scrollY: ref(false),
-			bodyWidth: ref(null),
-			fixedWidth: ref(null),
-			rightFixedWidth: ref(null),
-			tableHeight: ref(null),
-			headerHeight: ref(44), // Table Header Height
-			appendHeight: ref(0), // Append Slot Height
-			footerHeight: ref(44), // Table Footer Height
-			viewportHeight: ref(null), // Table Height - Scroll Bar Height
-			bodyHeight: ref(null), // Table Height - Table Header Height
-			fixedBodyHeight: ref(null), // Table Height - Table Header Height - Scroll Bar Heigh
-			gutterWidth: ref(getScrollBarWidth()),
+			fit: props.fit,
+			showHeader: props.showHeader,
+			height: null,
+			scrollX: false,
+			scrollY: false,
+			bodyWidth: null,
+			fixedWidth: null,
+			rightFixedWidth: null,
+			tableHeight: null,
+			headerHeight: 44, // Table Header Height
+			appendHeight: 0, // Append Slot Height
+			footerHeight: 44, // Table Footer Height
+			viewportHeight: null, // Table Height - Scroll Bar Height
+			bodyHeight: null, // Table Height - Table Header Height
+			fixedBodyHeight: null, // Table Height - Table Header Height - Scroll Bar Heigh
+			gutterWidth: getScrollBarWidth(),
 		});
 
 		this.updateScroller = this.updateScroller.bind(this);

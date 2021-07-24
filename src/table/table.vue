@@ -11,7 +11,7 @@
 		<div
 			v-if="showHeader"
 			ref="headerWrapper"
-			v-event:mousewheel="handleHeaderFooterMousewheel"
+			v-event:wheel="wheel"
 			class="vc-table__header-wrapper"
 		>
 			<vc-table-header
@@ -26,9 +26,8 @@
 		</div>
 		<div
 			ref="bodyWrapper"
-			:class="[layout.states.scrollX ? `is-scrolling-${scrollPosition}` : 'is-scrolling-none']"
 			:style="[bodyHeight]"
-			class="vc-table__body-wrapper"
+			class="vc-table__body-wrapper is-scrolling-none"
 		>
 			<vc-table-body
 				:context="context"
@@ -62,7 +61,7 @@
 			v-if="showSummary"
 			v-show="dataSource && dataSource.length > 0"
 			ref="footerWrapper"
-			v-event:mousewheel="handleHeaderFooterMousewheel"
+			v-event:wheel="wheel"
 			class="vc-table__footer-wrapper"
 		>
 			<vc-table-footer
@@ -76,7 +75,7 @@
 		<div
 			v-if="states.fixedColumns.length > 0"
 			ref="fixedWrapper"
-			v-event:mousewheel="handleFixedMousewheel"
+			v-event:wheel="wheel"
 			:style="[{ width: layout.states.fixedWidth ? layout.states.fixedWidth + 'px' : ''}, fixedHeight]"
 			class="vc-table__fixed"
 		>
@@ -133,7 +132,7 @@
 		<div
 			v-if="states.rightFixedColumns.length > 0"
 			ref="rightFixedWrapper"
-			v-event:mousewheel="handleFixedMousewheel"
+			v-event:wheel="wheel"
 			:style="[
 				{
 					width: layout.states.rightFixedWidth ? layout.states.rightFixedWidth + 'px' : '',
@@ -221,7 +220,7 @@ import { defineComponent, watch, computed, ref, getCurrentInstance, nextTick, on
 import { debounce, throttle } from 'lodash';
 
 import Extends from '../extends';
-import { Resize, getUid } from '../utils/index';
+import { Resize, getUid, raf } from '../utils/index';
 import { parseHeight } from './utils';
 
 import { Store, useStates } from './store';
@@ -231,6 +230,7 @@ import Layout from './layout/index';
 import TableBody from './table-body';
 import TableHeader from './table-header';
 import TableFooter from './table-footer';
+import Wheel from '../utils/wheel';
 
 export default defineComponent({
 	name: 'vc-table',
@@ -532,8 +532,7 @@ export default defineComponent({
 			store.clearSelection();
 		};
 
-		// TODO 性能优化
-		const handleSyncPosition = throttle(function () {
+		const handleSyncPosition = () => {
 			const { scrollLeft, scrollTop, offsetWidth, scrollWidth } = bodyWrapper.value;
 			if (headerWrapper.value) headerWrapper.value.scrollLeft = scrollLeft;
 			if (footerWrapper.value) footerWrapper.value.scrollLeft = scrollLeft;
@@ -547,7 +546,16 @@ export default defineComponent({
 			} else {
 				scrollPosition.value = 'middle';
 			}
-		}, 20);
+
+			// 解决临界值设置修改className时的顿挫
+			raf(() => {
+				let className = layout.states.scrollX ? `is-scrolling-${scrollPosition.value}` : 'is-scrolling-none';
+				bodyWrapper.value.classList.replace(
+					bodyWrapper.value.classList.item(1), 
+					className
+				);
+			});
+		};
 
 		const handleResize = () => {
 			if (!isReady.value) return;
@@ -580,28 +588,71 @@ export default defineComponent({
 			if (hoverState.value) hoverState.value = null;
 		};
 
-		const handleFixedMousewheel = (event, data) => {
-			const el = bodyWrapper.value;
-			if (Math.abs(data.spinY) > 0) {
-				const currentScrollTop = el.scrollTop;
-				if (data.pixelY < 0 && currentScrollTop !== 0) {
-					event.preventDefault();
-				}
-				if (data.pixelY > 0 && el.scrollHeight - el.clientHeight > currentScrollTop) {
-					event.preventDefault();
-				}
-				el.scrollTop += Math.ceil(data.pixelY / 5);
-			} else {
-				el.scrollLeft += Math.ceil(data.pixelX / 5);
+		const handleMousewheel = (deltaX, deltaY) => {
+			const { 
+				scrollWidth: contentW, 
+				clientWidth: wrapperW, 
+				scrollLeft: scrollX,
+				scrollHeight: contentH, 
+				clientHeight: wrapperH, 
+				scrollTop: scrollY 
+			} = bodyWrapper.value;
+			if (
+				Math.abs(deltaY) > Math.abs(deltaX) 
+				&& contentH > wrapperH
+			) {
+				bodyWrapper.value.scrollTop += deltaY;
+			} else if (deltaX && contentW > wrapperW) {
+				bodyWrapper.value.scrollLeft += deltaX;
 			}
 		};
 
-		const handleHeaderFooterMousewheel = (event, data) => {
-			const { pixelX, pixelY } = data;
-			if (Math.abs(pixelX) >= Math.abs(pixelY)) {
-				bodyWrapper.value.scrollLeft += data.pixelX / 5;
+		const shouldWheelX = (delta) => {
+			const { 
+				scrollWidth: contentW, 
+				clientWidth: wrapperW, 
+				scrollLeft: scrollX 
+			} = bodyWrapper.value;
+			if (wrapperW === contentW) {
+				return false;
 			}
+
+			delta = Math.round(delta);
+			if (delta === 0) {
+				return false;
+			}
+
+			return (
+				(delta < 0 && scrollX > 0) 
+				|| (delta >= 0 && scrollX < contentW - wrapperW)
+			);
 		};
+		const shouldWheelY = (delta) => {
+			const { 
+				scrollHeight: contentH, 
+				clientHeight: wrapperH, 
+				scrollTop: scrollY 
+			} = bodyWrapper.value;
+
+			if (wrapperH === contentH) {
+				return false;
+			}
+
+			delta = Math.round(delta);
+			if (delta === 0) {
+				return false;
+			}
+
+			return (
+				(delta < 0 && scrollY > 0) 
+				|| (delta >= 0 && scrollY < contentH - wrapperH)
+			);
+		};
+		const wheel = new Wheel({
+			onWheel: handleMousewheel,
+			shouldWheelX,
+			shouldWheelY
+		});
 
 		const bindEvents = () => {
 			bodyWrapper.value.addEventListener('scroll', handleSyncPosition, { passive: true });
@@ -685,6 +736,7 @@ export default defineComponent({
 			isReady,
 			store,
 			layout,
+			wheel,
 
 			renderExpanded,
 			resizeProxyVisible,
@@ -715,6 +767,7 @@ export default defineComponent({
 			fixedTableHeader,
 			fixedBodyWrapper,
 			fixedFooterWrapper,
+			wheel,
 			rightFixedWrapper,
 			rightFixedHeaderWrapper,
 			rightFixedTableHeader,
@@ -725,8 +778,6 @@ export default defineComponent({
 
 			// methods
 			debouncedUpdateLayout,
-			handleHeaderFooterMousewheel,
-			handleFixedMousewheel,
 			handleMouseLeave,
 
 			updateScrollY,
