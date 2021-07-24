@@ -19,7 +19,7 @@ transform在测试过程中会出现重绘，不会重排
 <template>
 	<div 
 		ref="wrapper" 
-		v-event:wheel="handleWheel"
+		v-event:wheel="wheel"
 		:style="calcStyleStyle" 
 		:class="native ? 'is-native' : 'is-hidden'"
 		class="vc-scroller"
@@ -58,6 +58,7 @@ import { Resize } from '../utils/resize';
 import ScrollerBar from './bar.vue';
 import Extends from '../extends';
 import { TRANSFORM } from '../utils';
+import Wheel from '../utils/wheel';
 
 export default defineComponent({
 	name: 'vc-scroller',
@@ -160,36 +161,68 @@ export default defineComponent({
 			refreshSize();
 			refreshScroll();
 		};
-
-		/**
-		 * t
-		 */
-		const handleWheel = (e, data) => {
-			if (props.native) return emit('wheel', e, data);
-
-			const el = wrapper.value || e.currentTarget; // wrapper;
-			const { scrollLeft, scrollWidth, clientWidth, scrollTop, scrollHeight, clientHeight } = el;
-
-			// 阻止X，Y轴上的滚动时，父层滚动（mac下的父层滚动越界会带有回弹）
+		const handleWheel = (deltaX, deltaY) => {
+			const el = wrapper.value; // wrapper
 			if (
-				(data.pixelY < 0 && scrollTop !== 0)
-				|| (data.pixelY > 0 && scrollHeight - clientHeight > scrollTop)
-				|| (data.pixelX < 0 && scrollLeft !== 0)
-				|| (data.pixelX > 0 && scrollWidth - clientWidth > scrollLeft)
+				Math.abs(deltaY) > Math.abs(deltaX) 
+				&& contentH.value > wrapperH.value
 			) {
-				e.preventDefault();
-			}
-
-			if (Math.abs(data.spinY) > 0) {
-				el.scrollTop += Math.ceil(data.pixelY);
-			} else if (Math.abs(data.spinX) > 0) {
-				el.scrollLeft += Math.ceil(data.pixelX);
+				el.scrollTop = Math.min(
+					Math.max(0, scrollY.value + deltaY),
+					contentH.value - wrapperH.value
+				);
+				
+			} else if (deltaX && contentW.value > wrapperW.value) {
+				el.scrollLeft = Math.min(
+					Math.max(0, scrollX.value + deltaX),
+					contentW.value - wrapperW.value
+				);
 			}
 
 			refreshScroll();
-			emit('wheel', e, data);
+			emit('wheel');
 		};
 
+		// X轴是否允许滚动
+		const shouldWheelX = (delta) => {
+			if (wrapperW.value === contentW.value) {
+				return false;
+			}
+
+			delta = Math.round(delta);
+			if (delta === 0) {
+				return false;
+			}
+
+			return (
+				(delta < 0 && scrollX.value > 0) 
+				|| (delta >= 0 && scrollX.value < contentW.value - wrapperW.value)
+			);
+		};
+
+		// Y轴是否允许滚动
+		const shouldWheelY = (delta) => {
+			if (wrapperH.value === contentH.value) {
+				return false;
+			}
+
+			delta = Math.round(delta);
+			if (delta === 0) {
+				return false;
+			}
+
+			return (
+				(delta < 0 && scrollY.value > 0) 
+				|| (delta >= 0 && scrollY.value < contentH.value - wrapperH.value)
+			);
+		};
+		let wheel = new Wheel(
+			{
+				onWheel: handleWheel,
+				shouldWheelX,
+				shouldWheelY
+			}
+		);
 		const setScrollTop = (value: number) => {
 			wrapper.value.scrollTop = value;
 			scrollY.value = value;
@@ -225,7 +258,8 @@ export default defineComponent({
 		return {
 			wrapper,
 			content,
-
+			wheel,
+			
 			barStyle,
 
 			scrollX,
@@ -239,7 +273,6 @@ export default defineComponent({
 
 			calcStyleStyle,
 			refresh,
-			handleWheel,
 			setScrollTop,
 			setScrollLeft,
 		};

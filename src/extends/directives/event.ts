@@ -55,7 +55,7 @@ export default {
 	beforeMount(el, binding) {
 		const { modifiers, arg, value } = binding;
 
-		let method = value || noop;
+		let method = (typeof value === 'object' ? value.handler : value) || noop;
 		let eventType = arg;
 
 		let eventName = getEventName(eventType);
@@ -81,7 +81,7 @@ export default {
 	updated(el, binding) {
 		const { modifiers, arg, value } = binding;
 
-		let method = value || noop;
+		let method = (typeof value === 'object' ? value.handler : value) || noop;
 		let eventType = arg;
 		let id = el[eventKey];
 			

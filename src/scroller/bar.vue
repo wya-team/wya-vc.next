@@ -280,7 +280,8 @@ export default defineComponent({
 		border-radius: inherit;
 		background-color: rgba(37, 36, 36, 0.57);
 		transition: .3s background-color;
-
+		will-change: transform;
+		
 		&:hover {
 			background-color: rgba(37, 36, 36, 0.7);
 		}

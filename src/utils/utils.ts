@@ -321,3 +321,5 @@ export const compressImg = ({ file, width, height, filetype = 'image/jpeg', enco
 		};
 	});
 };
+
+export const raf = window.requestAnimationFrame || ((fn) => setTimeout(fn, 16));

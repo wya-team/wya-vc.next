@@ -8,7 +8,7 @@ import { useLayoutObserver } from './layout/index';
 
 import { useStates } from './store';
 import { VcError } from '../vc/index';
-import { IS_SERVER } from '../utils/index';
+import { IS_SERVER, raf } from '../utils/index';
 import { getInstance } from '../hooks';
 
 export default defineComponent({
@@ -49,10 +49,6 @@ export default defineComponent({
 			() => props.store.states.hoverRow,
 			(v, oldV) => {
 				if (!props.store.states.isComplex || IS_SERVER) return;
-				let raf = window.requestAnimationFrame;
-				if (!raf) {
-					raf = (fn) => setTimeout(fn, 16);
-				}
 				raf(() => {
 					const rows = instance.vnode.el.querySelectorAll('.vc-table__row');
 					const oldRow = rows[oldV];

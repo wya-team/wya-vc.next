@@ -6,6 +6,7 @@
 <script>
 import { getCurrentInstance, defineComponent, watch, ref, computed, onMounted, onBeforeUnmount, reactive } from 'vue';
 import { Device } from '@wya/utils';
+import { raf } from '../utils/index';
 
 export default defineComponent({
 	name: "vc-artboard",
@@ -220,12 +221,8 @@ export default defineComponent({
 			left.value = rect.left;
 			context.value = canvas.value.getContext('2d');
 
-			const requestAnimationFrame = window.requestAnimationFrame;
-			optimizedMove = requestAnimationFrame ? e => {
-				requestAnimationFrame(() => {
-					handleMove(e);
-				});
-			} : handleMove;
+			optimizedMove = e => raf(() => handleMove(e));
+			
 			initCanvas();
 			operateDOMEvents('add');
 		};

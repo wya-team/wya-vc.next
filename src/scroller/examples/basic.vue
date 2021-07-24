@@ -1,5 +1,4 @@
 <template>
-	<div id="test">22</div>
 	<div style="padding: 20px">
 		<h1 @click="always = !always">
 			always: {{ always }}
