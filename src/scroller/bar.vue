@@ -84,10 +84,20 @@ export default defineComponent({
 		const isVisible = ref(false);
 		const barOptions = computed(() => BAR_MAP[props.vertical ? 'vertical' : 'horizontal']);
 
+		// 左右距离
+		const trackOffsetSum = computed(() => {
+			return props.trackOffset[0] + props.trackOffset[1];
+		});
+
+		// 滚动条的实际容器大小
+		const wrapperFitSize = computed(() => {
+			return props.wrapperSize - trackOffsetSum.value;
+		});
+
 		// thumb的大小
 		const thumbSize = computed(() => {
-			const size = props.wrapperSize * (props.wrapperSize / props.contentSize);
-			return size && size < props.wrapperSize ? size : 0;
+			const size = wrapperFitSize.value * (props.wrapperSize / props.contentSize);
+			return size && size < wrapperFitSize.value ? size : 0;
 		});
 
 		const thumbFitSize = computed(() => {
@@ -101,7 +111,7 @@ export default defineComponent({
 
 		// 滚动时均摊Size
 		const averageSize = computed(() => {
-			return (Math.max(props.thumbMinSize - thumbSize.value, 0) + props.trackOffset[1] + + props.trackOffset[0]) / maxMove.value;
+			return (Math.max(props.thumbMinSize - thumbSize.value, 0)) / maxMove.value;
 		});
 
 		// thumb偏移值
@@ -117,7 +127,8 @@ export default defineComponent({
 		const thumbCalcStyle = computed(() => {
 			const { size } = barOptions.value;
 			return {
-				[size]: thumbFitSize.value + 'px'
+				[size]: thumbFitSize.value + 'px',
+				// [TRANSFORM]: `translate${barOptions.value.axis}(${thumbMove.value}px)`
 			};
 		});
 
@@ -211,14 +222,14 @@ export default defineComponent({
 		};
 
 		onMounted(() => {
-			const parentEl = parent.getEl();
+			const parentEl = parent.getContainer();
 			if (!parentEl) return;
 			$(parentEl).on('mousemove', handleMouseMove);
 			$(parentEl).on('mouseleave', handleLeave);
 		});
 
 		onBeforeUnmount(() => {
-			const parentEl = parent.getEl();
+			const parentEl = parent.getContainer();
 			if (!parentEl) return;
 			$(document).off('mousemove', handleMouseMoveDocument);
 			$(document).off('mouseup', handleMouseUpDocument);

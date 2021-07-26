@@ -116,6 +116,7 @@ export default defineComponent({
 			type: Array,
 			default: () => ([0, 0, 0, 0])
 		},
+		getContainer: Function,
 		...pick(ScrollerBar.props, [
 			'always',
 			'thumbMinSize',
@@ -287,10 +288,10 @@ export default defineComponent({
 
 		provide('scroller', {
 			props,
-			getEl: () => instance.vnode.el,
 			wrapper,
 			content,
-			refreshScroll
+			refreshScroll,
+			getContainer: props.getContainer || (() => instance?.vnode?.el)
 		});
 
 		return {
