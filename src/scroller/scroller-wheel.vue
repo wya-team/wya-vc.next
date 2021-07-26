@@ -20,8 +20,8 @@ transform在测试过程中会出现重绘，不会重排
 	<div 
 		ref="wrapper" 
 		v-event:wheel="wheel"
-		:style="calcStyleStyle" 
-		:class="native ? 'is-native' : 'is-hidden'"
+		:style="[wrapperStyle, calcWrapperStyle]" 
+		:class="[wrapperClassName, native ? 'is-native' : 'is-hidden']"
 		class="vc-scroller"
 	>
 		<component
@@ -33,19 +33,23 @@ transform在测试过程中会出现重绘，不会重排
 			<slot />
 		</component>
 		<template v-if="!native">
+			<!-- X轴 -->
 			<vc-scroller-bar 
+				v-bind="barBinds"
+				:track-offset="[trackOffset[3], trackOffset[1]]"
 				:scroll-offset="scrollX" 
 				:wrapper-size="wrapperW" 
 				:content-size="contentW" 
-				:always="always"
-				:style="barStyle"
+				:style="[barStyle, { bottom: trackOffset[2] + 'px', left: trackOffset[3] + 'px' }]"
 			/>
+			<!-- Y轴 -->
 			<vc-scroller-bar
+				v-bind="barBinds"
+				:track-offset="[trackOffset[0], trackOffset[2]]"
 				:scroll-offset="scrollY"
 				:wrapper-size="wrapperH" 
 				:content-size="contentH" 
-				:always="always"
-				:style="barStyle"
+				:style="[barStyle, { top: trackOffset[0] + 'px', right: trackOffset[1] + 'px' }]"
 				vertical
 			/>
 		</template>
@@ -54,6 +58,7 @@ transform在测试过程中会出现重绘，不会重排
 <script lang="ts">
 import { getCurrentInstance, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, ref } from 'vue';
 import { Device } from '@wya/utils';
+import { pick } from 'lodash';
 import { Resize } from '../utils/resize';
 import ScrollerBar from './bar.vue';
 import Extends from '../extends';
@@ -81,6 +86,15 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+
+		wrapperStyle: {
+			type: [String, Array, Object],
+			default: '',
+		},
+		wrapperClassName: {
+			type: [String, Array, Object],
+			default: '',
+		},
 		contentStyle: {
 			type: [String, Array, Object],
 			default: '',
@@ -97,10 +111,19 @@ export default defineComponent({
 			type: String,
 			default: 'div',
 		},
-		always: {
-			type: Boolean,
-			default: false,
+		// 轨道偏移值（上右下左）
+		trackOffset: {
+			type: Array,
+			default: () => ([0, 0, 0, 0])
 		},
+		...pick(ScrollerBar.props, [
+			'always',
+			'thumbMinSize',
+			'thumbStyle',
+			'thumbClassName',
+			'trackStyle',
+			'trackClassName'
+		])
 	},
 	emits: ['wheel', 'mousewheel'],
 	setup(props, { emit }) {
@@ -117,6 +140,16 @@ export default defineComponent({
 		const wrapper = ref(null);
 		const content = ref(null);
 
+		const barBinds = computed(() => {
+			return {
+				always: props.always,
+				thumbMinSize: props.thumbMinSize,
+				thumbStyle: props.thumbStyle,
+				trackStyle: props.trackStyle,
+				trackOffset: props.trackOffset
+			};
+		});
+
 		const barStyle = computed(() => {
 			const maxMoveX = contentW.value - wrapperW.value;
 			const maxMoveY = contentH.value - wrapperH.value;
@@ -125,16 +158,20 @@ export default defineComponent({
 			const fitMoveY = scrollY.value >= maxMoveY ? maxMoveY : scrollY.value;
 
 			return {
-				[TRANSFORM]: `translate(${fitMoveX}px, ${fitMoveY}px)`
+				[TRANSFORM]: `translate(${fitMoveX}px, ${fitMoveY}px)` 
 			};
 		});
 
-		const calcStyleStyle = computed(() => {
+		const calcWrapperStyle = computed(() => {
 			let style = {};
 
-			style.height = typeof props.height !== 'number' ? props.height : `${props.height}px`;
-			style.maxHeight = typeof props.maxHeight !== 'number' ? props.maxHeight : `${props.maxHeight}px`;
-			
+			if (props.height) {
+				style.height = typeof props.height !== 'number' ? props.height : `${props.height}px`;
+			}
+			if (props.maxHeight) { 
+				style.maxHeight = typeof props.maxHeight !== 'number' ? props.maxHeight : `${props.maxHeight}px`;
+
+			}
 			return style;
 		});
 
@@ -261,6 +298,7 @@ export default defineComponent({
 			content,
 			wheel,
 			
+			barBinds,
 			barStyle,
 
 			scrollX,
@@ -272,7 +310,7 @@ export default defineComponent({
 			contentW,
 			contentH,
 
-			calcStyleStyle,
+			calcWrapperStyle,
 			refresh,
 			setScrollTop,
 			setScrollLeft,

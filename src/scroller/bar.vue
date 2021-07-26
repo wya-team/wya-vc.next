@@ -66,7 +66,12 @@ export default defineComponent({
 		thumbStyle: [Object, String, Array],
 		thumbClassName: [Object, String, Array],
 		trackStyle: [Object, String, Array],
-		trackClassName: [Object, String, Array]
+		trackClassName: [Object, String, Array],
+		// 轨道偏移值（头尾）
+		trackOffset: {
+			type: Array,
+			default: () => ([0, 0])
+		}
 	},
 	setup(props) {
 		const parent = inject('scroller', {});
@@ -96,7 +101,7 @@ export default defineComponent({
 
 		// 滚动时均摊Size
 		const averageSize = computed(() => {
-			return Math.max(props.thumbMinSize - thumbSize.value, 0) / maxMove.value;
+			return (Math.max(props.thumbMinSize - thumbSize.value, 0) + props.trackOffset[1] + + props.trackOffset[0]) / maxMove.value;
 		});
 
 		// thumb偏移值
@@ -105,7 +110,6 @@ export default defineComponent({
 			const currentMove = (props.scrollOffset / props.wrapperSize) * thumbSize.value;
 			// 当前你滚动的距离
 			const thumbFitMove = currentMove * (1 - averageSize.value); 
-
 			return thumbFitMove > maxMove.value ? maxMove.value : thumbFitMove;
 		});
 

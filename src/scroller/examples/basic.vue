@@ -63,6 +63,27 @@
 				</p>
 			</div>
 		</vc-scroller>
+		<h2>X+Y+trackOffset[10, 20, 30, 20]</h2>
+		<vc-scroller max-height="200px" :always="always" :native="native" :track-offset="[10, 20, 30, 20]">
+			<div style="display: flex; flex-direction: column;">
+				<p 
+					v-for="item in 20" 
+					:key="item"
+					style="flex: 1"
+				>
+					{{ item }}
+				</p>
+			</div>
+			<div style="display: flex;">
+				<p 
+					v-for="item in 50" 
+					:key="item"
+					class="is-vertical"
+				>
+					{{ item }}
+				</p>
+			</div>
+		</vc-scroller>
 		<h2>Nested</h2>
 		<vc-scroller height="200px" :always="always" :native="native">
 			<p 

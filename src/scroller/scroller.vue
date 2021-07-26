@@ -20,17 +20,23 @@
 			</component>
 		</div>
 		<template v-if="!native">
+			<!-- X轴 -->
 			<vc-scroller-bar 
 				v-bind="barBinds"
+				:track-offset="[trackOffset[3], trackOffset[1]]"
 				:scroll-offset="scrollX" 
 				:wrapper-size="wrapperW" 
 				:content-size="contentW" 
+				:style="{ bottom: trackOffset[2] + 'px', left: trackOffset[3] + 'px' }"
 			/>
+			<!-- Y轴 -->
 			<vc-scroller-bar
 				v-bind="barBinds"
+				:track-offset="[trackOffset[0], trackOffset[2]]"
 				:scroll-offset="scrollY"
 				:wrapper-size="wrapperH" 
 				:content-size="contentH" 
+				:style="{ top: trackOffset[0] + 'px', right: trackOffset[1] + 'px' }"
 				vertical
 			/>
 		</template>
@@ -41,7 +47,7 @@
 <script lang="ts">
 import { getCurrentInstance, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, ref } from 'vue';
 import { Device } from '@wya/utils';
-import { pick, throttle } from 'lodash';
+import { pick } from 'lodash';
 import { Resize } from '../utils/resize';
 import ScrollerBar from './bar.vue';
 import { TRANSFORM } from '../utils';
@@ -90,6 +96,11 @@ export default defineComponent({
 			type: String,
 			default: 'div',
 		},
+		// 轨道偏移值（上右下左）
+		trackOffset: {
+			type: Array,
+			default: () => ([0, 0, 0, 0])
+		},
 		...pick(ScrollerBar.props, [
 			'always',
 			'thumbMinSize',
@@ -132,6 +143,7 @@ export default defineComponent({
 				thumbMinSize: props.thumbMinSize,
 				thumbStyle: props.thumbStyle,
 				trackStyle: props.trackStyle,
+				trackOffset: props.trackOffset
 			};
 		});
 
@@ -151,6 +163,7 @@ export default defineComponent({
 			if (!wrapper.value) return;
 			scrollY.value = wrapper.value.scrollTop;
 			scrollX.value = wrapper.value.scrollLeft;
+
 		};
 
 		const refresh = () => {
