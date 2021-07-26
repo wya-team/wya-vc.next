@@ -12,9 +12,9 @@ transform在测试过程中会出现重绘，不会重排
 测试时设置scrollTop没有重排重绘，暂不考虑改用transfrom来改变content
 
 目前存在的问题
-  1. 在嵌套上，会不协调；【要额外再控制】
-  2. 临界值直接触发父层（也有滚动的话，window滚动套vc-scroller滚动）继续滚动 【要额外处理】
-  3. Windows在X轴wheel过快与Mac不一致 【要额外处理】
+	1. 在嵌套上，会不协调；【要额外再控制】
+	2. 临界值直接触发父层（也有滚动的话，window滚动套vc-scroller滚动）继续滚动 【要额外处理】
+	3. Windows在X轴wheel过快与Mac不一致 【要额外处理】
  -->
 <template>
 	<div 
@@ -250,6 +250,7 @@ export default defineComponent({
 
 		provide('scroller', {
 			props,
+			getEl: () => instance.vnode.el,
 			wrapper,
 			content,
 			refreshScroll

@@ -20,9 +20,9 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, defineComponent, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { $ } from '@wya/utils';
-import { TRANSFORM } from '../utils';
+import { TRANSFORM, raf } from '../utils';
 import Transition from '../transition';
 
 const BAR_MAP = {
@@ -111,10 +111,9 @@ export default defineComponent({
 
 		// thumb样式
 		const thumbCalcStyle = computed(() => {
-			const { size, axis } = barOptions.value;
+			const { size } = barOptions.value;
 			return {
-				[size]: thumbFitSize.value + 'px',
-				[TRANSFORM]: `translate${axis}(${thumbMove.value}px)`
+				[size]: thumbFitSize.value + 'px'
 			};
 		});
 
@@ -197,29 +196,44 @@ export default defineComponent({
 			setScroll(thumbFitMove);
 		};
 
-		const handleMouseMoveWrapper = () => {
+		const handleMouseMove = () => {
 			cursorLeave.value = false;
 			isVisible.value = !!thumbSize.value;
 		};
 
-		const handleLeaveWrapper = () => {
+		const handleLeave = () => {
 			cursorLeave.value = true;
 			isVisible.value = cursorDown.value;
 		};
 
 		onMounted(() => {
-			if (!wrapper.value) return;
-			$(wrapper.value).on('mousemove', handleMouseMoveWrapper);
-			$(wrapper.value).on('mouseleave', handleLeaveWrapper);
+			const parentEl = parent.getEl();
+			if (!parentEl) return;
+			$(parentEl).on('mousemove', handleMouseMove);
+			$(parentEl).on('mouseleave', handleLeave);
 		});
 
 		onBeforeUnmount(() => {
-			if (!wrapper.value) return;
+			const parentEl = parent.getEl();
+			if (!parentEl) return;
 			$(document).off('mousemove', handleMouseMoveDocument);
 			$(document).off('mouseup', handleMouseUpDocument);
-			$(wrapper.value).off('mousemove', handleMouseMoveWrapper);
-			$(wrapper.value).off('mouseleave', handleLeaveWrapper);
+			$(parentEl).off('mousemove', handleMouseMove);
+			$(parentEl).off('mouseleave', handleLeave);
 		});
+
+
+		// 用raf优化动画
+		watch(
+			() => thumbMove.value,
+			() => {
+				if (!thumb.value) return;
+				raf(() => {
+					thumb.value.style[TRANSFORM] = `translate${barOptions.value.axis}(${thumbMove.value}px)`;
+				});
+			},
+			{ immediate: true }
+		);
 
 		return {
 			track,
@@ -280,7 +294,7 @@ export default defineComponent({
 		border-radius: inherit;
 		background-color: rgba(37, 36, 36, 0.57);
 		transition: .3s background-color;
-		will-change: transform;
+		will-change: transform, background-color;
 		
 		&:hover {
 			background-color: rgba(37, 36, 36, 0.7);

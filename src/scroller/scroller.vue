@@ -1,5 +1,5 @@
 <template>
-	<div class="vc-scroller">
+	<div ref="scroller" class="vc-scroller">
 		<div 
 			ref="wrapper" 
 			:style="[wrapperStyle, wrapperCalcStyle]" 
@@ -41,7 +41,7 @@
 <script lang="ts">
 import { getCurrentInstance, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, ref } from 'vue';
 import { Device } from '@wya/utils';
-import { pick } from 'lodash';
+import { pick, throttle } from 'lodash';
 import { Resize } from '../utils/resize';
 import ScrollerBar from './bar.vue';
 import { TRANSFORM } from '../utils';
@@ -116,10 +116,13 @@ export default defineComponent({
 
 		const wrapperCalcStyle = computed(() => {
 			let style = {};
-
-			style.height = typeof props.height !== 'number' ? props.height : `${props.height}px`;
-			style.maxHeight = typeof props.maxHeight !== 'number' ? props.maxHeight : `${props.maxHeight}px`;
+			if (props.height) {
+				style.height = typeof props.height !== 'number' ? props.height : `${props.height}px`;
+			}
 			
+			if (props.maxHeight) {
+				style.maxHeight = typeof props.maxHeight !== 'number' ? props.maxHeight : `${props.maxHeight}px`;
+			}
 			return style;
 		});
 
@@ -146,7 +149,6 @@ export default defineComponent({
 		// 记录当前容器(wrapper)滚动的位移
 		const refreshScroll = () => {
 			if (!wrapper.value) return;
-
 			scrollY.value = wrapper.value.scrollTop;
 			scrollX.value = wrapper.value.scrollLeft;
 		};
@@ -159,9 +161,9 @@ export default defineComponent({
 		/**
 		 * 用scroll导致bar的抖动，后期可以考虑多嵌套一层
 		 */
-		const handleScroll = (e, data) => {
+		const handleScroll = (e) => {
 			refreshScroll();
-			emit('scroll', e, data);
+			emit('scroll', e);
 		};
 
 		const setScrollTop = (value: number) => {
@@ -191,6 +193,7 @@ export default defineComponent({
 
 		provide('scroller', {
 			props,
+			getEl: () => instance.vnode.el,
 			wrapper,
 			content,
 			refreshScroll
@@ -228,6 +231,7 @@ export default defineComponent({
 	position: relative;
 	@include element(wrapper) {
 		overflow: auto;
+
 
 		@include when(hidden) {
 			scrollbar-width: none;
