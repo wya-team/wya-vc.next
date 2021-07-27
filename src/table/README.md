@@ -1,3 +1,61 @@
+
+## TODO 使用`table-layout: fixed`, `position: sticky` 优化重复渲染
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+</head>
+<body>
+	<style>
+	th {
+		background: white;
+		width: 200px;
+		overflow: hidden;
+		border: 1px solid #333;
+		height: 60px;
+	}
+	div {
+		width: 800px;
+		overflow: auto; 
+		border: 1px solid #333;
+	}
+	table {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	.sticky {
+		width: 200px;
+		background: white;
+		border: 1px solid red!important;
+		position: sticky; 
+		z-index: 2;
+	}
+
+	</style>
+	<div>
+		<table>
+			<tr>
+				<th class="sticky" style="left: 0px;">Left Fixed</th>
+				<th class="sticky" style="left: 200px;">Left Fixed</th>
+				<th>滚动Start</th>
+				<th>~~~~</th>
+				<th>~~~~</th>
+				<th>~~~~</th>
+				<th>~~~~</th>
+				<th>~~~~</th>
+				<th>~~~~</th>
+				<th>~~~~</th>
+				<th>滚动End</th>
+				<th class="sticky" style="right: 0px;">Right Fixed</th>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>
+```
 ## 表格（Table)
 展示行列数据
 
