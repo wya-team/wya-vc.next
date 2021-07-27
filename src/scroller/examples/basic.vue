@@ -63,11 +63,17 @@
 				</p>
 			</div>
 		</vc-scroller>
-		<h2>X+Y+trackOffset[10, 20, 30, 20]</h2>
-		<vc-scroller max-height="200px" :always="always" :native="native" :track-offset="[10, 20, 30, 20]">
+		<h2>X+Y+trackOffset</h2>
+		<vc-scroller 
+			max-height="200px" 
+			:always="always" 
+			:native="native" 
+			:track-offset-x="[0, 200, 30, 10]"
+			:track-offset-y="[10, 200, 30, 0]"
+		>
 			<div style="display: flex; flex-direction: column;">
 				<p 
-					v-for="item in 20" 
+					v-for="item in 2000" 
 					:key="item"
 					style="flex: 1"
 				>
@@ -76,7 +82,7 @@
 			</div>
 			<div style="display: flex;">
 				<p 
-					v-for="item in 50" 
+					v-for="item in 500" 
 					:key="item"
 					class="is-vertical"
 				>

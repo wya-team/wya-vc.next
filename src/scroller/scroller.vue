@@ -19,33 +19,39 @@
 				<slot />
 			</component>
 		</div>
-		<template v-if="!native">
+		<teleport v-if="!native && (!barDisabled || !barTo)" :to="barTo" :disabled="!barTo">
 			<!-- X轴 -->
 			<vc-scroller-bar 
 				v-bind="barBinds"
-				:track-offset="[trackOffset[3], trackOffset[1]]"
+				:track-offset="[trackOffsetX[3], trackOffsetX[1]]"
 				:scroll-offset="scrollX" 
 				:wrapper-size="wrapperW" 
 				:content-size="contentW" 
-				:style="{ bottom: trackOffset[2] + 'px', left: trackOffset[3] + 'px' }"
+				:style="{ 
+					left: trackOffsetX[3] + 'px',
+					bottom: trackOffsetX[2] + 'px'
+				}"
 			/>
 			<!-- Y轴 -->
 			<vc-scroller-bar
 				v-bind="barBinds"
-				:track-offset="[trackOffset[0], trackOffset[2]]"
+				:track-offset="[trackOffsetY[0], trackOffsetY[2]]"
 				:scroll-offset="scrollY"
 				:wrapper-size="wrapperH" 
 				:content-size="contentH" 
-				:style="{ top: trackOffset[0] + 'px', right: trackOffset[1] + 'px' }"
+				:style="{ 
+					top: trackOffsetY[0] + 'px', 
+					right: trackOffsetY[1] + 'px'
+				}"
 				vertical
 			/>
-		</template>
+		</teleport>
 		<!-- 通常是用于absolute的元素 TODO: 还需额外定API  -->
 		<!-- <slot name="extra" /> -->
 	</div>
 </template>
 <script lang="ts">
-import { getCurrentInstance, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, ref } from 'vue';
+import { getCurrentInstance, computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
 import { Device } from '@wya/utils';
 import { pick } from 'lodash';
 import { Resize } from '../utils/resize';
@@ -96,12 +102,21 @@ export default defineComponent({
 			type: String,
 			default: 'div',
 		},
-		// 轨道偏移值（上右下左）
-		trackOffset: {
+
+		// 基于原位置，偏移值（上下左右），top不会作用，left负数代表意味wrapperSize会变长
+		trackOffsetX: {
 			type: Array,
 			default: () => ([0, 0, 0, 0])
 		},
+
+		// 基于原位置，偏移值（上下左右），right不会作用，bottom负数代表意味wrapperSize会变长
+		trackOffsetY: {
+			type: Array,
+			default: () => ([0, 0, 0, 0])
+		},
+
 		getContainer: Function,
+		barTo: String,
 		...pick(ScrollerBar.props, [
 			'always',
 			'thumbMinSize',
@@ -114,6 +129,8 @@ export default defineComponent({
 	emits: ['scroll'],
 	setup(props, { emit }) {
 		const instance = getCurrentInstance();
+		const barDisabled = ref(true);
+
 		const wrapperW = ref(0);
 		const wrapperH = ref(0);
 
@@ -143,8 +160,7 @@ export default defineComponent({
 				always: props.always,
 				thumbMinSize: props.thumbMinSize,
 				thumbStyle: props.thumbStyle,
-				trackStyle: props.trackStyle,
-				trackOffset: props.trackOffset
+				trackStyle: props.trackStyle
 			};
 		});
 
@@ -189,9 +205,16 @@ export default defineComponent({
 			scrollX.value = value;
 		};
 
+		const setBarStatus = () => {
+			if (typeof document !== 'undefined' && props.barTo) {
+				barDisabled.value = !document.querySelector(props.barTo);
+			}
+		};
+
 		onMounted(() => {
 			if (!props.native) {
 				nextTick(refresh);
+				nextTick(setBarStatus);
 			}
 			if (props.autoResize) {
 				Resize.on(wrapper.value, refresh);
@@ -212,7 +235,14 @@ export default defineComponent({
 			getContainer: props.getContainer || (() => instance?.vnode?.el)
 		});
 
+		watch(
+			() => props.barTo,
+			setBarStatus
+		);
+
 		return {
+			barDisabled,
+
 			wrapper,
 			content,
 

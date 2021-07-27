@@ -106,7 +106,7 @@ export default defineComponent({
 
 		// 最大可移动的距离
 		const maxMove = computed(() => {
-			return props.wrapperSize - thumbSize.value;
+			return wrapperFitSize.value - thumbSize.value;
 		});
 
 		// 滚动时均摊Size

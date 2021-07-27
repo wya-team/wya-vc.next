@@ -16,6 +16,7 @@ transform在测试过程中会出现重绘，不会重排
 	2. 临界值直接触发父层（也有滚动的话，window滚动套vc-scroller滚动）继续滚动 【要额外处理】
 	3. Windows在X轴wheel过快与Mac不一致 【要额外处理】
  -->
+<!-- 这里wrapper为了保持和嵌套的scroller api一致 -->
 <template>
 	<div 
 		ref="wrapper" 
@@ -32,27 +33,39 @@ transform在测试过程中会出现重绘，不会重排
 		>
 			<slot />
 		</component>
-		<template v-if="!native">
+		<teleport v-if="!native && (!barDisabled || !barTo)" :to="barTo" :disabled="!barTo">
 			<!-- X轴 -->
 			<vc-scroller-bar 
 				v-bind="barBinds"
-				:track-offset="[trackOffset[3], trackOffset[1]]"
+				:track-offset="[trackOffsetX[3], trackOffsetX[1]]"
 				:scroll-offset="scrollX" 
 				:wrapper-size="wrapperW" 
 				:content-size="contentW" 
-				:style="[barStyle, { bottom: trackOffset[2] + 'px', left: trackOffset[3] + 'px' }]"
+				:style="[
+					barStyle,
+					{
+						left: trackOffsetX[3] + 'px',
+						bottom: trackOffsetX[2] + 'px'
+					}
+				]"
 			/>
 			<!-- Y轴 -->
 			<vc-scroller-bar
 				v-bind="barBinds"
-				:track-offset="[trackOffset[0], trackOffset[2]]"
+				:track-offset="[trackOffsetY[0], trackOffsetY[2]]"
 				:scroll-offset="scrollY"
 				:wrapper-size="wrapperH" 
 				:content-size="contentH" 
-				:style="[barStyle, { top: trackOffset[0] + 'px', right: trackOffset[1] + 'px' }]"
+				:style="[
+					barStyle,
+					{
+						top: trackOffsetY[0] + 'px', 
+						right: trackOffsetY[1] + 'px'
+					}
+				]"
 				vertical
 			/>
-		</template>
+		</teleport>
 	</div>
 </template>
 <script lang="ts">
@@ -111,12 +124,21 @@ export default defineComponent({
 			type: String,
 			default: 'div',
 		},
-		// 轨道偏移值（上右下左）
-		trackOffset: {
+		
+		// 基于原位置，偏移值（上下左右），top不会作用，left负数代表意味wrapperSize会变长
+		trackOffsetX: {
 			type: Array,
 			default: () => ([0, 0, 0, 0])
 		},
+
+		// 基于原位置，偏移值（上下左右），right不会作用，bottom负数代表意味wrapperSize会变长
+		trackOffsetY: {
+			type: Array,
+			default: () => ([0, 0, 0, 0])
+		},
+
 		getContainer: Function,
+		barTo: String,
 		...pick(ScrollerBar.props, [
 			'always',
 			'thumbMinSize',
@@ -129,6 +151,7 @@ export default defineComponent({
 	emits: ['wheel', 'mousewheel'],
 	setup(props, { emit }) {
 		const instance = getCurrentInstance();
+		const barDisabled = ref(true);
 		const wrapperW = ref(0);
 		const wrapperH = ref(0);
 
@@ -271,9 +294,16 @@ export default defineComponent({
 			scrollX.value = value;
 		};
 
+		const setBarStatus = () => {
+			if (typeof document !== 'undefined' && props.barTo) {
+				barDisabled.value = !document.querySelector(props.barTo);
+			}
+		};
+
 		onMounted(() => {
 			if (!props.native) {
 				nextTick(refresh);
+				nextTick(setBarStatus);
 			}
 			if (props.autoResize) {
 				Resize.on(wrapper.value, refresh);
@@ -295,6 +325,8 @@ export default defineComponent({
 		});
 
 		return {
+			barDisabled,
+
 			wrapper,
 			content,
 			wheel,
