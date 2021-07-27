@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { throttle } from 'lodash';
 import { $ } from '@wya/utils';
 import { TRANSFORM, raf } from '../utils';
 import Transition from '../transition';
@@ -53,7 +54,6 @@ export default defineComponent({
 		vertical: Boolean,
 		wrapperSize: Number,
 		contentSize: Number,
-		scrollOffset: Number, // content的滚动距离
 		always: {
 			type: Boolean,
 			default: false,
@@ -82,6 +82,7 @@ export default defineComponent({
 		const cursorDown = ref(null);
 		const cursorLeave = ref(null);
 		const isVisible = ref(false);
+		const scrollDistance = ref(0);
 		const barOptions = computed(() => BAR_MAP[props.vertical ? 'vertical' : 'horizontal']);
 
 		// 左右距离
@@ -117,7 +118,7 @@ export default defineComponent({
 		// thumb偏移值
 		const thumbMove = computed(() => {
 			// thumb应该在当前bar上的偏移值
-			const currentMove = (props.scrollOffset / props.wrapperSize) * thumbSize.value;
+			const currentMove = (scrollDistance.value / props.wrapperSize) * thumbSize.value;
 			// 当前你滚动的距离
 			const thumbFitMove = currentMove * (1 - averageSize.value); 
 			return thumbFitMove > maxMove.value ? maxMove.value : thumbFitMove;
@@ -127,20 +128,23 @@ export default defineComponent({
 		const thumbCalcStyle = computed(() => {
 			const { size } = barOptions.value;
 			return {
-				[size]: thumbFitSize.value + 'px',
-				// [TRANSFORM]: `translate${barOptions.value.axis}(${thumbMove.value}px)`
+				[size]: thumbFitSize.value + 'px'
 			};
 		});
 
 		let originalOnselectstart = null;
 		let startMove;
 		let startThumbMove;
-		const setScroll = (thumbFitMove) => {
-			const { scroll } = barOptions.value;
-			const scrollOffset = ((thumbFitMove / (1 - averageSize.value)) / thumbSize.value) * props.wrapperSize;
+		const scrollTo = (distance) => {
+			scrollDistance.value = distance;
+		};
 
-			wrapper.value[scroll] = scrollOffset;
-			parent.refreshScroll();
+		const scrollFitTo = (thumbFitMove) => {
+			const { scroll } = barOptions.value;
+			const $scrollDistance = ((thumbFitMove / (1 - averageSize.value)) / thumbSize.value) * props.wrapperSize;
+
+			// 滚动
+			wrapper.value[scroll] = $scrollDistance;
 		};
 
 		const handleMouseMoveDocument = (e) => {
@@ -154,7 +158,7 @@ export default defineComponent({
 				maxMove.value
 			);
 
-			setScroll(thumbFitMove);
+			scrollFitTo(thumbFitMove);
 		};
 
 		const handleMouseUpDocument = () => {
@@ -208,7 +212,7 @@ export default defineComponent({
 			const { client, direction, scroll } = barOptions.value;
 			const thumbFitMove = e[client] - e.target.getBoundingClientRect()[direction] - thumbFitSize.value / 2;
 
-			setScroll(thumbFitMove);
+			scrollFitTo(thumbFitMove);
 		};
 
 		const handleMouseMove = () => {
@@ -220,6 +224,10 @@ export default defineComponent({
 			cursorLeave.value = true;
 			isVisible.value = cursorDown.value;
 		};
+
+		const refreshThumb = throttle(() => raf(() => { 
+			thumb.value.style[TRANSFORM] = `translate${barOptions.value.axis}(${thumbMove.value}px)`;
+		}), 50);
 
 		onMounted(() => {
 			const parentEl = parent.getCursorContainer();
@@ -238,14 +246,12 @@ export default defineComponent({
 		});
 
 
-		// 用raf优化动画
+		// 用throttle优化连续变化的transfrom
 		watch(
 			() => thumbMove.value,
 			() => {
 				if (!thumb.value) return;
-				raf(() => {
-					thumb.value.style[TRANSFORM] = `translate${barOptions.value.axis}(${thumbMove.value}px)`;
-				});
+				refreshThumb();
 			},
 			{ immediate: true }
 		);
@@ -261,7 +267,9 @@ export default defineComponent({
 			isVisible,
 
 			handleClickTrack,
-			handleClickThumb
+			handleClickThumb,
+
+			scrollTo
 		};
 	},
 });

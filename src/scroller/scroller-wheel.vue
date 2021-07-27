@@ -36,13 +36,12 @@ transform在测试过程中会出现重绘，不会重排
 		<teleport v-if="!native && (!barDisabled || !barTo)" :to="barTo" :disabled="!barTo">
 			<!-- X轴 -->
 			<vc-scroller-bar 
+				ref="barX"
 				v-bind="barBinds"
 				:track-offset="[trackOffsetX[3], trackOffsetX[1]]"
-				:scroll-offset="scrollX" 
 				:wrapper-size="wrapperW" 
 				:content-size="contentW" 
 				:style="[
-					barStyle,
 					{
 						left: trackOffsetX[3] + 'px',
 						bottom: trackOffsetX[2] + 'px'
@@ -51,13 +50,12 @@ transform在测试过程中会出现重绘，不会重排
 			/>
 			<!-- Y轴 -->
 			<vc-scroller-bar
+				ref="barY"
 				v-bind="barBinds"
 				:track-offset="[trackOffsetY[0], trackOffsetY[2]]"
-				:scroll-offset="scrollY"
 				:wrapper-size="wrapperH" 
 				:content-size="contentH" 
 				:style="[
-					barStyle,
 					{
 						top: trackOffsetY[0] + 'px', 
 						right: trackOffsetY[1] + 'px'
@@ -148,7 +146,7 @@ export default defineComponent({
 			'trackClassName'
 		])
 	},
-	emits: ['wheel', 'mousewheel'],
+	emits: ['wheel', 'mousewheel', 'scroll'],
 	setup(props, { emit }) {
 		const instance = getCurrentInstance();
 		const barDisabled = ref(true);
@@ -164,6 +162,9 @@ export default defineComponent({
 		const wrapper = ref(null);
 		const content = ref(null);
 
+		const barX = ref(null);
+		const barY = ref(null);
+
 		const barBinds = computed(() => {
 			return {
 				always: props.always,
@@ -174,16 +175,14 @@ export default defineComponent({
 			};
 		});
 
-		const barStyle = computed(() => {
+		const barPos = computed(() => {
 			const maxMoveX = contentW.value - wrapperW.value;
 			const maxMoveY = contentH.value - wrapperH.value;
 
 			const fitMoveX = scrollX.value >= maxMoveX ? maxMoveX : scrollX.value;
 			const fitMoveY = scrollY.value >= maxMoveY ? maxMoveY : scrollY.value;
 
-			return {
-				[TRANSFORM]: `translate(${fitMoveX}px, ${fitMoveY}px)` 
-			};
+			return `translate(${fitMoveX}px, ${fitMoveY}px)`;
 		});
 
 		const calcWrapperStyle = computed(() => {
@@ -212,10 +211,21 @@ export default defineComponent({
 
 		// 记录当前容器(wrapper)滚动的位移
 		const refreshScroll = () => {
-			if (!wrapper.value) return;
+			if (!barY.value || !barX.value) return;
 
 			scrollY.value = wrapper.value.scrollTop;
 			scrollX.value = wrapper.value.scrollLeft;
+
+			let barParentEl = document.querySelector(props.barTo);
+			if (!barParentEl || barParentEl === instance.vnode.el) {
+				barY.value.$el.style[TRANSFORM] = barPos.value;
+				barX.value.$el.style[TRANSFORM] = barPos.value;
+			}
+			// 取代当前组件内值变化，避免构建当前组件的虚拟Dom掉帧（解决表格数据多时问题）
+			barY.value.scrollTo(scrollY.value);
+			barX.value.scrollTo(scrollX.value);
+
+			emit('scroll');
 		};
 
 		const refresh = () => {
@@ -241,7 +251,6 @@ export default defineComponent({
 			}
 
 			refreshScroll();
-			emit('wheel');
 		};
 
 		// X轴是否允许滚动
@@ -286,12 +295,12 @@ export default defineComponent({
 		);
 		const setScrollTop = (value: number) => {
 			wrapper.value.scrollTop = value;
-			scrollY.value = value;
+			refreshScroll();
 		};
 
 		const setScrollLeft = (value: number) => {
 			wrapper.value.scrollLeft = value;
-			scrollX.value = value;
+			refreshScroll();
 		};
 
 		const setBarStatus = () => {
@@ -320,7 +329,6 @@ export default defineComponent({
 			props,
 			wrapper,
 			content,
-			refreshScroll,
 			getCursorContainer: props.getCursorContainer || (() => instance?.vnode?.el)
 		});
 
@@ -332,7 +340,8 @@ export default defineComponent({
 			wheel,
 			
 			barBinds,
-			barStyle,
+			barX,
+			barY,
 
 			scrollX,
 			scrollY,

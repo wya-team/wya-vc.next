@@ -22,9 +22,9 @@
 		<teleport v-if="!native && (!barDisabled || !barTo)" :to="barTo" :disabled="!barTo">
 			<!-- X轴 -->
 			<vc-scroller-bar 
+				ref="barX"
 				v-bind="barBinds"
 				:track-offset="[trackOffsetX[3], trackOffsetX[1]]"
-				:scroll-offset="scrollX" 
 				:wrapper-size="wrapperW" 
 				:content-size="contentW" 
 				:style="{ 
@@ -34,9 +34,9 @@
 			/>
 			<!-- Y轴 -->
 			<vc-scroller-bar
+				ref="barY"
 				v-bind="barBinds"
 				:track-offset="[trackOffsetY[0], trackOffsetY[2]]"
-				:scroll-offset="scrollY"
 				:wrapper-size="wrapperH" 
 				:content-size="contentH" 
 				:style="{ 
@@ -137,11 +137,11 @@ export default defineComponent({
 		const contentH = ref(0);
 		const contentW = ref(0);
 
-		const scrollX = ref(0);
-		const scrollY = ref(0);
-
 		const wrapper = ref(null);
 		const content = ref(null);
+
+		const barX = ref(null);
+		const barY = ref(null);
 
 		const wrapperCalcStyle = computed(() => {
 			let style = {};
@@ -175,11 +175,14 @@ export default defineComponent({
 			contentW.value = wrapper.value.scrollWidth;
 		};
 
-		// 记录当前容器(wrapper)滚动的位移
 		const refreshScroll = () => {
-			if (!wrapper.value) return;
-			scrollY.value = wrapper.value.scrollTop;
-			scrollX.value = wrapper.value.scrollLeft;
+			if (!barY.value || !barX.value) return;
+			const { scrollTop } = wrapper.value;
+			const { scrollLeft } = wrapper.value;
+
+			// 取代当前组件内值变化，避免构建当前组件的虚拟Dom掉帧（解决表格数据多时问题）
+			barY.value.scrollTo(scrollTop);
+			barX.value.scrollTo(scrollLeft);
 		};
 
 		const refresh = () => {
@@ -191,18 +194,18 @@ export default defineComponent({
 		 * 用scroll导致bar的抖动，后期可以考虑多嵌套一层
 		 */
 		const handleScroll = (e) => {
-			refreshScroll();
 			emit('scroll', e);
+			refreshScroll();
 		};
 
+		// 这个会主动触发scroll事件
 		const setScrollTop = (value: number) => {
 			wrapper.value.scrollTop = value;
-			scrollY.value = value;
 		};
 
+		// 这个会主动触发scroll事件
 		const setScrollLeft = (value: number) => {
 			wrapper.value.scrollLeft = value;
-			scrollX.value = value;
 		};
 
 		const setBarStatus = () => {
@@ -231,7 +234,6 @@ export default defineComponent({
 			props,
 			wrapper,
 			content,
-			refreshScroll,
 			getCursorContainer: props.getCursorContainer || (() => instance?.vnode?.el)
 		});
 
@@ -245,9 +247,8 @@ export default defineComponent({
 
 			wrapper,
 			content,
-
-			scrollX,
-			scrollY,
+			barX,
+			barY,
 
 			wrapperW,
 			wrapperH,
