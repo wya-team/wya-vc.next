@@ -17,10 +17,6 @@ export default defineComponent({
 	},
 	setup(props, context) {
 		const table = getInstance('table', 'tableId');
-		const hasGutter = computed(() => {
-			return !!(!props.fixed && table.proxy.layout.states.gutterWidth);
-		});
-
 		const states = useStates({
 			data: 'data',
 			columns: 'columns',
@@ -110,11 +106,8 @@ export default defineComponent({
 						{
 							states.columns.map(column => <col name={ column.id } key={column.id} />)
 						}
-						{
-							hasGutter.value ? <col name="gutter" /> : null
-						}
 					</colgroup>
-					<tbody class={[{ 'has-gutter': hasGutter.value }]}>
+					<tbody>
 						<tr>
 							{
 								states.columns.map((column, cellIndex) => (
@@ -131,9 +124,6 @@ export default defineComponent({
 										</div>
 									</td>
 								))
-							}
-							{
-								hasGutter.value ? <th class="vc-table__gutter" /> : null
 							}
 						</tr>
 					</tbody>

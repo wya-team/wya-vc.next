@@ -339,10 +339,8 @@ export default defineComponent({
 		};
 		
 		onMounted(() => {
-			Array.from({ length: 20 }).forEach(() => {
-				handleColumn('add');
-				handleRow('add');
-			});
+			Array.from({ length: 20 }).forEach(() => handleColumn('add'));
+			Array.from({ length: 60 }).forEach(() => handleRow('add'));
 		});
 		return {
 			table,

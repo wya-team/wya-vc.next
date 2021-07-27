@@ -90,10 +90,6 @@ export default defineComponent({
 		const dragging = ref(false);
 		const dragState = ref({});
 
-		const hasGutter = computed(() => {
-			return !!(!props.fixed && table.proxy.layout.states.gutterWidth);
-		});
-
 		const states = useStates({
 			columns: 'columns',
 			isAllSelected: 'isAllSelected',
@@ -323,11 +319,8 @@ export default defineComponent({
 						{
 							states.columns.map(column => <col name={ column.id } key={column.id} />)
 						}
-						{
-							hasGutter.value ? <col name="gutter" /> : null
-						}
 					</colgroup>
-					<thead class={ [{ 'is-group': isGroup, 'has-gutter': hasGutter.value }] }>
+					<thead class={ [{ 'is-group': isGroup }] }>
 						{
 							// renderList
 							columnRows.map((columns, rowIndex) => (
@@ -394,9 +387,6 @@ export default defineComponent({
 												</div>
 											</th>
 										))
-									}
-									{
-										hasGutter.value ? <th class="vc-table__gutter" /> : null
 									}
 								</tr>
 							))

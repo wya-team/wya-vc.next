@@ -4,37 +4,6 @@ import { parseHeight } from '../utils';
 import { IS_SERVER } from '../../utils/constant';
 import { VcError } from '../../vc';
 
-let scrollBarWidth;
-/**
- * TODO: 抽离
- */
-const getScrollBarWidth = () => {
-	// 注: 服务端渲染为0, 在客服端激活前，展示端存在问题【高度不定】
-	if (IS_SERVER) return 0;
-	if (scrollBarWidth !== undefined) return scrollBarWidth;
-
-	const outer = document.createElement('div');
-	outer.className = 'vc-scrollbar__wrap';
-	outer.style.visibility = 'hidden';
-	outer.style.width = '100px';
-	outer.style.position = 'absolute';
-	outer.style.top = '-9999px';
-	document.body.appendChild(outer);
-
-	const widthNoScroll = outer.offsetWidth;
-	outer.style.overflow = 'scroll';
-
-	const inner = document.createElement('div');
-	inner.style.width = '100%';
-	outer.appendChild(inner);
-
-	const widthWithScroll = inner.offsetWidth;
-	outer.parentNode.removeChild(outer);
-	scrollBarWidth = widthNoScroll - widthWithScroll;
-
-	return scrollBarWidth;
-};
-
 class TableLayout {
 	constructor(options) {
 		this.table = options.table;
@@ -65,7 +34,6 @@ class TableLayout {
 			viewportHeight: null, // Table Height - Scroll Bar Height
 			bodyHeight: null, // Table Height - Table Header Height
 			fixedBodyHeight: null, // Table Height - Table Header Height - Scroll Bar Heigh
-			gutterWidth: getScrollBarWidth(),
 		});
 
 		this.updateScroller = this.updateScroller.bind(this);
@@ -89,9 +57,9 @@ class TableLayout {
 	updateScrollY() {
 		const { height, bodyHeight } = this.states;
 		if (height === null) return;
-		const bodyWrapper = this.table.proxy.bodyWrapper;
-		if (this.table.vnode.el && bodyWrapper) {
-			const body = bodyWrapper.querySelector('.vc-table__body');
+		const scroller = this.table.proxy.scroller;
+		if (this.table.vnode.el && scroller) {
+			const body = scroller.$el.querySelector('.vc-table__body');
 			this.states.scrollY = body.offsetHeight > bodyHeight;
 		}
 	}
@@ -131,7 +99,7 @@ class TableLayout {
 	updateElsHeight() {
 		if (!this.table.proxy.isReady) return nextTick(() => this.updateElsHeight());
 		const { headerWrapper, appendWrapper, footerWrapper, } = this.table.proxy;
-		const { showHeader, scrollX, gutterWidth } = this.states; 
+		const { showHeader, scrollX } = this.states; 
 		this.states.appendHeight = appendWrapper ? appendWrapper.offsetHeight : 0;
 
 		if (showHeader && !headerWrapper) return;
@@ -148,14 +116,15 @@ class TableLayout {
 		const footerHeight = footerWrapper ? footerWrapper.offsetHeight : 0;
 		this.states.footerHeight = footerHeight;
 
+		// footerWrapper 中margin-top: -1px
 		if (this.states.height !== null) {
 			this.states.bodyHeight = tableHeight - headerHeight - footerHeight + (footerWrapper ? 1 : 0);
 		}
 		const { bodyHeight } = this.states;
-		this.states.fixedBodyHeight = scrollX ? (bodyHeight - gutterWidth) : bodyHeight;
+		this.states.fixedBodyHeight = bodyHeight;
 
 		const noData = !this.table.props.dataSource || this.table.props.dataSource.length === 0;
-		this.states.viewportHeight = scrollX ? tableHeight - (noData ? 0 : gutterWidth) : tableHeight;
+		this.states.viewportHeight = tableHeight;
 
 		this.updateScrollY();
 		this.updateScroller();
@@ -173,19 +142,17 @@ class TableLayout {
 			if (typeof column.width === 'number' && column.realWidth) column.realWidth = null;
 		});
 
-		const { fit, gutterWidth, scrollY } = this.states;
+		const { fit, scrollY } = this.states;
 
 		if (flexColumns.length > 0 && fit) {
 			flattenColumns.forEach((column) => {
 				bodyMinWidth += column.width || column.minWidth || 80;
 			});
 
-			const scrollYWidth = scrollY ? gutterWidth : 0;
-
-			if (bodyMinWidth <= bodyWidth - scrollYWidth) { // DON'T HAVE SCROLL BAR
+			if (bodyMinWidth <= bodyWidth) {
 				this.states.scrollX = false;
 
-				const totalFlexWidth = bodyWidth - scrollYWidth - bodyMinWidth;
+				const totalFlexWidth = bodyWidth - bodyMinWidth;
 
 				if (flexColumns.length === 1) {
 					flexColumns[0].realWidth = (flexColumns[0].minWidth || 80) + totalFlexWidth;
@@ -274,12 +241,12 @@ class TableLayout {
 		const cols = this.table.vnode.el.querySelectorAll('colgroup > col[name=gutter]');
 		for (let i = 0, j = cols.length; i < j; i++) {
 			const col = cols[i];
-			col.setAttribute('width', this.states.scrollY ? this.states.gutterWidth : '0');
+			col.setAttribute('width', '0');
 		}
 		const ths = this.table.vnode.el.querySelectorAll('th.vc-table__gutter');
 		for (let i = 0, j = ths.length; i < j; i++) {
 			const th = ths[i];
-			th.style.width = this.states.scrollY ? this.states.gutterWidth + 'px' : '0';
+			th.style.width = '0';
 			th.style.display = this.states.scrollY ? '' : 'none';
 		}
 	}

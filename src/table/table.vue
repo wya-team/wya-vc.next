@@ -1,6 +1,6 @@
 <template>
 	<div 
-		:class="classes" 
+		:class="[classes, tableId]" 
 		class="vc-table"
 		@mouseleave="handleMouseLeave" 
 	>
@@ -19,15 +19,24 @@
 				:store="store"
 				:border="border"
 				:default-sort="defaultSort"
-				:style="{
-					width: layout.states.bodyWidth ? layout.states.bodyWidth + 'px' : ''
-				}"
+				:style="{ width: bodyWidth }"
 			/>
 		</div>
-		<div
-			ref="bodyWrapper"
-			:style="[bodyHeight]"
+		<!-- 不允许使用native, scroller-wheel 比 scroller 衔接会更好 -->
+		<vc-scroller
+			ref="scroller"
+			:always="false"
+			:wrapper-style="bodyHeight"
+			:get-cursor-container="() => $el"
+			:bar-to="`.${tableId}`"
+			:track-offset-y="[
+				layout.states.headerHeight, 
+				0, 
+				-layout.states.footerHeight - layout.states.headerHeight + (footerWrapper ? 1 : 0), 
+				0
+			]"
 			class="vc-table__body-wrapper is-scrolling-none"
+			@scroll="handleSyncPosition"
 		>
 			<vc-table-body
 				:context="context"
@@ -56,7 +65,7 @@
 			>
 				<slot name="append" />
 			</div>
-		</div>
+		</vc-scroller>
 		<div
 			v-if="showSummary"
 			v-show="dataSource && dataSource.length > 0"
@@ -69,14 +78,14 @@
 				:border="border"
 				:sum-text="sumText || '合计'"
 				:get-summary="getSummary"
-				:style="{ width: layout.states.bodyWidth? layout.states.bodyWidth+ 'px' : ''}"
+				:style="{ width: bodyWidth }"
 			/>
 		</div>
 		<div
 			v-if="states.fixedColumns.length > 0"
 			ref="fixedWrapper"
 			v-event:wheel="wheel"
-			:style="[{ width: layout.states.fixedWidth ? layout.states.fixedWidth + 'px' : ''}, fixedHeight]"
+			:style="[{ width: fixedWidth }, fixedHeight]"
 			class="vc-table__fixed"
 		>
 			<div
@@ -133,13 +142,7 @@
 			v-if="states.rightFixedColumns.length > 0"
 			ref="rightFixedWrapper"
 			v-event:wheel="wheel"
-			:style="[
-				{
-					width: layout.states.rightFixedWidth ? layout.states.rightFixedWidth + 'px' : '',
-					right: layout.states.scrollY ? (border ? layout.states.gutterWidth : (layout.states.gutterWidth || 0)) + 'px' : ''
-				},
-				fixedHeight
-			]"
+			:style="[{ width: rightFixedWidth }, fixedHeight]"
 			class="vc-table__fixed-right"
 		>
 			<div 
@@ -198,15 +201,6 @@
 				/>
 			</div>
 		</div>
-		<div
-			v-if="states.rightFixedColumns.length > 0"
-			ref="rightFixedPatch"
-			:style="{
-				width: layout.states.scrollY ? layout.states.gutterWidth + 'px' : '0',
-				height: layout.states.headerHeight + 'px'
-			}"
-			class="vc-table__fixed-right-patch"
-		/>
 		<div 
 			v-show="resizeProxyVisible" 
 			ref="resizeProxy" 
@@ -230,6 +224,7 @@ import Layout from './layout/index';
 import TableBody from './table-body';
 import TableHeader from './table-header';
 import TableFooter from './table-footer';
+import Scroller from '../scroller';
 import Wheel from '../utils/wheel';
 
 export default defineComponent({
@@ -238,6 +233,7 @@ export default defineComponent({
 		'vc-table-header': TableHeader,
 		'vc-table-footer': TableFooter,
 		'vc-table-body': TableBody,
+		'vc-scroller': Scroller
 	},
 	directives: {
 		...Extends.directives('event')
@@ -365,7 +361,8 @@ export default defineComponent({
 		const hiddenColumns = ref(null);
 		const headerWrapper = ref(null);
 		const tableHeader = ref(null);
-		const bodyWrapper = ref(null);
+		const scroller = ref(null);
+
 		const emptyBlock = ref(null);
 		const appendWrapper = ref(null);
 		const footerWrapper = ref(null);
@@ -415,8 +412,8 @@ export default defineComponent({
 		});
 
 		const bodyWidth = computed(() => {
-			const { bodyWidth: $bodyWidth, scrollY, gutterWidth } = layout.states;
-			return $bodyWidth ? $bodyWidth - (scrollY ? gutterWidth : 0) + 'px' : '';
+			const { bodyWidth: $bodyWidth } = layout.states;
+			return $bodyWidth ? $bodyWidth + 'px' : '';
 		});
 
 		const bodyHeight = computed(() => {
@@ -444,7 +441,6 @@ export default defineComponent({
 			} else if (props.maxHeight) {
 				let maxHeight = parseHeight(props.maxHeight);
 				if (maxHeight) {
-					maxHeight = layout.states.scrollX ? maxHeight - layout.states.gutterWidth : maxHeight;
 					if (props.showHeader) {
 						maxHeight -= layout.states.headerHeight;
 					}
@@ -457,6 +453,10 @@ export default defineComponent({
 			return {};
 		});
 
+		const fixedWidth = computed(() => {
+			return layout.states.fixedWidth ? layout.states.fixedWidth + 'px' : '';
+		});
+
 		const fixedHeight = computed(() => {
 			if (props.maxHeight) {
 				if (props.showSummary) {
@@ -465,7 +465,7 @@ export default defineComponent({
 					};
 				}
 				return {
-					bottom: (layout.states.scrollX && props.dataSource.length) ? layout.states.gutterWidth + 'px' : ''
+					bottom: (layout.states.scrollX && props.dataSource.length) ? 0 : ''
 				};
 			} else {
 				if (props.showSummary) {
@@ -477,6 +477,10 @@ export default defineComponent({
 					height: layout.states.viewportHeight ? layout.states.viewportHeight + 'px' : ''
 				};
 			}
+		});
+
+		const rightFixedWidth = computed(() => {
+			return layout.states.rightFixedWidth ? layout.states.rightFixedWidth + 'px' : '';
 		});
 
 		const updateScrollY = () => {
@@ -532,12 +536,14 @@ export default defineComponent({
 			store.clearSelection();
 		};
 
+		// 同步滚动
 		const handleSyncPosition = () => {
-			const { scrollLeft, scrollTop, offsetWidth, scrollWidth } = bodyWrapper.value;
+			const { scrollLeft, scrollTop, offsetWidth, scrollWidth } = scroller.value.wrapper;
 			if (headerWrapper.value) headerWrapper.value.scrollLeft = scrollLeft;
 			if (footerWrapper.value) footerWrapper.value.scrollLeft = scrollLeft;
 			if (fixedBodyWrapper.value) fixedBodyWrapper.value.scrollTop = scrollTop;
 			if (rightFixedBodyWrapper.value) rightFixedBodyWrapper.value.scrollTop = scrollTop;
+
 			const maxScrollLeftPosition = scrollWidth - offsetWidth - 1;
 			if (scrollLeft >= maxScrollLeftPosition) {
 				scrollPosition.value = 'right';
@@ -546,15 +552,6 @@ export default defineComponent({
 			} else {
 				scrollPosition.value = 'middle';
 			}
-
-			// 解决临界值设置修改className时的顿挫
-			raf(() => {
-				let className = layout.states.scrollX ? `is-scrolling-${scrollPosition.value}` : 'is-scrolling-none';
-				bodyWrapper.value.classList.replace(
-					bodyWrapper.value.classList.item(1), 
-					className
-				);
-			});
 		};
 
 		const handleResize = () => {
@@ -596,14 +593,14 @@ export default defineComponent({
 				scrollHeight: contentH, 
 				clientHeight: wrapperH, 
 				scrollTop: scrollY 
-			} = bodyWrapper.value;
+			} = scroller.value.wrapper;
 			if (
 				Math.abs(deltaY) > Math.abs(deltaX) 
 				&& contentH > wrapperH
 			) {
-				bodyWrapper.value.scrollTop += deltaY;
+				scroller.value.setScrollTop(scrollY + deltaY);
 			} else if (deltaX && contentW > wrapperW) {
-				bodyWrapper.value.scrollLeft += deltaX;
+				scroller.value.setScrollLeft(scrollX + deltaX);
 			}
 		};
 
@@ -612,7 +609,7 @@ export default defineComponent({
 				scrollWidth: contentW, 
 				clientWidth: wrapperW, 
 				scrollLeft: scrollX 
-			} = bodyWrapper.value;
+			} = scroller.value.wrapper;
 			if (wrapperW === contentW) {
 				return false;
 			}
@@ -632,7 +629,7 @@ export default defineComponent({
 				scrollHeight: contentH, 
 				clientHeight: wrapperH, 
 				scrollTop: scrollY 
-			} = bodyWrapper.value;
+			} = scroller.value.wrapper;
 
 			if (wrapperH === contentH) {
 				return false;
@@ -655,14 +652,12 @@ export default defineComponent({
 		});
 
 		const bindEvents = () => {
-			bodyWrapper.value.addEventListener('scroll', handleSyncPosition, { passive: true });
 			if (props.fit) {
 				Resize.on(instance.vnode.el, handleResize);
 			}
 		};
 
 		const unbindEvents = () => {
-			bodyWrapper.value.removeEventListener('scroll', handleSyncPosition, { passive: true });
 			if (props.fit) {
 				Resize.off(instance.vnode.el, handleResize);
 			}
@@ -713,6 +708,21 @@ export default defineComponent({
 			{ immediate: true }
 		);
 
+		// 直接修改className（不使用render函数）, 解决临界值设置修改className时的顿挫
+		watch(
+			() => scrollPosition.value,
+			(v) => {
+				raf(() => {
+					let className = `is-scrolling-${layout.states.scrollX ? v : 'none'}`;
+					let el = scroller.value.$el;
+					el.classList.replace(
+						el.classList.item(el.classList.length - 1), 
+						className
+					);
+				});
+			}
+		);
+
 		onMounted(() => {
 			bindEvents();
 			store.updateColumns();
@@ -730,7 +740,6 @@ export default defineComponent({
 			unbindEvents();
 		});
 
-		
 		return {
 			tableId: getUid('table'),
 			isReady,
@@ -742,7 +751,6 @@ export default defineComponent({
 			resizeProxyVisible,
 			resizeState,
 			isGroup,
-			scrollPosition,
 			hoverState,
 
 			// computed
@@ -752,13 +760,15 @@ export default defineComponent({
 			bodyHeight,
 			fixedBodyHeight,
 			fixedHeight,
+			fixedWidth,
+			rightFixedWidth,
 			states,
 
 			// refs
 			hiddenColumns,
 			headerWrapper,
 			tableHeader,
-			bodyWrapper,
+			scroller,
 			emptyBlock,
 			appendWrapper,
 			footerWrapper,
@@ -767,7 +777,6 @@ export default defineComponent({
 			fixedTableHeader,
 			fixedBodyWrapper,
 			fixedFooterWrapper,
-			wheel,
 			rightFixedWrapper,
 			rightFixedHeaderWrapper,
 			rightFixedTableHeader,
@@ -779,6 +788,7 @@ export default defineComponent({
 			// methods
 			debouncedUpdateLayout,
 			handleMouseLeave,
+			handleSyncPosition,
 
 			updateScrollY,
 			refreshLayout,

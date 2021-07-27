@@ -87,14 +87,24 @@
 		}
 	}
 
+	.vc-scroller__wrapper {
+		overflow-y: auto;
+	}
+	
 	@include modifier(scrollable-x) {
-		.vc-table__body-wrapper {
+		.vc-scroller__wrapper {
 			overflow-x: auto;
 		}
+		// .vc-table__body-wrapper {
+		// 	overflow-x: auto;
+		// }
 	}
 
 	@include modifier(scrollable-y) {
-		.vc-table__body-wrapper {
+		// .vc-table__body-wrapper {
+		// 	overflow-y: auto;
+		// }
+		.vc-scroller__wrapper {
 			overflow-y: auto;
 		}
 	}
@@ -338,7 +348,6 @@
 		overflow-x: hidden;
 		overflow-y: hidden;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
-
 		&::before {
 			content: "";
 			position: absolute;
@@ -349,14 +358,6 @@
 			background-color: #ebeef5;
 			z-index: 4;
 		}
-	}
-
-	@include element(fixed-right-patch) {
-		position: absolute;
-		top: -1px;
-		right: 0;
-		background-color: #fff;
-		border-bottom: 1px solid #ebeef5;
 	}
 
 	@include element(fixed-right) {
@@ -571,4 +572,8 @@
 .vc-table-column--selection .vc-table__cell {
 	padding-left: 14px;
 	padding-right: 14px;
+}
+
+.vc-table > .vc-scroller-bar__track {
+	z-index: 5;
 }
