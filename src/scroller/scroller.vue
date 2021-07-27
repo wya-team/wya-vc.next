@@ -115,7 +115,7 @@ export default defineComponent({
 			default: () => ([0, 0, 0, 0])
 		},
 
-		getContainer: Function,
+		getCursorContainer: Function,
 		barTo: String,
 		...pick(ScrollerBar.props, [
 			'always',
@@ -232,7 +232,7 @@ export default defineComponent({
 			wrapper,
 			content,
 			refreshScroll,
-			getContainer: props.getContainer || (() => instance?.vnode?.el)
+			getCursorContainer: props.getCursorContainer || (() => instance?.vnode?.el)
 		});
 
 		watch(

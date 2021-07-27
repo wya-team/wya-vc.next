@@ -222,14 +222,14 @@ export default defineComponent({
 		};
 
 		onMounted(() => {
-			const parentEl = parent.getContainer();
+			const parentEl = parent.getCursorContainer();
 			if (!parentEl) return;
 			$(parentEl).on('mousemove', handleMouseMove);
 			$(parentEl).on('mouseleave', handleLeave);
 		});
 
 		onBeforeUnmount(() => {
-			const parentEl = parent.getContainer();
+			const parentEl = parent.getCursorContainer();
 			if (!parentEl) return;
 			$(document).off('mousemove', handleMouseMoveDocument);
 			$(document).off('mouseup', handleMouseUpDocument);
