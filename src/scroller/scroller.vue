@@ -1,5 +1,5 @@
 <template>
-	<div ref="scroller" class="vc-scroller">
+	<div ref="scroller" class="vc-scroller vc-scroller--scroll">
 		<div 
 			ref="wrapper" 
 			:style="[wrapperStyle, wrapperCalcStyle]" 
@@ -31,6 +31,7 @@
 					left: trackOffsetX[3] + 'px',
 					bottom: trackOffsetX[2] + 'px'
 				}"
+				@refresh-scroll="setScrollLeft"
 			/>
 			<!-- Y轴 -->
 			<vc-scroller-bar
@@ -44,6 +45,7 @@
 					right: trackOffsetY[1] + 'px'
 				}"
 				vertical
+				@refresh-scroll="setScrollTop"
 			/>
 		</teleport>
 		<!-- 通常是用于absolute的元素 TODO: 还需额外定API  -->

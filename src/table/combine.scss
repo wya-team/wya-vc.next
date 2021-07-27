@@ -109,6 +109,10 @@
 		}
 	}
 
+	.vc-scroller--wheel {
+		overflow: hidden;
+	}
+
 	thead {
 		font-weight: 500;
 

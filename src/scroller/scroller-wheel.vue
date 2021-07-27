@@ -1,4 +1,5 @@
 <!--
+目前和scroller同时迭代
 为减少一层嵌套，为去除滚动bar的抖动，使用wheel模拟
 	
 基于Chrome 91.0.4472.114版本测试：
@@ -14,7 +15,6 @@ transform在测试过程中会出现重绘，不会重排
 目前存在的问题
 	1. 在嵌套上，会不协调；【要额外再控制】
 	2. 临界值直接触发父层（也有滚动的话，window滚动套vc-scroller滚动）继续滚动 【要额外处理】
-	3. Windows在X轴wheel过快与Mac不一致 【要额外处理】
  -->
 <!-- 这里wrapper为了保持和嵌套的scroller api一致 -->
 <template>
@@ -23,7 +23,7 @@ transform在测试过程中会出现重绘，不会重排
 		v-event:wheel="wheel"
 		:style="[wrapperStyle, calcWrapperStyle]" 
 		:class="[wrapperClassName, native ? 'is-native' : 'is-hidden']"
-		class="vc-scroller"
+		class="vc-scroller vc-scroller--wheel"
 	>
 		<component
 			:is="tag"
@@ -47,6 +47,7 @@ transform在测试过程中会出现重绘，不会重排
 						bottom: trackOffsetX[2] + 'px'
 					}
 				]"
+				@refresh-scroll="setScrollLeft"
 			/>
 			<!-- Y轴 -->
 			<vc-scroller-bar
@@ -62,6 +63,7 @@ transform在测试过程中会出现重绘，不会重排
 					}
 				]"
 				vertical
+				@refresh-scroll="setScrollTop"
 			/>
 		</teleport>
 	</div>
@@ -225,7 +227,7 @@ export default defineComponent({
 			barY.value.scrollTo(scrollY.value);
 			barX.value.scrollTo(scrollX.value);
 
-			emit('scroll');
+			emit('scroll', { target: wrapper.value });
 		};
 
 		const refresh = () => {

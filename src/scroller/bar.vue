@@ -73,7 +73,8 @@ export default defineComponent({
 			default: () => ([0, 0])
 		}
 	},
-	setup(props) {
+	emits: ['refresh-scroll'],
+	setup(props, { emit }) {
 		const parent = inject('scroller', {});
 		const { wrapper, content } = parent;
 
@@ -144,7 +145,7 @@ export default defineComponent({
 			const $scrollDistance = ((thumbFitMove / (1 - averageSize.value)) / thumbSize.value) * props.wrapperSize;
 
 			// 滚动
-			wrapper.value[scroll] = $scrollDistance;
+			emit('refresh-scroll', $scrollDistance);
 		};
 
 		const handleMouseMoveDocument = (e) => {
@@ -225,9 +226,11 @@ export default defineComponent({
 			isVisible.value = cursorDown.value;
 		};
 
-		const refreshThumb = throttle(() => raf(() => { 
+		const refreshThumb = () => raf(() => { 
 			thumb.value.style[TRANSFORM] = `translate${barOptions.value.axis}(${thumbMove.value}px)`;
-		}), 50);
+		});
+		
+		const refreshThrottleThumb = throttle(refreshThumb, 50);
 
 		onMounted(() => {
 			const parentEl = parent.getCursorContainer();
@@ -251,7 +254,7 @@ export default defineComponent({
 			() => thumbMove.value,
 			() => {
 				if (!thumb.value) return;
-				refreshThumb();
+				refreshThrottleThumb();
 			},
 			{ immediate: true }
 		);
