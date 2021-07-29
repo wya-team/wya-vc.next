@@ -1,7 +1,7 @@
 <!--
-目前和scroller同时迭代
+scroller-wheel
 为减少一层嵌套，为去除滚动bar的抖动，使用wheel模拟
-	
+
 基于Chrome 91.0.4472.114版本测试：
 原生scroll事件：不会触发重排和重绘
 原生wheel事件设置scrollTop：不会触发重排和重绘
@@ -11,12 +11,8 @@ transform在测试过程中会出现重绘，不会重排
 做抖动优化：
 使用scroll原生时，bar(可以没有),thumb都会出现抖动，这里选择用wheel代替解决该问题;
 测试时设置scrollTop没有重排重绘，暂不考虑改用transfrom来改变content
-
-目前存在的问题
-	1. 在嵌套上，会不协调；【要额外再控制】
-	2. 临界值直接触发父层（也有滚动的话，window滚动套vc-scroller滚动）继续滚动 【要额外处理】
- -->
-<!-- 这里wrapper为了保持和嵌套的scroller api一致 -->
+-->
+<!-- 这里wrapper为了保持和嵌套的scroller-native一致 -->
 <template>
 	<div 
 		ref="wrapper" 

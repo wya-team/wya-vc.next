@@ -1,3 +1,10 @@
+<!--
+使用原生的滚动（overflow: auto）实现滚动
+
+比scroller-wheel存在两个问题
+1. scroll效益比wheel高，导致scroll触发的事件操作scroll*和原生的一定延迟
+2. 增加了一层嵌套
+-->
 <template>
 	<div ref="scroller" class="vc-scroller vc-scroller--scroll">
 		<div 
