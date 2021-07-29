@@ -4,7 +4,6 @@
  * 1. 浏览器不同事件
  * 2. 微信iOS 10， portal 无法绑定事件做处理
  */
-import { Device, Utils } from '@wya/utils';
 /**
  * Mouse wheel normalization across multiple multiple browsers
  * https://github.com/basilfx/normalize-wheel
@@ -15,6 +14,7 @@ import { Device, Utils } from '@wya/utils';
  */
 import normalizeWheel from 'normalize-wheel';
 import { getUid } from '../../utils';
+import { WHEEL_EVENT_NAME } from '../../utils/constant';
 
 const eventKey = 'v-event';
 const noop = () => {};
@@ -24,9 +24,7 @@ const getEventName = (eventType) => {
 	switch (eventType) {
 		case 'wheel':
 		case 'mousewheel':
-			return Device.firefox 
-				? 'DOMMouseScroll' 
-				: 'wheel'; // v3.x mousewheel -> wheel
+			return WHEEL_EVENT_NAME;
 		default:
 			return eventType;
 			

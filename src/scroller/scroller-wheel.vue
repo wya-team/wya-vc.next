@@ -290,6 +290,7 @@ export default defineComponent({
 		};
 		let wheel = new Wheel(
 			{
+				behavior: 'scroll',
 				onWheel: handleWheel,
 				shouldWheelX,
 				shouldWheelY
