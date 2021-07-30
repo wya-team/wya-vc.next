@@ -123,7 +123,7 @@
 </template>
 <script>
 import { defineComponent, ref } from 'vue';
-import Scroller from '..';
+import Scroller from '../scroller-wheel';
 
 export default defineComponent({
 	name: "vc-srcoller-basic",
