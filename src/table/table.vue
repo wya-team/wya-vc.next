@@ -22,12 +22,10 @@
 				:style="{ width: bodyWidth }"
 			/>
 		</div>
-		<!-- 不允许使用native, scroller-wheel 比 scroller 衔接会更好 -->
 		<vc-scroller
 			ref="scroller"
 			:always="false"
 			:wrapper-style="bodyHeight"
-			:get-cursor-container="() => $el"
 			:bar-to="`.${tableId}`"
 			:track-offset-y="[
 				layout.states.headerHeight, 
