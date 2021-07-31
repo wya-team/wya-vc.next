@@ -5,7 +5,7 @@ import TreeStore from './model/tree-store';
 import { getNodeKey as $getNodeKey } from './model/util';
 import TreeNode from './tree-node';
 import useDragNode from './use-drag-node';
-import useCollectNode from './use-collect-node.ts';
+import useCollectNode from './use-collect-node';
 
 export default () => {
 	const { ctx } = getCurrentInstance();

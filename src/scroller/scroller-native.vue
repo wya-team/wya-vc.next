@@ -64,7 +64,7 @@ import { getCurrentInstance, computed, defineComponent, nextTick, onBeforeUnmoun
 import { Device } from '@wya/utils';
 import { pick } from 'lodash';
 import { Resize } from '../utils/resize';
-import ScrollerBar from './bar.vue';
+import ScrollerBar from './bar';
 import { TRANSFORM } from '../utils';
 
 export default defineComponent({

@@ -1,5 +1,5 @@
 import ModalManager, { allowMethod } from './modal-manager';
-import Modal from './modal.vue';
+import Modal from './modal';
 
 ModalManager.allowMethod.forEach(m => {
 	Modal[m] = (userOptions) => {

@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance } from 'vue';
-import ImagePreview from '../../../imgs-preview/index';
+import ImagePreview from '../../../image-preview/index';
 import { VcInstance } from '../../../vc/index';
 import Icon from '../../../icon/index';
 import Image from '../../../image';

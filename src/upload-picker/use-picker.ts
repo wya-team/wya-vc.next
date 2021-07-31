@@ -199,7 +199,7 @@ export default () => {
 			return item;
 		});
 		// 将已经上传成功的文件传递给外部
-		dataSource = currentValue.value[type].filter((it) => !it.errorFlag && this.getUrl(res));
+		dataSource = currentValue.value[type].filter((it) => !it.errorFlag && getUrl(res));
 		dataSource = formatDataSource(dataSource, type);
 		emit('success', res, file, cycle, type);
 		sync(dataSource);

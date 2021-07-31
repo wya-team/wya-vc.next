@@ -58,7 +58,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
 };
 
 export default {
-	name: "vc-imgs-crop",
+	name: "vc-image-crop",
 	props: {
 		src: {
 			type: [String, Object].concat(IS_SERVER ? [] : [File]), // File, Blob类型也可以

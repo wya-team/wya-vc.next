@@ -1,1 +1,1 @@
-export { default } from './card.vue';
+export { default } from './card';

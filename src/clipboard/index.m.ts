@@ -1,6 +1,6 @@
-import MCopy from './mobile/copy';
+import MClipboard from './mobile/clipboard';
 import { copyToClipboard } from './utils';
 
-MCopy.set = copyToClipboard;
+MClipboard.set = copyToClipboard;
 
-export default MCopy;
+export default MClipboard;

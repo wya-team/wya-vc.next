@@ -39,7 +39,7 @@ class IconManager extends VcBasic {
 						
 						if (!icons) {
 							let res = await ajax({
-								url: `${window.location.protocol}${url}`,
+								url: `${window.location.protocol.replace(/^file:$/, 'https:')}${url}`,
 								headers: {
 									'X-Requested-With': null
 								},
