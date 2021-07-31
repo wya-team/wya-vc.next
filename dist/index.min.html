@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../lib/vc.min.css"></link>
+</head>
+<body>
+	<h1>除vue以外的资源</h1>
+	<div id="app"></div>
+	<script src="https://cdn.jsdelivr.net/npm/vue@3.1.5/dist/vue.global.js"></script>
+	<script src="../lib/vc.min.js"></script>
+	<script>
+		let Component = {
+			template: '<vc-editor style="width: 100%"/>'
+		}
+		let app = Vue.createApp(Component);
+		WYA_VC.install(app);
+		app.mount('#app')
+	</script>
+</body>
+</html>

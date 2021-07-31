@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../lib/vc.reset.css"></link>
+	<link rel="stylesheet" href="../lib/vc.normal.css"></link>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.core.css"></link>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.snow.css"></link>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.bubble.css"></link>
+</head>
+<body>
+	<h1>自行加载第三方库的资源</h1>
+	<div id="app"></div>
+	<script src="https://cdn.jsdelivr.net/npm/vue@3.1.5/dist/vue.global.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.min.js"></script>
+	<script src="../lib/vc.common.js"></script>
+	<script>
+		let Component = {
+			template: '<vc-editor style="width: 100%"/>'
+		}
+		let app = Vue.createApp(Component);
+		WYA_VC.install(app);
+		app.mount('#app')
+	</script>
+</body>
+</html>
