@@ -1,6 +1,6 @@
 最常见的应用场景是列表滚动，我们来看一下它的`html`结构
 
-```
+```html
 <div class="wrapper">
 	<ul class="content"> 
 		<li>...</li>

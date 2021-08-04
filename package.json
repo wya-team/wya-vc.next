@@ -1,6 +1,6 @@
 {
     "name": "@wya/vc",
-    "version": "3.0.0-alpha.1",
+    "version": "3.0.0-alpha.0",
     "description": "wya for vue@3.x components",
     "main": "lib/index.js",
     "files": [
@@ -10,6 +10,7 @@
         "start": "npm run dev",
         "dev": "node ./build/dev.js",
         "build": "rm -rf ./lib && cross-env NODE_ENV=production node --max_old_space_size=8192 ./build/build.js",
+        "pub": "bash build/publish.sh",
         "lint": "esw src build --ext .vue,.js,.ts,.jsx,.tsx --color",
         "lint:fix": "npm run lint -- --fix",
         "lint:watch": "npm run lint -- --watch --fix",
@@ -95,7 +96,7 @@
     "husky": {
         "hooks": {
             "pre-commit": "lint-staged",
-            "commit-msg": "node ./build/srcipt/commit-lint"
+            "commit-msg": "node ./build/script/commit-lint"
         }
     },
     "lint-staged": {
