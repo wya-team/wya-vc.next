@@ -96,6 +96,7 @@ export default () => {
 
 	const _recognizer = (url) => {
 		const fn = (VcInstance.config.UploadPicker || {}).recognizer || recognizer;
+		if (url && typeof url === 'object') url = url[this.urlKey];
 		return fn(url, recognizer);
 	};
 
@@ -103,9 +104,6 @@ export default () => {
 		const initialData = { image: [], video: [], audio: [], file: [] };
 		return dataSource.reduce((pre, cur) => {
 			// TODO: 建议统一使用Object[] 而不是String[]
-			if (cur && typeof cur === 'object') {
-				cur = cur[props.urlKey];
-			}
 			switch (_recognizer(cur)) {
 				case 'image':
 					pre.image.push(cur);
