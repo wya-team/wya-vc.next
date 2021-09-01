@@ -6,7 +6,8 @@ module.exports = {
 		"ecmaVersion": 2020,
 		"sourceType": "module",
 		"ecmaFeatures": {
-			"jsx": true
+			"jsx": true,
+			"tsx": true
 		}
 	},
 	"env":
@@ -24,6 +25,7 @@ module.exports = {
 		"airbnb-base"
 	],
 	"plugins": [
+		"@typescript-eslint",
 		"markdown",
 		"babel",
 		"vue"
@@ -32,8 +34,8 @@ module.exports = {
 		"import/resolver": {
 			"node": {
 				"extensions": [
-				  ".js",
-				  ".vue"
+					".js",
+					".vue"
 				]
 			}
 		}
@@ -41,6 +43,17 @@ module.exports = {
 	"globals": {
 		"_global": "readonly"
 	},
+
+	// 避免全局类型出错
+	"overrides": [
+		 {
+			 "files": ["*.ts", "*.vue"],
+			 "rules": {
+				 "no-undef": "off"
+			 }
+		 }
+	 ],
+	 
 	"rules":
 	{
 		// vue https://github.com/vuejs/eslint-plugin-vue
@@ -68,6 +81,7 @@ module.exports = {
 		"@typescript-eslint/no-non-null-assertion": 0,
 		"@typescript-eslint/explicit-module-boundary-types": 0,
 		"@typescript-eslint/no-unused-vars": 0,
+		"@typescript-eslint/no-inferrable-types": 0,
 		// "@typescript-eslint/no-unused-vars": [
 		// 	"warn",
 		// 	{
@@ -98,7 +112,7 @@ module.exports = {
 		"eqeqeq": 0,
 		"no-plusplus": 0,
 		"no-unused-expressions": 0,
-		"no-undef": ["error"],
+		"no-undef": ["warn"],
 		"no-unused-vars": 0,
 		"import/no-extraneous-dependencies": 0,
 		"import/prefer-default-export": 0,

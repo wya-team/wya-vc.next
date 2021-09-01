@@ -42,6 +42,8 @@ const babelParseConfig = {
 	]
 };
 
+const ImportDeclaration = 
+
 // jsx/tsx -> js
 const transform = (code) => {
 	return babel.transformFromAstSync(code, undefined, {
@@ -364,11 +366,9 @@ files.forEach((filepath) => {
 						$path.remove();
 					}
 
+					// 去掉.vue后缀
 					if (/\.(vue)$/.test(value)) {
-						throw new Error(`
-							\n文件中不允许出现.vue文件后缀
-							\n文件: ${FILE_PATH}
-						`);
+						$path.node.source.value = value.replace(/\.vue/, '');
 					}
 				}
 			});
@@ -426,11 +426,9 @@ files.forEach((filepath) => {
 						$path.remove();
 					}
 
+					// 去掉.vue后缀
 					if (/\.(vue)$/.test(value)) {
-						throw new Error(`
-							\n文件中不允许出现.vue文件后缀
-							\n文件: ${FILE_PATH}
-						`);
+						$path.node.source.value = value.replace(/\.vue/, '');
 					}
 				},
 
@@ -455,7 +453,7 @@ files.forEach((filepath) => {
 				VariableDeclarator($path) {
 					if (
 						!renderImport 
-						|| !/wrapperComponent/.test($path.node.id.name) 
+						|| !/(w|W)rapperComponent/.test($path.node.id.name) 
 						|| !$path.node.init.properties
 					) return;
 					$path.node.init.properties.push(renderAST);
