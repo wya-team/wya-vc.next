@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, watchEffect } from 'vue';
+import { defineComponent, ref } from 'vue';
 import inputMixin from '../input-mixin';
 import inputSearchMixin from '../input-search-mixin';
 import MIcon from '../../icon/index.m';
@@ -41,7 +41,7 @@ import useInherit from '../use-inherit';
 import useInputSearch from '../use-input-search';
 import useNativeEmitter from '../use-native-emitter';
 
-export default {
+export default defineComponent({
 	name: 'vcm-input-search',
 	components: {
 		'vcm-icon': MIcon,
@@ -62,14 +62,14 @@ export default {
 			default: false,
 		}
 	},
-	setup(props, context) {
+	setup(_props, context) {
 		const { emit } = context;
 		const input = ref(null);
 		const { click, focus, blur } = useNativeEmitter(input);
 		const { currentValue, isFocus, listeners } = useInputSearch();
 		const { binds } = useInherit();
 
-		const handleCancel = (e) => {
+		const handleCancel = () => {
 			emit('input', '');
 			emit('update:modelValue', '');
 			emit('cancel');
@@ -88,7 +88,7 @@ export default {
 			handleCancel
 		};
 	}
-};
+});
 </script>
 
 <style lang="scss">

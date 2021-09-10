@@ -63,18 +63,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, ref, watch, computed, nextTick, inject } from 'vue';
-import { pick, cloneDeep, isEqualWith } from 'lodash';
+import { defineComponent, ref, watch, computed, nextTick, inject } from 'vue';
+import type { PropType } from 'vue';
+import { pick, isEqualWith } from 'lodash';
 import { $ } from '@wya/utils';
 import { getSelectedData } from '../utils/index';
 import { VcError } from '../vc/index';
-import Extends from '../extends';
 import Input from '../input/index';
 import Popover from '../popover/index';
 import Icon from '../icon/index';
 import InputMixin from '../input/input-mixin';
-import Col from './col';
+import Col from './col.vue';
 import { useAttrs } from '../hooks';
+
+import type { TreeData, TreeValue, TreeLabel } from '../utils/types';
+import type { FormItemInject } from '../form/types';
+import type { CellChangeOptions } from './types';
 
 export default defineComponent({
 	name: 'vc-cascader',
@@ -116,8 +120,8 @@ export default defineComponent({
 			default: false
 		},
 		dataSource: {
-			type: Array,
-			default: () => ([])
+			type: Array as PropType<TreeData[]>,
+			default: () => ([] as TreeData[])
 		},
 		extra: {
 			type: String,
@@ -125,7 +129,7 @@ export default defineComponent({
 		},
 		formatter: {
 			type: Function,
-			default: v => (v && v.join(' / '))
+			default: (v: any[]) => (v && v.join(' / '))
 		},
 		loadData: {
 			type: Function,
@@ -138,15 +142,14 @@ export default defineComponent({
 	emits: ['update:modelValue', 'visible-change', 'ready', 'change', 'close'],
 	setup(props, context) {
 		const { emit } = context;
-		const instance = getCurrentInstance();
-		const formItem = inject('form-item', {});
+		const formItem = inject('form-item', {} as FormItemInject);
 		const its = useAttrs({ standard: false });
 
 		const isHover = ref(false);
 		const isActive = ref(false);
-		const currentValue = ref([]);
-		const currentLabel = ref([]);
-		const rebuildData = ref([]);
+		const currentValue = ref([] as TreeValue[]);
+		const currentLabel = ref([] as TreeLabel[]);
+		const rebuildData = ref([] as TreeData[]);
 		const colRef = ref({});
 
 		const icon = computed(() => {
@@ -175,14 +178,14 @@ export default defineComponent({
 			return props.formatter(label.value) || props.extra;
 		});
 
-		const setColRef = (el, index) => {
+		const setColRef = (el: HTMLElement, index: number) => {
 			el && (colRef[index] = el);
 		};
 
 		/**
 		 * v-model 同步, 外部的数据改变时不会触发
 		 */
-		const sync = (force) => {
+		const sync = (force?: boolean) => {
 			(props.changeOnSelect) && (
 				emit('update:modelValue', currentValue.value, label.value),
 				emit('change', currentValue.value, label.value)
@@ -210,7 +213,7 @@ export default defineComponent({
 		 * 单列数据
 		 * @param  {Array} source 数据源
 		 */
-		const makeData = (source) => {
+		const makeData = (source: TreeData[]): TreeData[] => {
 			let data = source && source.map(i => ({
 				value: i.value,
 				label: i.label,
@@ -224,14 +227,14 @@ export default defineComponent({
 		 * 调整数据
 		 * @return {Array} 每列的数据
 		 */
-		const makeRebuildData = () => {
-			if (!props.dataSource.length) return [];
-			let temp = props.dataSource;
+		const makeRebuildData = (): TreeData[] => {
+			if (!props.dataSource.length) return [] as TreeData[];
+			let temp: TreeData[] = props.dataSource;
 			let data = currentValue.value.slice(0).reduce((pre, cur, index) => {
-				pre[index] = makeData(temp);
-				temp = ((temp && temp.find(i => i.value == cur)) || {}).children;
+				pre[index] = temp && makeData(temp);
+				temp = ((temp && temp.find(i => i.value == cur)) || {}).children || [];
 				return pre; 
-			}, []);
+			}, [] as TreeData[]);
 
 			temp && data.push(makeData(temp));
 
@@ -257,7 +260,7 @@ export default defineComponent({
 					let source = rebuildData.value[index];
 
 					if (source && el) {
-						let $instance = source.findIndex(i => item == i.value);
+						let $instance = source.findIndex((i: TreeData) => item == i.value);
 						$(el.firstChild).scrollIntoView({ to: $instance * 30 });
 					}
 					
@@ -265,7 +268,7 @@ export default defineComponent({
 			});
 		};
 
-		const handleClear = (e) => {
+		const handleClear = (e: Event) => {
 			if (!showClear.value) return;
 			e.stopPropagation();
 
@@ -282,7 +285,8 @@ export default defineComponent({
 		 * @param  {Number} colIndex 列
 		 * @param  {Number} isHover 是否是xx
 		 */
-		const handleCellChange = async ({ value, rowIndex, colIndex }) => {
+		const handleCellChange = async (options: CellChangeOptions) => {
+			const { value, rowIndex, colIndex } = options || {};
 			try {
 				const len = currentValue.value.slice(colIndex).length;
 				currentValue.value.splice(colIndex, len, value);
@@ -290,8 +294,8 @@ export default defineComponent({
 				/**
 				 * TODO: 提前缓存index
 				 */
-				let children = currentValue.value.reduce((pre, cur) => {
-					let target = pre.find(i => i.value == cur) || {};
+				let children = currentValue.value.reduce((pre: TreeData[] | undefined, cur) => {
+					let target = (pre && pre.find((i: TreeData) => i.value == cur)) || {};
 
 					return target.children ? target.children : undefined;
 				}, props.dataSource);

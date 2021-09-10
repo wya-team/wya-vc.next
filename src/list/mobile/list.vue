@@ -18,7 +18,7 @@ export default defineComponent({
 			default: true
 		}
 	},
-	setup(props, context) {
+	setup(props) {
 		provide('list', { props });
 	}
 });

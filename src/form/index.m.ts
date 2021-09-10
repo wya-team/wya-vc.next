@@ -1,5 +1,5 @@
-import MForm from './mobile/form';
-import MFormItem from './mobile/form-item';
+import MForm from './mobile/form.vue';
+import MFormItem from './mobile/form-item.vue';
 
 MForm.Item = MFormItem;
 

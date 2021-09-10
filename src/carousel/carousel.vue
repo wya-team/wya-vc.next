@@ -71,43 +71,45 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
+import type { Ref } from 'vue';
 import { throttle } from 'lodash';
 import Icon from '../icon';
 import Transition from '../transition';
 import CarouselMixin from './carousel-mixin';
 import useCarousel from './use-carousel';
+import type { CarouselItemInstance, CarouselData } from './types';
 
-export default {
+export default defineComponent({
 	name: 'vc-carousel',
 	components: {
 		'vc-icon': Icon,
 		'vc-transition-slide': Transition.Slide
 	},
 	mixins: [CarouselMixin],
-	setup(props, context) {
+	setup(props) {
 		const isHover = ref(false);
-		const wrapper = ref(null);
+		const wrapper: Ref<Nullable<HTMLElement>> = ref(null);
 		const arrowDisplay = computed(() => {
 			return props.arrow && !props.vertical;
 		});
 
-		const carousel = useCarousel(wrapper);
-		const itemInStage = (item, index, items) => {
+		const carousel: CarouselData = useCarousel(wrapper);
+		const itemInStage = (item: CarouselItemInstance, index: number, items: CarouselItemInstance[]) => {
 			const length = items.length;
-			if ((index === length - 1 && item.isInStage && items[0].isActive)
-				|| (item.isInStage && items[index + 1] && items[index + 1].isActive)
+			if ((index === length - 1 && item.proxy.isInStage && items[0].proxy.isActive)
+				|| (item.proxy.isInStage && items[index + 1] && items[index + 1].proxy.isActive)
 			) {
 				return 'left';
-			} else if ((index === 0 && item.isInStage && items[length - 1].isActive)
-				|| (item.isInStage && items[index - 1] && items[index - 1].isActive)) {
+			} else if ((index === 0 && item.proxy.isInStage && items[length - 1].proxy.isActive)
+				|| (item.proxy.isInStage && items[index - 1] && items[index - 1].proxy.isActive)) {
 				return 'right';
 			}
 			return false;
 		};
 
-		const handleButtonEnter = (arrow) => {
+		const handleButtonEnter = (arrow: string) => {
 			if (props.vertical) return;
-			carousel.items.value.forEach((item, index, items) => {
+			carousel.items.value.forEach((item: CarouselItemInstance, index: number, items: CarouselItemInstance[]) => {
 				if (arrow === itemInStage(item, index, items)) {
 					item.proxy.isHover = true;
 				}
@@ -121,7 +123,7 @@ export default {
 			});
 		};
 
-		const handleDotHover = (index) => {
+		const handleDotHover = (index: number) => {
 			if (props.trigger === 'hover' && index !== carousel.activeIndex.value) {
 				carousel.activeIndex.value = index;
 			}
@@ -137,8 +139,8 @@ export default {
 			carousel.startTimer();
 		};
 
-		const throttledArrowClick = throttle((index) => carousel.setActiveItem(index));
-		const throttledDotHover = throttle((index) => carousel.setActiveItem(index));
+		const throttledArrowClick = throttle(carousel.setActiveItem);
+		const throttledDotHover = throttle(handleDotHover);
 
 		return {
 			wrapper,
@@ -155,7 +157,7 @@ export default {
 		};
 	}
 	
-};
+});
 </script>
 
 <style lang="scss">

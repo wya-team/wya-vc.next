@@ -3,7 +3,6 @@ import { ajax } from '@wya/http';
 import { Device, Utils } from '@wya/utils';
 import { attrAccept, initItem } from './utils';
 import { getUid } from '../utils/utils';
-import { PORTAL_WRAPPER_INSTANCE } from '../utils/constant';
 import { VcInstance, VcError } from '../vc/index';
 import { Tips } from './tips';
 
@@ -394,7 +393,7 @@ export default {
 				cName: getUid()
 			});
 
-			tips = app[PORTAL_WRAPPER_INSTANCE];
+			tips = app.wrapper;
 
 			window.tips = tips;
 		});

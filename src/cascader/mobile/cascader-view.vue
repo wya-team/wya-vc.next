@@ -49,13 +49,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, ref, watch, computed, nextTick, inject } from 'vue';
-import { pick, cloneDeep, isEqualWith } from 'lodash';
+import { defineComponent, ref, watch, computed } from 'vue';
+import type { PropType } from 'vue';
+import { pick, isEqualWith } from 'lodash';
 import { VcError } from '../../vc';
-import Col from './col';
+import Col from './col.vue';
 import { getSelectedData } from '../../utils/index';
+import type { TreeData, TreeValue } from '../../utils/types';
+import type { CellChangeOptions } from '../types';
 
-export default {
+export default defineComponent({
 	name: 'vcm-cascader-view',
 	components: {
 		'vcm-cascader-col': Col
@@ -66,12 +69,12 @@ export default {
 			'alphabetKey'
 		]),
 		modelValue: {
-			type: Array,
-			default: () => []
+			type: Array as PropType<TreeValue[]>,
+			default: () => ([] as TreeValue[])
 		},
 		dataSource: {
-			type: Array,
-			default: () => ([])
+			type: Array as PropType<TreeData[]>,
+			default: () => ([] as TreeData[])
 		},
 		loadData: Function,
 		changeOnSelect: {
@@ -87,9 +90,9 @@ export default {
 	setup(props, context) {
 		const { emit } = context;
 		const currentIndex = ref(0);
-		const currentValue = ref([]);
-		const rebuildData = ref([]);
-		const alphabetData = ref([]);
+		const currentValue = ref([] as TreeValue[]);
+		const rebuildData = ref([] as TreeData[]);
+		const alphabetData = ref([] as TreeData[]);
 		const hasChildren = ref(true);
 		const headerIndex = ref(0);
 
@@ -139,15 +142,15 @@ export default {
 		 * 单列数据
 		 * @param  {Array} source 数据源
 		 */
-		const makeData = (source) => {
-			const alphabet = [];
-			let data = source && source.map(it => {
+		const makeData = (source: TreeData[]) => {
+			const alphabet = [] as TreeData[];
+			let data = source && source.map((it: TreeData) => {
 				const item = {
 					value: it.value,
 					label: it.label,
 					hasChildren: !!(it.children && (it.children.length > 0 || props.loadData)),
 					loading: false,
-				};
+				} as TreeData;
 				if (props.alphabetical) {
 					const letter = it[props.alphabetKey];
 					item[props.alphabetKey] = letter;
@@ -166,17 +169,17 @@ export default {
 		 * 调整数据
 		 * @return {Array} 每列的数据
 		 */
-		const makeRebuildData = () => {
-			if (!props.dataSource.length) return [];
-			let temp = props.dataSource;
+		const makeRebuildData = (): TreeData[] => {
+			if (!props.dataSource.length) return [] as TreeData[];
+			let temp: TreeData[] = props.dataSource;
 			alphabetData.value = [];
 			let data = currentValue.value.slice(0).reduce((pre, cur, index) => {
 				const { data: $data, alphabet } = makeData(temp);
 				pre[index] = $data;
 				alphabetData.value[index] = alphabet;
-				temp = ((temp && temp.find(i => i.value == cur)) || {}).children;
+				temp = ((temp && temp.find(i => i.value == cur)) || {}).children || [];
 				return pre; 
-			}, []);
+			}, [] as TreeData[]);
 
 			if (temp) {
 				const result = makeData(temp);
@@ -194,15 +197,16 @@ export default {
 		 * @param  {Number} colIndex 列
 		 * @param  {Number} isHover 是否是xx
 		 */
-		const handleChange = async ({ value, rowIndex, colIndex, sync: $sync }) => {
+		const handleChange = async (options: CellChangeOptions) => {
+			const { value, rowIndex, colIndex, sync: $sync } = options || {};
 			try {
 				const len = currentValue.value.slice(colIndex).length;
 				currentValue.value.splice(colIndex, len, value);
 				/**
 				 * TODO: 提前缓存index
 				 */
-				let children = currentValue.value.reduce((pre, cur) => {
-					let target = pre.find(i => i.value == cur) || {};
+				let children = currentValue.value.reduce((pre: TreeData[] | undefined, cur) => {
+					let target = (pre && pre.find((i: TreeData) => i.value == cur)) || {};
 
 					return target.children ? target.children : undefined;
 				}, props.dataSource);
@@ -253,10 +257,10 @@ export default {
 			}
 		};
 
-		const handleChangeTab = (index) => {
+		const handleChangeTab = (index: number) => {
 			headerIndex.value = index;
 			handleChange({ 
-				value: props.dataSource[index].value,
+				value: props.dataSource[index].value as TreeValue,
 				rowIndex: index,
 				colIndex: 0,
 				sync: false
@@ -266,7 +270,7 @@ export default {
 		const resetCurrentVal = () => {
 			if (props.header && props.dataSource.length) {
 				if (currentValue.value.length === 0) { // 没传值，默认给第一个
-					currentValue.value.push(props.dataSource[0].value);
+					currentValue.value.push(props.dataSource[0].value as TreeValue);
 				} else { // 传了值，判断该值在dataSource的索引修改headerIndex
 					headerIndex.value = props.dataSource.findIndex(it => it.value === currentValue.value[0]);
 				}
@@ -289,7 +293,7 @@ export default {
 			// }
 			let value = currentValue.value.slice(-1)[0];
 			let colIndex = currentValue.value.length - 1;
-			let rowIndex = rebuildData.value[colIndex].findIndex(i => i.value === value);
+			let rowIndex = rebuildData.value[colIndex].findIndex((i: TreeData) => i.value === value);
 
 			handleChange({ value, rowIndex, colIndex, sync: false });
 		};
@@ -337,7 +341,7 @@ export default {
 			handleChange
 		};
 	}
-};
+});
 </script>
 
 <style lang="scss">

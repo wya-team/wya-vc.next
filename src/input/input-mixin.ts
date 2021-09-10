@@ -1,8 +1,10 @@
-export default {
+import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
+
+export default defineComponent({
 	props: {
 		type: {
-			type: String,
-			validator: v => /(text|password|tel|search|date|number|email|url)/.test(v),
+			type: String as PropType<'text' | 'password' | 'tel' | 'search' | 'date' | 'number' | 'email' | 'url'>,
 			default: 'text'
 		},
 		modelValue: {
@@ -34,7 +36,7 @@ export default {
 			default: false
 		},
 		autocomplete: {
-			validator: v => /^(on|off|new-password)$/.test(v),
+			type: String as PropType<'on' | 'off' | 'new-password'>,
 			default: 'off'
 		},
 		clearable: {
@@ -87,4 +89,4 @@ export default {
 		'tip',
 		'cancel'
 	],
-};
+});

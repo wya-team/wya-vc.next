@@ -1,13 +1,15 @@
 import { ref, inject, watch, computed, getCurrentInstance } from 'vue';
+import type { Ref } from 'vue'; 
 import { checkMaxlength } from './utils';
+import type { InputInstance } from './types';
 
-export default (input) => {
-	const { emit, props, ctx } = getCurrentInstance();
+export default (input: Ref<Nullable<HTMLElement>>) => {
+	const { emit, props, ctx } = getCurrentInstance() as InputInstance;
 
 	const currentValue = ref(props.modelValue);
 	const isFocus = ref(false);
 	const isOnComposition = ref(false);
-	const formItem = inject('form-item', {});
+	const formItem: any = inject('form-item', {});
 	/**
 	 * 强制必须使用v-model，所以不需要判断一次
 	 */
@@ -27,15 +29,15 @@ export default (input) => {
 		};
 	});
 
-	const handleKeydown = (e) => {
+	const handleKeydown = (e: any) => {
 		emit('keydown', e);
 	};
 
-	const handleKeypress = (e) => {
+	const handleKeypress = (e: any) => {
 		emit('keypress', e);
 	};
 
-	const handleKeyup = (e) => {
+	const handleKeyup = (e: any) => {
 		// 数字键盘
 		if (e.keyCode == 13 || e.keyCode == 108) {
 			emit('enter', e);
@@ -43,37 +45,38 @@ export default (input) => {
 		emit('keyup', e);
 	};
 
-	const handleFocus = (e) => {
+	const handleFocus = (e: any) => {
 		isFocus.value = true;
 		
 		if (props.focusEnd) {
-			let length = currentValue.value.length;
+			let length = String(currentValue.value).length;
 			/**
 			 * hack chrome浏览器的BUG：
 			 * setSelectionRange() for input/textarea during onFocus fails 
 			 * when mouse clicks
 			 */
 			setTimeout(() => {
-				e.srcElement.setSelectionRange(length, length);
+				// @ts-ignore: deprecated
+				e.srcElement?.setSelectionRange(length, length);
 			}, 0);
 		}
 		emit('focus', e);
 	};
 
-	const handleBlur = (e) => {
+	const handleBlur = (e: InputEvent) => {
 		isFocus.value = false;
 
 		emit('blur', e);
 		formItem.change?.(currentValue.value);
 	};
 
-	const handleInput = (e) => {
+	const handleInput = (e: InputEvent) => {
 		if (isOnComposition.value) return;
-		let value = e.target.value;
+		let value = (e.target as any).value;
 		// 撤销/重做
 		if (
 			e.inputType !== 'deleteContentBackward'
-			&& !checkMaxlength(value) 
+			&& !checkMaxlength(value, props.maxlength) 
 		) {
 			e.preventDefault();
 			ctx.$forceUpdate();
@@ -86,7 +89,7 @@ export default (input) => {
 		ctx.$forceUpdate();
 	};
 
-	const handleComposition = (e) => {
+	const handleComposition = (e: InputEvent) => {
 		if (e.type === 'compositionstart') {
 			isOnComposition.value = true;
 		}
@@ -97,11 +100,11 @@ export default (input) => {
 		}
 	};
 
-	const handleChange = (e) => {
+	const handleChange = (e: InputEvent) => {
 		emit('change', e);
 	};
 
-	const handlePaste = (e) => {
+	const handlePaste = (e: ClipboardEvent) => {
 		emit('paste', e);
 	};
 

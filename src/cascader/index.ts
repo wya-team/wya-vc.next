@@ -1,1 +1,1 @@
-export { default } from './cascader';
+export { default } from './cascader.vue';

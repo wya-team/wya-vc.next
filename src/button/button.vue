@@ -20,7 +20,7 @@
 </template>
 <script lang="ts">
 import { getCurrentInstance, defineComponent, ref, computed, inject, onMounted } from 'vue';
-
+import type { PropType, ComponentInternalInstance } from 'vue';
 import Icon from "../icon";
 import Spin from "../spin";
 import DebounceClick from '../debounce-click';
@@ -38,13 +38,11 @@ export default defineComponent({
 			default: 'button'
 		},
 		type: {
-			type: String,
-			validator: v => /(default|primary|text|success|error|warning)/.test(v),
+			type: String as PropType<'default' |' primary' |' text' |' success' |' error' |' warning'>,
 			default: 'default'
 		},
 		size: {
-			type: String,
-			validator: v => /(small|medium|large)/.test(v),
+			type: String as PropType<'small' | 'medium' | 'large'>,
 			default: 'medium'
 		},
 		wait: {
@@ -57,9 +55,8 @@ export default defineComponent({
 		round: Boolean,
 		long: Boolean,
 		htmlType: {
-			type: String,
-			default: 'button',
-			validator: v => /(button|submit|reset)/.test(v),
+			type: String as PropType<'button' | 'submit' | 'reset'>,
+			default: 'button'
 		},
 	},
 	emits: ['click'],
@@ -76,7 +73,7 @@ export default defineComponent({
 
 		const classes = computed(() => ({
 			'is-circle': props.circle || group.circle,
-			'is-alone': !props.hasSlot,
+			'is-alone': !hasSlot.value,
 			'is-round': props.round,
 			'is-long': props.long,
 			'is-disabled': props.disabled,
@@ -84,8 +81,8 @@ export default defineComponent({
 			[`is-${props.type}`]: true
 		}));
 
-		const handleClick = (...args) => {
-			let { onClick } = instance.vnode.props;
+		const handleClick = (...args: any[]) => {
+			let { onClick } = (instance as ComponentInternalInstance).vnode.props || {};
 			let fn = onClick && onClick(...args);
 
 			if (fn && fn.then) {

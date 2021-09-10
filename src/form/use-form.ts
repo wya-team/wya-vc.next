@@ -1,35 +1,44 @@
-import { provide, ref, watchEffect, reactive, getCurrentInstance } from 'vue';
+import { provide, getCurrentInstance } from 'vue';
+import type { VNode } from 'vue';
 import { sortBy } from 'lodash';
 import { VcError } from '../vc/index';
+import type { 
+	FormInject, 
+	FormInstance, 
+	FormItemInstance, 
+	FormOptions, 
+	FormValidateOptions, 
+	FormValidateResponse 
+} from './types';
 
-export default (options = {}) => {
-	const instance = getCurrentInstance();
+export default (options: FormOptions = {}) => {
+	const instance = getCurrentInstance() as FormInstance;
 	const { slots, props } = instance;
 
-	const fields = [];
+	const fields: FormItemInstance[] = [];
 
 	provide('form', {
 		props,
-		add: item => {
+		add: (item: FormItemInstance) => {
 			item && fields.push(item);
 		},
-		remove: item => {
+		remove: (item: FormItemInstance) => {
 			item.props.prop && fields.splice(fields.indexOf(item), 1);
 		}
-	});
+	} as FormInject);
 
 	const resetFields = () => {
 		fields.forEach(item => item.proxy.resetField());
 	};
 
-	const getField = (prop) => {
+	const getField = (prop: string) => {
 		const field = fields.find(item => item.props.prop === prop);
 		if (!field) throw new VcError('form', '请选择有用的prop值');
 
 		return field;
 	};
 
-	const showToast = (msg) => {
+	const showToast = (msg: string) => {
 		props.showMessage 
 			&& options.throwToast 
 			&& options.throwToast(msg);
@@ -39,12 +48,12 @@ export default (options = {}) => {
 	 * 同时处理嵌套form-item
 	 * TODO: 渲染时计算（使用[form]vnode.el和[formItem]vnode.el）
 	 */
-	const sortErrors = (errors) => {
+	const sortErrors = (errors: any[]) => {
 		let basicSort = {};
 		let count = 0;
 
-		let fn = (vnodes) => {
-			vnodes.forEach((vnode, index) => {
+		let fn = (vnodes: VNode[]) => {
+			vnodes.forEach((vnode: VNode) => {
 				try {
 					let { prop } = vnode.props || {}; 
 					let { children } = vnode;
@@ -52,14 +61,14 @@ export default (options = {}) => {
 					if (
 						prop
 						&& typeof vnode.type === 'object' 
-						&& vnode.type.name 
-						&& /^vcm?-form-item$/.test(vnode.type.name)
+						&& (vnode.type as any).name 
+						&& /^vcm?-form-item$/.test((vnode.type as any).name)
 					) {
 						basicSort[prop] = count++;
-					} else if (children && children.default) {
-						fn(children.default());
+					} else if (children && typeof (children as any).default === 'function') {
+						fn((children as any).default());
 					} else if (children && children instanceof Array) {
-						fn(children);
+						fn(children as VNode[]);
 					}
 				} catch (e) {
 					throw new VcError('form', e);
@@ -67,26 +76,25 @@ export default (options = {}) => {
 			});
 		};
 
-		fn(slots.default?.());
+		fn((slots?.default as any)?.());
 		errors = sortBy(errors, [(i) => basicSort[i.prop]]);
 		return errors;
 	};
 
-	const scrollIntoView = (prop, opts = {}) => {
+	const scrollIntoView = (prop: string) => {
 		let field = getField(prop);
-		field.vnode.el.scrollIntoView({
+		(field.vnode as VNode)?.el?.scrollIntoView({
 			behavior: 'smooth',
 			block: 'center',
 		});
 	};
 
-	const validate = (opts = {}) => {
+	const validate = (opts: FormValidateOptions = {}) => {
 		const { scroll = true } = opts;
 
-		return new Promise((resolve, reject) => {
-			let valid = true;
+		return new Promise<void | object[]>((resolve, reject) => {
 			let count = 0;
-			let originErrors = [];
+			let originErrors: object[] = [];
 
 			if (!fields.length) {
 				resolve();
@@ -94,10 +102,9 @@ export default (options = {}) => {
 			}
 
 			fields.forEach(item => {
-				item.proxy.validate('', (res = {}) => {
+				item.proxy.validate('', (res: FormValidateResponse = {}) => {
 					if (res.msg || res.message) {
 						originErrors.push(res);
-						valid = false;
 					}
 					if (++count === fields.length) {
 						let errors = sortErrors(originErrors);

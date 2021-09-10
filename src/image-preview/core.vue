@@ -117,7 +117,7 @@ const wrapperComponent = defineComponent({
 		// 工具栏扩展
 		actionBar: {
 			type: Array,
-			default: () => (VcInstance.config?.ImgsPreview?.actionBar || [])
+			default: () => (VcInstance.config?.ImagePreview?.actionBar || [])
 		},
 	},
 	emits: ['portal-fulfilled', 'close', 'ready'],

@@ -34,11 +34,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, getCurrentInstance } from 'vue';
+import type { PropType } from 'vue';
 import { $ } from '@wya/utils';
 import MIcon from '../../icon/index.m';
 import MSpin from '../../spin/index.m';
 import MToast from '../../toast/index.m';
-import Alphabet from './alphabet';
+import Alphabet from './alphabet.vue';
+import type { TreeData, TreeValue } from '../../utils/types';
 
 export default defineComponent({
 	name: 'vcm-cascader-col',
@@ -49,8 +51,8 @@ export default defineComponent({
 	},
 	props: {
 		dataSource: {
-			type: Array,
-			default: () => []
+			type: Array as PropType<TreeData[]>,
+			default: () => ([] as TreeData[])
 		},
 		value: {
 			type: [String, Number]
@@ -77,25 +79,25 @@ export default defineComponent({
 	},
 	emits: ['change'],
 	setup(props, { emit }) {
-		const instance = getCurrentInstance();
+		const instance = getCurrentInstance() as any;
 		const currentLetter = ref(props.alphabet[0]);
 
 		watch(
 			() => props.index,
-			(v) => {
+			() => {
 				// 滚动到初始位置
-				let $instance = props.dataSource.findIndex(i => props.value == i.value);
+				let $instance = props.dataSource.findIndex((i: TreeData) => props.value == i.value);
 
 				$(instance.vnode.el).scrollIntoView({ to: $instance * 40 });
 			}
 		);
 
-		const handleClick = (value, rowIndex) => {
+		const handleClick = (value: TreeValue, rowIndex: number) => {
 			const { index: colIndex } = props;
 			emit('change', { value, rowIndex, colIndex });
 		};
 
-		const handleLetterChange = (letter) => {
+		const handleLetterChange = (letter: string) => {
 			MToast.destroy();
 			MToast.info(letter, 0.8);
 			const el = instance.node.el.querySelector(`#${letter}`);

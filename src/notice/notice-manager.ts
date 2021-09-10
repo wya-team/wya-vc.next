@@ -12,7 +12,7 @@ class NoticeManager extends Portal {
 	}
 
 	run(config, opts) {
-		let number = Object.keys(this.APIS)
+		let number = Object.keys(this.portals)
 			.filter(item => item.includes(this.globalOptions.cName)).length;
 		let noticeBox = document.querySelector('.vc-notice');
 		if (!noticeBox) {

@@ -56,13 +56,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, getCurrentInstance, onMounted } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import { pick } from 'lodash';
 import Portal from '../../portal/index';
 import MSpin from '../../spin/index.m';
 import MPopup from '../../popup/index.m';
+import type { Action } from '../types';
 
-const wrapperComponent = defineComponent({
+const WrapperComponent = defineComponent({
 	name: 'vcm-action-sheet',
 	components: {
 		'vcm-popup': MPopup,
@@ -84,17 +85,16 @@ const wrapperComponent = defineComponent({
 		},
 		cancelText: String
 	},
-	emits: [],
-	setup(props, context) {
+	emits: ['portal-fulfilled'],
+	setup(_props, context) {
 		const { emit } = context;
-		const instance = getCurrentInstance();
 		const isActive = ref(false);
 		const loadingIndex = ref(-1); // 异步情况下需要展示loading的action，值为action的索引
 		onMounted(() => {
 			isActive.value = true;
 		});
 
-		const handleOk = (rest) => {
+		const handleOk = (rest: Action) => {
 			isActive.value = false;
 			emit('portal-fulfilled', rest);
 		};
@@ -104,7 +104,7 @@ const wrapperComponent = defineComponent({
 			emit('portal-fulfilled');
 		};
 
-		const handleActionClick = async (action, index) => {
+		const handleActionClick = async (action: Action, index: number) => {
 			let { onClick, ...rest } = action;
 			if (rest.disabled || loadingIndex.value > -1) return; // 存在异步时不允许点击
 			let after = onClick && onClick(rest, () => { handleOk(rest); });
@@ -129,8 +129,8 @@ const wrapperComponent = defineComponent({
 	}
 });
 
-export default wrapperComponent;
-export const Func = new Portal(wrapperComponent, {});
+export default WrapperComponent;
+export const Func = new Portal<typeof WrapperComponent>(WrapperComponent, {});
 </script>
 
 <style lang="scss">

@@ -15,7 +15,7 @@ export const defaultRenderWeek = ({ weekNames, lang }) => {
 	return (
 		<div class="vc-calendar__week">
 			{
-				weekNames.map((item, index) => {
+				weekNames.map((item: any, index: number) => {
 					return <span key={index}>{item[lang]}</span>;
 				})
 			}

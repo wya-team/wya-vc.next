@@ -4,7 +4,7 @@ import Message from '../message/index';
 import Toast from '../toast/index';
 import { VcInstance } from '../vc/index';
 import { recognizer, FILE_ACCEPT_MAP } from './utils';
-import { compressImg } from '../utils';
+import { compressImage } from '../utils';
 
 const { DOC_ACCEPTS, EXCEL_ACCEPTS, PPT_ACCEPTS, PDF_ACCEPTS, TXT_ACCEPTS, HTML_ACCEPTS } = FILE_ACCEPT_MAP;
 const isEmpty = (dataSource) => {
@@ -96,7 +96,7 @@ export default () => {
 
 	const _recognizer = (url) => {
 		const fn = (VcInstance.config.UploadPicker || {}).recognizer || recognizer;
-		if (url && typeof url === 'object') url = url[this.urlKey];
+		if (url && typeof url === 'object') url = url[props.urlKey];
 		return fn(url, recognizer);
 	};
 
@@ -143,7 +143,7 @@ export default () => {
 
 	const handleFileBefore = async (file, fileList, type) => {
 		if (props.compressOptions.compress && type === 'image') { // 图片是否压缩
-			file = await compressImg({ file, ...props.compressOptions });
+			file = await compressImage({ file, ...props.compressOptions });
 		}
 		return new Promise((resolve, reject) => {
 			const { onFileBefore } = instance.vnode.props; 

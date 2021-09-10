@@ -7,6 +7,7 @@
 		@touchend.stop="handleTouchEnd"
 	>
 		<div
+			ref="wrapper"
 			:style="{ height: height ? `${height}px` : 'auto' }"
 			class="vcm-carousel__wrapper"
 		>
@@ -39,9 +40,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import type { Ref } from 'vue';
 import CarouselMixin from '../carousel-mixin';
 import useCarousel from '../use-carousel';
+import type { CarouselData } from '../types';
 
 export default defineComponent({
 	name: 'vcm-carousel',
@@ -56,8 +59,9 @@ export default defineComponent({
 			default: true
 		}
 	},
-	setup(props, context) {
-		const carousel = useCarousel();
+	setup(props) {
+		const wrapper: Ref<Nullable<HTMLElement>> = ref(null);
+		const carousel: CarouselData = useCarousel(wrapper);
 		/**
 		 * 0：未滚动
 		 * 1：页面滚动
@@ -65,12 +69,12 @@ export default defineComponent({
 		 */
 		let scrollStatus = 0;
 
-		const handleTouchStart = (e) => {
+		const handleTouchStart = (e: TouchEvent) => {
 			carousel.handleStart(e.touches[0]);
 			scrollStatus = 0;
 		};
 
-		const handleTouchMove = (e) => {
+		const handleTouchMove = (e: TouchEvent) => {
 			let absX = Math.abs(e.touches[0].screenX - carousel.startX.value);
 			let absY = Math.abs(e.touches[0].screenY - carousel.startY.value);
 
@@ -88,12 +92,13 @@ export default defineComponent({
 			}
 		};
 
-		const handleTouchEnd = (e) => {
+		const handleTouchEnd = (e: TouchEvent) => {
 			carousel.handleEnd(e.changedTouches[0]);
 			scrollStatus = 0;
 		};
 
 		return {
+			wrapper,
 			...carousel,
 			handleTouchStart,
 			handleTouchMove,

@@ -17,9 +17,10 @@
 	</div>
 </template>
 <script lang="ts">
+import { defineComponent } from 'vue';
 import Icon from '../icon/index';
 
-export default {
+export default defineComponent({
 	name: 'vc-card',
 	components: { 
 		'vc-icon': Icon
@@ -44,7 +45,7 @@ export default {
 			type: String,
 		}
 	}
-};
+});
 </script>
 <style lang="scss">
 @import '../style/vars.scss';

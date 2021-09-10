@@ -1,10 +1,11 @@
 import { VcError } from '../vc/index';
+import type { PopoverRect } from './types';
 
 const EXTRA_DISTANCE = 4; // 额外的距离
 const HALF_ARROW = 12.73 / 2; // 箭头一半的高度
 export default () => {
 	const getRect = ({ portal, hasContainer, triggerEl, el }) => {
-		let rect;
+		let rect: PopoverRect;
 		if (hasContainer) { // 基于传入的容器节点
 			let elRect = triggerEl.getBoundingClientRect();
 			let parentRect = el.parentElement.getBoundingClientRect();
@@ -29,7 +30,7 @@ export default () => {
 			};
 		} else {
 			rect = triggerEl.getBoundingClientRect(); // 基于body
-			rect.y = document.scrollingElement.scrollTop + rect.y;
+			rect.y = (document?.scrollingElement?.scrollTop || 0) + rect.y;
 		}
 
 		return rect || {};
@@ -68,12 +69,12 @@ export default () => {
 	};
 
 
-	const getFitPos = ({ rect, placement, triggerEl, el }) => {
+	const getFitPos = ({ placement, triggerEl, el }) => {
 		// 目前判断是否可展示下是针对于整个页面，没有针对父容器,只与body进行比较
 		let popupRect = triggerEl.getBoundingClientRect();
 
-		let remanentW;
-		let remanentH;
+		let remanentW: number;
+		let remanentH: number;
 
 		let direction = placement.split('-');
 		let rightDistance = window.innerWidth - popupRect.left; // 触发节点左侧距离浏览器右侧的距离
@@ -130,8 +131,8 @@ export default () => {
 		return placement;
 	};
 	const getPopupStyle = ({ rect, placement, triggerEl, el }) => {
-		let wrapperStyle;
-		let arrowStyle;
+		let wrapperStyle: any;
+		let arrowStyle: any;
 		let popContainer = el.parentElement;
 		let isWindow = popContainer === document.body;
 		let scrollXWidth = isWindow ? window.scrollX : 0; // 横轴上滚动的距离

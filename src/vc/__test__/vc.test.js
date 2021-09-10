@@ -10,7 +10,7 @@ describe('Vc', () => {
 		/**
 		 * 来自继承
 		 */
-		expect(typeof VcInstance.APIS).to.equal('object');
+		expect(typeof VcInstance.portals).to.equal('object');
 		expect(typeof VcInstance.clear).to.equal('function');
 		expect(typeof VcInstance.clearAll).to.equal('function');
 	});

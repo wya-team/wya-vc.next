@@ -12,10 +12,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import basicFormItemMixin from '../form-item-mixin';
 import useFormItem from '../use-form-item';
 
-export default {
+export default defineComponent({
 	name: 'vcm-form-item',
 	mixins: [basicFormItemMixin],
 	props: {
@@ -28,7 +29,7 @@ export default {
 	setup() {
 		return useFormItem();
 	}
-};
+});
 
 </script>
 

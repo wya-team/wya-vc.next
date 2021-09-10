@@ -3,10 +3,11 @@ import VcBasic from './basic';
 import VcError from './error';
 
 class VcManager extends VcBasic {
+	hasInit: boolean;
+	
 	constructor() {
 		super();
 		this.hasInit = false;
-		// this.setEventStore(new EventStore());
 	}
 
 	/**
@@ -18,7 +19,7 @@ class VcManager extends VcBasic {
 			this.hasInit = true;
 			try {
 				let { urls = [] } = this.config.Icon || {};
-				await Promise.all(urls.map(url => IconManager.load(url)));
+				await Promise.all(urls.map((url: string) => IconManager.load(url)));
 			} catch (e) {
 				throw new VcError('instance', e);
 			}

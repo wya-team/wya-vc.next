@@ -1,5 +1,4 @@
-
-import MActionSheet, { Func } from './mobile/action-sheet';
+import MActionSheet, { Func } from './mobile/action-sheet.vue';
 
 // 方法
 MActionSheet.popup = Func.popup;

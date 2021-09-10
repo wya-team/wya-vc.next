@@ -1,10 +1,11 @@
 import { Utils } from "@wya/utils";
+import type { DayOptions, Day, Year, Month } from './types';
 
 // 创建每个月天数的数组
-export const createDaysArray = (year, month, days, type) => {
-	let array = [];
+export const createDaysArray = (year: Year, month: Month, days: Day, type: string): DayOptions[] => {
+	let array: DayOptions[] = [];
 	for (let i = 0; i < days; i++) {
-		let item = {};
+		let item: DayOptions = {};
 		item.date = `${year}-${Utils.preZero(month)}-${Utils.preZero(i + 1)}`;
 		item.day = i + 1;
 		item.type = type;
@@ -14,33 +15,32 @@ export const createDaysArray = (year, month, days, type) => {
 };
 
 // 获取某月的天数
-export const getMonthDays = (year, month) => {
-	let day = new Date(year, month, 0);
+export const getMonthDays = (year: Year, month: Month) => {
+	let day = new Date(year as number, month as number, 0);
 	return day.getDate();
 };
 
 // 根据日期判断是星期几
-export const getWeek = (dateString) => {
-	let date;
+export const getWeek = (dateString: string): number => {
+	let date: Date;
 	if (!dateString) {
 		date = new Date();
 	} else {
-		let dateArray = dateString.split("-");
-		date = new Date(dateArray[0], parseInt(dateArray[1] - 1, 10), dateArray[2]);
+		let dateArray: number[] = dateString.split("-").map(i => parseInt(i, 10));
+		date = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
 	}
-
 	// return "星期" + "日一二三四五六".charAt(date.getDay());
 	return date.getDay();
 };
 		
-export const getCurrentInfo = (year, month) => {
-	let prevYear;
-	let nextYear;
-	let prevMonth;
-	let nextMonth;
-	let prevData;
-	let curData;
-	let nextData;
+export const getCurrentInfo = (year: Year, month: Month) => {
+	let prevYear: number;
+	let nextYear: number;
+	let prevMonth: number;
+	let nextMonth: number;
+	let prevData: DayOptions[];
+	let curData: DayOptions[];
+	let nextData: DayOptions[];
 
 	// 处理下当前值
 	if (month === 0) {

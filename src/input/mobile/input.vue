@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import inputMixin from '../input-mixin';
 import MIcon from '../../icon/index.m';
 import MTransition from '../../transition/index.m';
@@ -63,7 +63,6 @@ import useInput from '../use-input';
 import useInherit from '../use-inherit';
 import useMaxlength from '../use-maxlength';
 import useNativeEmitter from '../use-native-emitter';
-import { getBytesLength } from '../utils';
 
 export default defineComponent({
 	name: 'vcm-input',
@@ -78,9 +77,9 @@ export default defineComponent({
 			default: false
 		}
 	},
-	setup(props, context) {
+	setup() {
 		const input = ref(null);
-		const { binds, CSS } = useInherit();
+		const { binds } = useInherit();
 		const { 
 			currentValue,
 			isFocus,

@@ -1,4 +1,6 @@
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
 	props: {
 		label: {
 			type: String,
@@ -18,7 +20,7 @@ export default {
 			type: String
 		},
 		rules: {
-			type: [Object, Array]
+			type: Array
 		},
 		showMessage: {
 			type: Boolean,
@@ -31,4 +33,4 @@ export default {
 			type: String
 		}
 	}
-};
+});

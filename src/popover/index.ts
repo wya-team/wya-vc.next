@@ -1,6 +1,6 @@
-import { Func } from './core';
+import { Func } from './core.vue';
 
-import Popover from './popover';
+import Popover from './popover.vue';
 
 Popover.open = Func.popup;
 

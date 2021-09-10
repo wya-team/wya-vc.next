@@ -1,8 +1,11 @@
 import ResizeObserver from 'resize-observer-polyfill';
 import { IS_SERVER } from './constant';
+import type { ResizableElement } from './types';
 
 class ResizeManager {
-	constructor(options = {}) {
+	events: any;
+
+	constructor() {
 		/**
 		 * TODO
 		 * 只传递element也可以销毁
@@ -10,7 +13,7 @@ class ResizeManager {
 		this.events = [];
 	}
 
-	on(element, fn) {
+	on(element: ResizableElement, fn: AnyFunction) {
 		if (IS_SERVER || !element) return;
 		if (!element.__resizeListeners__) {
 			element.__resizeListeners__ = [];
@@ -20,21 +23,19 @@ class ResizeManager {
 		element.__resizeListeners__.push(fn);
 	}
 
-	off(element, fn) {
+	off(element: ResizableElement, fn: AnyFunction) {
 		if (IS_SERVER || !element || !element.__resizeListeners__) return;
 		element.__resizeListeners__.splice(element.__resizeListeners__.indexOf(fn), 1);
 		if (!element.__resizeListeners__.length) {
-			element.__ro__.disconnect();
+			element.__ro__?.disconnect();
 		}
 	}
 
-	handleResize(entries) {
+	handleResize(entries: ResizeObserverEntry[]) {
 		for (let entry of entries) {
-			const listeners = entry.target.__resizeListeners__ || [];
+			const listeners = (entry.target as ResizableElement).__resizeListeners__ || [];
 			if (listeners.length) {
-				listeners.forEach(fn => {
-					fn();
-				});
+				listeners.forEach((fn: any) => fn());
 			}
 		}
 	}

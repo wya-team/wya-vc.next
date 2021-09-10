@@ -1,4 +1,6 @@
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
 	props: {
 		min: {
 			type: Number,
@@ -23,7 +25,7 @@ export default {
 		},
 		formatter: {
 			type: Function,
-			default: (v, precision) => (/^(-|)$/.test(v) ? '' : Number(v).toFixed(precision))
+			default: (v: string, precision: number) => (/^(-|)$/.test(v) ? '' : Number(v).toFixed(precision))
 		},
 
 		/**
@@ -38,4 +40,4 @@ export default {
 			default: ''
 		}
 	}
-};
+});

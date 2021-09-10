@@ -1,16 +1,16 @@
-import { ref, inject, watch, computed, getCurrentInstance } from 'vue';
-import { checkMaxlength } from './utils';
+import { ref, watch, computed, getCurrentInstance } from 'vue';
+import type { Ref } from 'vue';
 import { VcError } from '../vc/index';
+import type { InputInstance, InputValue, CompareValue } from './types';
 
-export default (input) => {
-	const instance = getCurrentInstance();
+export default () => {
+	const instance = getCurrentInstance() as InputInstance;
 	const { emit, props } = instance;
-	const currentValue = ref('');
+	const currentValue: Ref<InputValue> = ref('');
 	const isInput = ref(false);
-	const isNumber = ref(false);
 	
-	let hookValue;
-	let timer;
+	let hookValue: InputValue;
+	let timer: Nullable<TimeoutHandle>;
 
 	watch(
 		() => props.modelValue,
@@ -38,7 +38,7 @@ export default (input) => {
 			: props.formatter(currentValue.value, props.precision);
 	});
 
-	const afterHook = async (value) => {
+	const afterHook = async (value: InputValue) => {
 		let { onAfter: after } = instance.vnode.props;
 		if (!after) return true;
 		let state = await after?.(value);
@@ -51,13 +51,7 @@ export default (input) => {
 		return state;
 	};
 
-	/**
-	 * @param  {String}  options.value
-	 * @param  {Boolean} options.tag 类型（input | button）
-	 * @return {String} 输入的值
-	 */
-	const compareWithBoundary = ({ value, tag }) => {
-
+	const compareWithBoundary = ({ value, tag }: CompareValue) => {
 		if (value > props.max) {
 			value = props.max;
 
@@ -85,13 +79,13 @@ export default (input) => {
 	/**
 	 * 得到一个正确展示的value
 	 */
-	const composeValue = ({ value, tag }) => {
+	const composeValue = ({ value, tag }: CompareValue) => {
 		// 失焦时，只留一个'-'或为''
-		value = /^(-|)$/.test(value)
+		value = /^(-|)$/.test(value as string)
 			? '' 
 			: compareWithBoundary({ value, tag });
 		value = props.required && !value
-			? props.min
+			? String(props.min)
 			: value;
 
 		return typeof props.output === 'function' 
@@ -101,12 +95,11 @@ export default (input) => {
 				: value;
 	};
 
-	const handleKeyup = async (e) => {
+	const handleKeyup = async (e: KeyboardEvent) => {
 		// 数字键盘
-		if (e.keyCode == 13 || e.keyCode == 108) {
-
+		if (e.key === 'Enter') {
 			let value = composeValue({
-				value: currentValue.value,
+				value: currentValue.value as string,
 				tag: 'input'
 			});
 
@@ -122,13 +115,13 @@ export default (input) => {
 		emit('keyup', e);
 	};
 
-	const handleInput = (value, e) => {
+	const handleInput = (value: string) => {
 		isInput.value = true;
 
 		value = value.trim();
 
 		if (/[^-]/.test(value) && Number.isNaN(Number(value))) { // `[A-Za-z]` -> ''
-			value = currentValue.value;
+			value = currentValue.value as string;
 		} else if (/[-]{2,}/.test(value)) { // `--` -> `-`
 			value = '-';
 		} else if (value !== '') {
@@ -152,17 +145,17 @@ export default (input) => {
 		emit('update:modelValue', value);
 	};
 
-	const handleBlur = async (e) => {
+	const handleBlur = async (e: InputEvent) => {
 		isInput.value = false;
 		let value = composeValue({
-			value: currentValue.value, 
+			value: currentValue.value as string, 
 			tag: 'input' 
 		});
 
 		try {
 			let state = await afterHook(value);
 			state && (emit('input', value), emit('update:modelValue', value));
-			emit('blur', e, Number(e.target.value));
+			emit('blur', e, Number((e.target as any).value));
 		} catch (error) {
 			throw new VcError('vc-input-number', error);
 		}
@@ -174,7 +167,7 @@ export default (input) => {
 	 * 有after时，根据after的返回值，如果是false，则由内部发射input事件，重新赋值value；
 	 * 如果是true，也由外部发射
 	 */
-	const afterDebounce = (value) => {
+	const afterDebounce = (value: InputValue) => {
 		timer && clearTimeout(timer);
 		timer = setTimeout(() => {
 			afterHook(value);
@@ -182,7 +175,7 @@ export default (input) => {
 		}, 500);
 	};
 
-	const handleStepper = async (base) => {
+	const handleStepper = async (base: number) => {
 		let { onPlus: plus, onMinus: minus, onBefore: before } = instance.vnode.props;
 		if (base === 1 && plusDisabled.value) {
 			emit('tip', {
@@ -203,7 +196,7 @@ export default (input) => {
 		if (base === 1 && plus) { return plus?.(); }
 		if (base === -1 && minus) { return minus?.(); }
 
-		let value = +currentValue.value + props.step * base;
+		let value: string | number = +currentValue.value + props.step * base;
 		value = compareWithBoundary({ value, tag: 'button' });
 
 		let state = true;
@@ -220,10 +213,10 @@ export default (input) => {
 	};
 
 	const listeners = {
-		keypress: (e) => emit('keypress', e),
-		keydown: (e) => emit('keydown', e),
-		change: (e) => emit('keyup', e),
-		focus: (e) => emit('focus', e),
+		keypress: (e: any) => emit('keypress', e),
+		keydown: (e: any) => emit('keydown', e),
+		change: (e: any) => emit('keyup', e),
+		focus: (e: any) => emit('focus', e),
 		keyup: handleKeyup,
 		blur: handleBlur,
 		input: handleInput,

@@ -19,7 +19,7 @@ import { pick } from 'lodash';
 import Core, { Func } from './core';
 import List from '../../list/index.m';
 import { VcError } from '../../vc/index';
-import { getSelectedData, PORTAL_DESTROY_METHOD } from '../../utils/index';
+import { getSelectedData } from '../../utils/index';
 import { value2date, date2value, parseMode, TYPE_VALUE_RESOLVER_MAP } from '../utils';
 import { getDayCountOfMonth } from '../helper/date-utils';
 
@@ -174,7 +174,7 @@ export default {
 		);
 
 		onUnmounted(() => {
-			pickerInstance && pickerInstance[PORTAL_DESTROY_METHOD]();
+			pickerInstance && pickerInstance.destroy();
 		});
 		return {
 			currentValue,

@@ -1,7 +1,7 @@
-import Vue from 'vue';
-import MToast from './toast';
 import { getOption } from '../../utils/index';
 import Portal from '../../portal/index';
+import MToast from './toast.vue';
+import type { ToastOptions } from '../types';
 
 const registerOptions = {
 	multiple: true,
@@ -10,15 +10,15 @@ const registerOptions = {
 };
 
 class MToastManager extends Portal {
-	constructor(wrapper, globalOptions) { // eslint-disable-line
+	constructor(wrapper: any, globalOptions: Options) { // eslint-disable-line
 		super(wrapper, globalOptions);
 		// todo
 	}
 
-	run(params, opts) {
+	run(params: any[], toastOptions: ToastOptions) {
 		let query = ['content', 'duration', 'onClose', 'maskClosable'];
 		let options = {
-			...opts,
+			...toastOptions,
 			...getOption(params, query)
 		};
 
@@ -30,13 +30,13 @@ class MToastManager extends Portal {
 		});
 	}
 
-	info(...params) {
+	info(...params: any[]) {
 		return this.run(params, {
 			mode: 'info'
 		});
 	}
 
-	loading(...params) {
+	loading(...params: any[]) {
 		return this.run(params, {
 			mode: 'loading',
 			duration: 0,
@@ -44,19 +44,19 @@ class MToastManager extends Portal {
 		});
 	}
 
-	success(...params) {
+	success(...params: any[]) {
 		return this.run(params, {
 			mode: 'success'
 		});
 	}
 
-	warning(...params) {
+	warning(...params: any[]) {
 		return this.run(params, {
 			mode: 'warning'
 		});
 	}
 
-	error(...params) {
+	error(...params: any[]) {
 		return this.run(params, {
 			mode: 'error'
 		});

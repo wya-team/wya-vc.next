@@ -1,7 +1,8 @@
 import { computed, getCurrentInstance } from 'vue';
+import type { InputInstance } from './types';
 
 export default () => {
-	const { emit, props } = getCurrentInstance();
+	const { props } = getCurrentInstance() as InputInstance;
 	const binds = computed(() => {
 		return {
 			id: props.elementId, // 此id用于input, 不能改为this.id

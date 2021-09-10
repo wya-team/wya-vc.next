@@ -19,7 +19,7 @@ class MessageManager extends Portal {
 		if (IS_SERVER) return;
 		
 		let query = ['content', 'duration', 'onClose'];
-		let number = Object.keys(this.APIS)
+		let number = Object.keys(this.portals)
 			.filter(item => item.includes(this.globalOptions.cName)).length;
 		let top = 30 + number * 40;
 		let maxH = window.innerHeight - 100;

@@ -25,7 +25,7 @@ export default defineComponent({
 		mode: {
 			type: String,
 			default: 'left',
-			validator: v => /^(left|right|down|up|none)(|-part)$/.test(v)
+			validator: (v: string) => /^(left|right|down|up|none)(|-part)$/.test(v)
 		},
 		styles: {
 			type: Object,

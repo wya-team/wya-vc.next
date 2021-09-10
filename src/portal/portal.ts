@@ -1,33 +1,38 @@
-import { createApp, h, onMounted, onUnmounted, getCurrentInstance, Teleport } from 'vue';
+
+import { createApp, h, onMounted, onUnmounted } from 'vue';
+import type { DefineComponent } from 'vue';
 import { cloneDeep } from 'lodash';
-import { DOM } from '@wya/utils';
+import { DOM } from '@wya/utils'; 
 import { getUid, eleInRegExp } from '../utils/index';
 import { VcBasic, VcError } from '../vc/index';
-import { 
-	IS_SERVER, 
-	PORTAL_AUTO_DESTROY_TAG, 
-	PORTAL_DESTROY_METHOD, 
-	PORTAL_WRAPPER_INSTANCE
-} from '../utils/constant';
+import { IS_SERVER } from '../utils/constant';
 import defaultOptions from './default-options';
+import type { PortalOptions, RenderOptions, ContainerElement } from './types';
+import PortalLeaf from './portal-leaf';
 
-export default class Portal extends VcBasic {
-	constructor(wrapper, registerOptions = {}) {
+// Options<DefineComponent> ->? Options<typeof defineComponent>
+export default class Portal<T extends Options = Options<DefineComponent>> extends VcBasic {
+    static View: DefineComponent;
+	
+	wrapper: T;
+
+	waiting: boolean;
+
+	globalOptions: Options;
+
+	constructor(wrapper: T, options?: Options) {
 		super();
-		let { cName, ...globalOptions } = registerOptions;
-
 		if (!wrapper) {
 			throw new VcError('portal', '目标组件必传');
 		}
 
-		cName = cName || wrapper.name || getUid('portal');
-
 		this.waiting = false;
 		this.wrapper = wrapper;
 
-		// 与全局配置, 重新生成默认配置
-		globalOptions.cName = cName;
-		this.globalOptions = globalOptions;
+		this.globalOptions = {
+			...options,
+			cName: options?.cName || wrapper.name || getUid('portal')
+		};
 
 		this.popup = this.popup.bind(this);
 		this.destroy = this.destroy.bind(this);
@@ -41,18 +46,16 @@ export default class Portal extends VcBasic {
 		};
 	}
 
-	popup(userOptions = {}) {
+	popup(userOptions: Options): Promise<unknown> | PortalLeaf | void {
 		if (IS_SERVER) return;
-		if (typeof userOptions !== 'object') {
-			userOptions = {};
-		}
+		
 		return this._init({ 
 			...this._getDefaultOptions(),
 			...userOptions 
 		});
 	}
 
-	_init(options) {
+	_init(options: PortalOptions): Promise<unknown> | PortalLeaf | void {
 		const { onBefore, onFulfilled, onRejected, promise, ...rest } = options;
 
 		return promise 
@@ -89,23 +92,24 @@ export default class Portal extends VcBasic {
 			});
 	}
 
-	_createCallback(getApp, options, callback) {
+	_createCallback(getLeaf: () => PortalLeaf, options: PortalOptions, callback?: AnyFunction) {
 		const { leaveDelay } = options;
 
-		return (...res) => {
+		return (...res: any[]) => {
 			setTimeout(() => {
-				let app = getApp();
-				if (!app) {
+				let leaf = getLeaf();
+				if (!leaf) {
 					// throw new VcError('portal', '实例不存在或已卸载');
 					return;
 				}
-				app[PORTAL_DESTROY_METHOD]();
+
+				leaf.destroy();
 			}, leaveDelay * 1000);
 			callback && callback(...res);
 		};
 	}
 
-	_render({ options, response, onFulfilled, onRejected }) {
+	_render({ options, response, onFulfilled, onRejected }: RenderOptions): PortalLeaf | void {
 		let { 
 			el, 
 			tag, 
@@ -129,13 +133,13 @@ export default class Portal extends VcBasic {
 		} = options;
 
 		let useAllNodes = fragment;
-		cName = multiple ? `${cName}__${getUid()}` : cName;
+		cName = (multiple ? `${cName}__${getUid('portal')}` : cName);
 
-		let container = document.createElement(tag);
-		let root = typeof el === 'string' ? document.querySelector(el || 'body') : el;
+		let container: ContainerElement = document.createElement(tag);
+		let root: Nullable<HTMLElement> = typeof el === 'string' ? document.querySelector(el || 'body') : el;
 		
 		// destroy
-		!alive && this.APIS[cName] && this.APIS[cName][PORTAL_DESTROY_METHOD]();
+		!alive && this.portals.get(cName)?.destroy();
 
 		let propsData = rest;
 		if (response || dataSource) {
@@ -143,66 +147,69 @@ export default class Portal extends VcBasic {
 		}
 
 		// app
-		let app;
+		let leaf = new PortalLeaf();
 		const $onDestory = () => {
-			app && app.unmount();
+			if (!root) return;
 
+			leaf.app?.unmount();
 			if (useAllNodes) {
 				root.contains(container) && root.removeChild(container);
 			} else if (container && container._children) {
 				container._children.forEach(i => {
+					if (!root) return;
 					root.contains(i) && root.removeChild(i);
 				});
 			}
 
-			this.APIS[cName] = null;
-			delete this.APIS[cName];
+			this.portals.delete(cName);
 
-			app = null;
-			container = null;
-			root = null;
+			// @ts-ignore 
+			(root = null, leaf = null, container = null); // 默认GC会自动清理
 		};
-		const $onRejected = this._createCallback(() => app, options, onRejected);
-		const $onFulfilled = this._createCallback(() => app, options, onFulfilled);
+		const $onRejected = this._createCallback(() => leaf, options, onRejected);
+		const $onFulfilled = this._createCallback(() => leaf, options, onFulfilled);
 
-		if (alive && this.APIS[cName]) {
-			app = this.APIS[cName];
+		if (alive && this.portals.has(cName)) {
+			leaf = this.portals.get(cName) as PortalLeaf;
 
 			for (let key in propsData) {
-				app[key] = propsData[key];
+				(leaf.wrapper as any)[key] = propsData[key];
 			}
 
 			// update
-			let fn = app.update || app.loadData;
+			let fn = leaf.wrapper?.update || leaf.wrapper?.loadData;
 			fn && fn(options);
-			
 		} else {
 			let wrapper = this.wrapper;
 
 			if (typeof this.wrapper == 'object') {
 				wrapper = cloneDeep(this.wrapper);
-				wrapper.props = wrapper.props || {};
+
+				(wrapper as any).props = wrapper.props || {};
+
 				wrapper.props.onPortalFulfilled = Function;
 				wrapper.props.onPortalRejected = Function;
 			}
 
-			app = createApp({
+			const app = createApp({
 				name: 'vc-portal',
 				parent,
 				setup() {
-					const handleExtra = (e) => {
+					const handleExtra = (e: Event) => {
 						// close默认不传，用户可传递参数判断输入自己的触发的close
 						try {
-							let path = e.path || DOM.composedPath(e) || [];
+							let path = (e as any).path || DOM.composedPath(e) || [];
 							if (
-								!container.contains(e.target) 
-								&& !path.some(item => eleInRegExp(item, aliveRegExp))
+								container 
+								&& e.target
+								&& !container.contains(e.target as HTMLElement) 
+								&& !path.some((item: any) => eleInRegExp(item, aliveRegExp))
 							) {
 								if (
-									app[PORTAL_WRAPPER_INSTANCE] 
-									&& app[PORTAL_WRAPPER_INSTANCE][aliveKey]
+									leaf.wrapper 
+									&& leaf.wrapper[aliveKey]
 								) {
-									app[PORTAL_WRAPPER_INSTANCE][aliveKey] = false;
+									leaf.wrapper[aliveKey] = false;
 									setTimeout(() => $onRejected(), leaveDelay * 1000);
 								} else {
 									$onRejected();
@@ -225,41 +232,41 @@ export default class Portal extends VcBasic {
 						wrapper, 
 						{
 							...propsData,
-							ref: vm => (app[PORTAL_WRAPPER_INSTANCE] = vm),
-							onPortalFulfilled: (...args) => $onFulfilled(...args),
-							onPortalRejected: (...args) => $onRejected(...args)
+							ref: (vm: any) => (leaf.wrapper = vm),
+							onPortalFulfilled: (...args: any[]) => $onFulfilled(...args),
+							onPortalRejected: (...args: any[]) => $onRejected(...args)
 						}, 
 
-						slots || null
+						slots || undefined
 					);
 				}
 			});
 
+			leaf.app = app;
 
 			app.mount(container);
 
-			Object.keys(components).forEach((key) => {
-				 app.component(key, components[key]);
-			});
+			// store, router等
+			for (let key in components) {
+				app.component(key, components[key]);
+			}
 
-			// store, router等, TODO: 定义规范
-			Object.keys(uses).forEach((use) => {
-				 app.use(use);
-			});
+			for (let key in uses) {
+				app.use(uses[key]);
+			}
 		}
 
 		// destroy method
-		app[PORTAL_DESTROY_METHOD] = $onDestory;
+		leaf.destroy = $onDestory;
 
 		// tag
-		app[PORTAL_AUTO_DESTROY_TAG] = autoDestroy;
+		leaf.autoDestroy = autoDestroy;
 
-		// 回调app实例
-		getInstance && getInstance(app);
+		// 回调leaf实例
+		getInstance && getInstance(leaf);
 
 		// 标记
-		this.APIS[cName] = app;
-
+		this.portals.set(cName, leaf);
 
 		/**
 		 * if 
@@ -281,36 +288,40 @@ export default class Portal extends VcBasic {
 			) 
 		) {
 			useAllNodes = true;
-			container.parentElement === null && root.appendChild(container);
+			container.parentElement === null && root?.appendChild(container);
 		} else {
 			!container._children && (
 				container._children = [],
 				Array
 					.from(container.children)
 					.forEach(i => {
-						root.appendChild(i);
-						container._children.push(i);
+						root?.appendChild(i as HTMLElement);
+						container._children?.push?.(i as HTMLElement);
 					})
 			);
 		}
 
 		this.waiting = false;
-		return app;
+		return leaf;
 	}
 
-	destroy(target) {
+	/**
+	 * 销毁当前Portal下的节点
+	 * @param {string | PortalLeaf} target [description]
+	 */
+	destroy(target?: string | PortalLeaf) {
 		const { multiple, cName } = this._getDefaultOptions();
-		target = target || cName;
-		const instance = typeof target === 'object' 
+		target = target || (cName);
+		const instance: PortalLeaf = typeof target === 'object' 
 			? target 
-			: this.APIS[target];
+			: (this.portals.get(target) as PortalLeaf);
 
 		if (instance) {
-			instance[PORTAL_DESTROY_METHOD]();
+			instance.destroy();
 		} else if (multiple) {
-			Object.keys(this.APIS).forEach(item => {
-				if (item.includes(cName)) {
-					this.APIS[item] && this.APIS[item][PORTAL_DESTROY_METHOD]();
+			this.portals.forEach((item) => {
+				if (item[0].includes(cName)) {
+					item[1].destroy();
 				}
 			});
 		}

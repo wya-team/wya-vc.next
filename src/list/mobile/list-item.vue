@@ -25,10 +25,12 @@
 <script lang="ts">
 import { getCurrentInstance, defineComponent, computed, inject } from 'vue'; 
 import Icon from '../../icon/index';
+import type { FormInject } from '../../form/types';
+import type { ListInject } from '../types';
 
 const HTTP_REGEX = /[a-zA-z]+:\/\/[^\s]*/;
 
-export default {
+export default defineComponent({
 	name: 'vcm-list-item',
 	components: {
 		'vc-icon': Icon
@@ -53,7 +55,7 @@ export default {
 		method: {
 			type: String,
 			default: 'push',
-			validator: v => /^(push|replace|go|back|forward)$/.test(v)
+			validator: (v: string) => /^(push|replace|go|back|forward)$/.test(v)
 		},
 		indent: {
 			type: Number,
@@ -67,9 +69,9 @@ export default {
 	emits: ['click'],
 	setup(props, context) {
 		const { emit } = context;
-		const { ctx } = getCurrentInstance();
-		const form = inject('form', {});
-		const list = inject('list', {});
+		const { ctx } = getCurrentInstance() as any;
+		const form = inject('form', {} as FormInject);
+		const list = inject('list', {} as ListInject);
 
 		const classes = computed(() => {
 			/**
@@ -100,8 +102,8 @@ export default {
 		});
 
 
-		const handleLinkTo = (e) => {
-			if (props.to) {
+		const handleLinkTo = (e: Event) => {
+			if (props.to && typeof props.to === 'string') {
 				HTTP_REGEX.test(props.to)
 					? window.open(props.to)
 					: props.href
@@ -119,7 +121,7 @@ export default {
 			handleLinkTo
 		};
 	}
-};
+});
 </script>
 
 <style lang="scss">

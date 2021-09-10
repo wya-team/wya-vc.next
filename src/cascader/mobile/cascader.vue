@@ -14,13 +14,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, getCurrentInstance, watch, computed, ref, onBeforeUnmount } from 'vue';
+import { defineComponent, inject, watch, computed, ref, onBeforeUnmount } from 'vue';
 import { isEqualWith, pick } from 'lodash';
-import Core, { Func } from './core';
+import Core, { Func } from './core.vue';
 import List from '../../list/index.m';
-import { getSelectedData, PORTAL_DESTROY_METHOD } from '../../utils/index';
+import { getSelectedData } from '../../utils/index';
 import { VcError } from '../../vc/index';
-import Extends from '../../extends';
 
 export default defineComponent({
 	name: "vcm-cascader",
@@ -40,7 +39,7 @@ export default defineComponent({
 		},
 		formatter: {
 			type: Function,
-			default: (v) => (!v ? v : v.join(',')) 
+			default: (v: any[]) => (!v ? v : v.join(',')) 
 		}
 	},
 	emits: ['update:modelValue', 'ok', 'cancel', 'change', 'close'],
@@ -134,7 +133,7 @@ export default defineComponent({
 		};
 
 		onBeforeUnmount(() => {
-			pickerInstance && pickerInstance[PORTAL_DESTROY_METHOD]();
+			pickerInstance && pickerInstance.destroy();
 		});
 
 		return {

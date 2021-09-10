@@ -31,22 +31,21 @@
 import { 
 	defineComponent,
 	getCurrentInstance,
-	watch,
 	ref,
 	computed,
 	onMounted,
 	nextTick,
 	onUnmounted 
 } from 'vue';
+import type { ComponentInternalInstance, PropType } from 'vue';
 import usePos from './use-pos';
 import Portal from '../portal/index';
 import Transition from '../transition/index';
 import Customer from '../customer/index';
-import { VcError } from '../vc/index';
 import { Resize } from '../utils/index';
-import { IS_SERVER } from '../utils/constant';
+import type { PopoverWrapperStyle } from './types';
 
-const wrapperComponent = defineComponent({
+const WrapperComponent = defineComponent({
 	name: 'vc-popover-core',
 	components: {
 		'vc-customer': Customer,
@@ -58,7 +57,7 @@ const wrapperComponent = defineComponent({
 		placement: {
 			type: String,
 			default: 'bottom',
-			validator: (value) => {
+			validator: (value: string) => {
 				return [
 					'bottom', 'bottom-left', 'bottom-right',
 					'top', 'top-left', 'top-right',
@@ -70,7 +69,7 @@ const wrapperComponent = defineComponent({
 		theme: {
 			type: String,
 			default: 'light',
-			validator: v => /(light|dark|none)/.test(v)
+			validator: (v: string) => /(light|dark|none)/.test(v)
 		},
 		content: [String, Function],
 		getPopupContainer: Function,
@@ -87,7 +86,7 @@ const wrapperComponent = defineComponent({
 			default: false
 		},
 		triggerEl: {
-			type: IS_SERVER ? Object : HTMLElement,
+			type: Object as PropType<Element>,
 			required: true
 		},
 		onChange: {
@@ -112,16 +111,14 @@ const wrapperComponent = defineComponent({
 	setup(props, context) {
 		const { emit, slots } = context;
 		const {
-			getYAssistFitPos,
-			getXAssistFitPos,
 			getPopupStyle,
 			getFitPos,
 			getRect
 		} = usePos();
-		const instance = getCurrentInstance();
+		const instance = getCurrentInstance() as (ComponentInternalInstance & { ctx: any });
 		const { ctx } = instance;
 		const isActive = ref(false);
-		const wrapperStyle = ref({});
+		const wrapperStyle = ref({} as PopoverWrapperStyle);
 		const arrowStyle = ref({});
 		const fitPos = ref(props.placement);
 		const wrapperW = ref({ width: 'auto' });
@@ -188,7 +185,6 @@ const wrapperComponent = defineComponent({
 			});
 
 			let result = getFitPos({
-				rect,
 				triggerEl,
 				el: ctx.$el,
 				placement: props.placement
@@ -215,8 +211,8 @@ const wrapperComponent = defineComponent({
 			};
 		};
 
-		let timer;
-		const handleTriggerChange = (e) => {
+		let timer: Nullable<TimeoutHandle>;
+		const handleTriggerChange = (e: Event) => {
 			let visible = e.type === 'mouseenter';
 
 			timer && clearTimeout(timer);
@@ -226,12 +222,12 @@ const wrapperComponent = defineComponent({
 			}, 200);
 		};
 
-		const handleClick = (e) => {
+		const handleClick = (e: Event) => {
 			props.alone && (isActive.value = false);
 			props.onChange(e, { context: instance });
 		};
 
-		const handleChange = (e, { visible }) => {
+		const handleChange = (e: Event, { visible }) => {
 			props.alone && handleTriggerChange(e);
 			!props.alone && props.onChange(e, { visible, context: instance });
 		};
@@ -327,8 +323,8 @@ const wrapperComponent = defineComponent({
 	}
 });
 
-export default wrapperComponent;
-export const Func = new Portal(wrapperComponent, {
+export default WrapperComponent;
+export const Func = new Portal<typeof WrapperComponent>(WrapperComponent, {
 	promise: false,
 	// multiple: true
 });

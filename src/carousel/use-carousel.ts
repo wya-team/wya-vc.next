@@ -1,14 +1,15 @@
 import { getCurrentInstance, provide, ref, watch, computed, onMounted, nextTick, onBeforeUnmount } from 'vue';
-import { isEqualWith } from 'lodash';
+import type { Ref } from 'vue';
 import { VcError } from '../vc/index';
 import { Resize, getUid } from '../utils';
+import type { CarouselItemInstance, CarouselInstance } from './types';
 
-export default (wrapper) => {
-	const instance = getCurrentInstance();
-	const { props, emit, slots } = instance;
-	const items = ref([]);
+export default (wrapper: Ref<Nullable<HTMLElement>>) => {
+	const instance = getCurrentInstance() as CarouselInstance;
+	const { props, emit } = instance;
+	const items: Ref<CarouselItemInstance[]> = ref([]);
 	const activeIndex = ref(-1);
-	const timer = ref(null);
+	const timer: Ref<Nullable<TimeoutHandle>> = ref(null);
 	const offset = ref(0);
 	const carouselId = ref(getUid('carousel'));
 
@@ -24,7 +25,7 @@ export default (wrapper) => {
 	});
 
 	const hasLabel = computed(() => {
-		return items.value.some(item => item.props?.label.toString().length > 0);
+		return items.value.some(item => (item.props as any).label.toString().length > 0);
 	});
 
 	const dotsClasses = computed(() => {
@@ -38,7 +39,7 @@ export default (wrapper) => {
 		return classes;
 	});
 
-	const resetItems = (oldIndex) => {
+	const resetItems = (oldIndex?: number) => {
 		items.value.forEach((item, index) => {
 			item.proxy?.reset?.(index, activeIndex.value, oldIndex);
 		});
@@ -65,7 +66,7 @@ export default (wrapper) => {
 		timer.value = setInterval(playSlides, props.t * 1000);
 	};
 
-	const setActiveItem = (index) => {
+	const setActiveItem = (index: number | string) => {
 		if (typeof index === 'string') {
 			const filteredItems = items.value.filter(item => item.props.name === index);
 			if (filteredItems.length > 0) {
@@ -98,11 +99,11 @@ export default (wrapper) => {
 		setActiveItem(activeIndex.value + 1);
 	};
 
-	const handleDotClick = (index) => {
+	const handleDotClick = (index: number) => {
 		activeIndex.value = index;
 	};
 
-	const handleStart = (e) => {
+	const handleStart = (e: MouseEvent) => {
 		allowTransition.value = true;
 
 		if (!props.draggable) return;
@@ -113,7 +114,7 @@ export default (wrapper) => {
 		startY.value = e.screenY;
 	};
 
-	const handleMove = (e) => {
+	const handleMove = (e: MouseEvent) => {
 		if (!start.value || !props.draggable) return;
 		offset.value = !props.vertical 
 			? (e.screenX - startX.value) 
@@ -128,11 +129,11 @@ export default (wrapper) => {
 		start.value = false;
 		startTimer();
 		const $offset = Math.abs(offset.value);
-		const direction = offset.value > 0;
+		const $direction = offset.value > 0;
 		offset.value = 0;
 		if ($offset > 5) {
-			direction && prev();
-			!direction && next();
+			$direction && prev();
+			!$direction && next();
 		} else {
 			resetItems();
 		}
@@ -162,14 +163,14 @@ export default (wrapper) => {
 
 	watch(
 		() => props.loop,
-		(v) => {
+		() => {
 			setActiveItem(activeIndex.value);
 		}
 	);
 
 	watch(
 		() => props.t,
-		(v) => {
+		() => {
 			pauseTimer();
 			startTimer();
 		}
@@ -177,7 +178,7 @@ export default (wrapper) => {
 
 	onMounted(() => {
 		nextTick(() => {
-			Resize.on(instance.vnode.el, resetItems);
+			if (instance.vnode.el) Resize.on(instance.vnode.el, resetItems);
 			if (props.initialIndex < items.value.length && props.initialIndex >= 0) {
 				activeIndex.value = props.initialIndex;
 			}
@@ -192,7 +193,7 @@ export default (wrapper) => {
 	});
 
 
-	const add = item => {
+	const add = (item: CarouselItemInstance) => {
 		if (!item) return;
 		// vnode动态时排序
 		nextTick(() => {
@@ -200,7 +201,7 @@ export default (wrapper) => {
 				let index = Array
 					.from(wrapper.value.children)
 					.filter(i => /vcm?-carousel-item/.test(i.className))
-					.indexOf(item.vnode.el);
+					.indexOf(item.vnode.el as any);
 				items.value.splice(index, 0, item);
 				return;
 			}
@@ -208,7 +209,7 @@ export default (wrapper) => {
 		});
 	};
 
-	const remove = item => {
+	const remove = (item: CarouselItemInstance) => {
 		if (!item) return;
 		items.value.splice(items.value.indexOf(item), 1);
 	};

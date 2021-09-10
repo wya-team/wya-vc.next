@@ -15,11 +15,12 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch, getCurrentInstance, onMounted, onUnmounted } from 'vue';
+import type { ComponentInternalInstance } from 'vue';
 import { pick } from 'lodash';
 import { DOM } from '@wya/utils';
 import { getUid } from '../utils/index';
-import { PORTAL_DESTROY_METHOD, PORTAL_WRAPPER_INSTANCE } from '../utils/constant';
-import Core, { Func } from './core';
+import Core, { Func } from './core.vue';
+import type PortalLeaf from '../portal/portal-leaf';
 
 export default defineComponent({
 	name: "vc-popover",
@@ -41,7 +42,7 @@ export default defineComponent({
 		trigger: {
 			type: String,
 			default: 'hover',
-			validator: v => /(hover|click|focus)/.test(v)
+			validator: (v: string) => /(hover|click|focus)/.test(v)
 		},
 		tag: {
 			type: String,
@@ -58,7 +59,7 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue', 'visible-change', 'ready', 'close'],
 	setup(props, context) {
-		const instance = getCurrentInstance();
+		const instance = getCurrentInstance() as ComponentInternalInstance;
 		const { emit, slots } = context;
 
 		const popoverId = getUid('popover');
@@ -80,8 +81,8 @@ export default defineComponent({
 			emit('visible-change', isActive.value);
 		};
 
-		let timer;
-		let popperInstance;
+		let timer: Nullable<TimeoutHandle>;
+		let popperInstance: PortalLeaf;
 
 		/**
 		 * portal: false
@@ -89,12 +90,12 @@ export default defineComponent({
 		 * 点击pop内容区域时click事件冒泡，导致执行了该toggle方法
 		 * visible: true, false, undefined(处理 doc click)
 		 */
-		const handleChange = (e = {}, { visible }) => {
+		const handleChange = (e: any = {}, { visible }) => {
 			visible = props.always || visible;
 			if (props.disabled) return;
 
 			isHover.value && timer && clearTimeout(timer);
-			let path = e.path || DOM.composedPath(e) || [];
+			let path: Element[] = e.path || DOM.composedPath(e) || [];
 
 			let isPopArea = path.some(item => new RegExp(popoverId).test(item.className));
 
@@ -104,7 +105,7 @@ export default defineComponent({
 			if (visible === undefined) {
 				if (
 					!isPopArea 
-					&& !instance.vnode.el.contains(e.target) 
+					&& !instance?.vnode?.el?.contains(e.target) 
 					&& props.outsideClickable
 				) {
 					visible = false;
@@ -143,7 +144,7 @@ export default defineComponent({
 				popperInstance = Func.popup({
 					el,
 					cName: popoverId,
-					triggerEl: instance.vnode.el,
+					triggerEl: instance.vnode.el as Element,
 					onChange: handleChange,
 					onClose: () => {
 						emit('close');
@@ -160,9 +161,9 @@ export default defineComponent({
 					parent: instance.parent,
 					...props,
 					portalClassName
-				});
-			} else if (popperInstance) {
-				popperInstance[PORTAL_WRAPPER_INSTANCE].isActive = false;
+				}) as PortalLeaf;
+			} else if (popperInstance && popperInstance.wrapper) {
+				popperInstance.wrapper.isActive = false;
 			}
 		};
 
@@ -176,7 +177,7 @@ export default defineComponent({
 
 		watch(
 			() => isActive.value,
-			(v) => {
+			() => {
 				refresh();
 			}
 		);
@@ -188,7 +189,7 @@ export default defineComponent({
 
 
 		onUnmounted(() => {
-			popperInstance && popperInstance[PORTAL_DESTROY_METHOD]();
+			popperInstance && popperInstance.destroy();
 		});
 
 		return {

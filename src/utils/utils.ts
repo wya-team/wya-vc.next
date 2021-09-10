@@ -1,6 +1,16 @@
 import { Utils } from '@wya/utils';
 import { cloneDeep } from 'lodash';
 import { IS_SERVER } from './constant';
+import type { 
+	Raf,
+	TreeLabel,
+	TreeValue,
+	TreeData,
+	Exceptions,
+	UidOptions,
+	CompressOptions,
+	FlattenDataOptions
+} from './types';
 
 const now = +(new Date());
 let $index = 0;
@@ -8,13 +18,13 @@ let $index = 0;
 /**
  * timestamp在某些场景下是有必要的
  */
-export const getUid = (comp, opts = {}) => {
-	const { prefix = 'vc', timestamp = false } = opts;
+export const getUid = (comp: string, options?: UidOptions) => {
+	const { prefix = 'vc', timestamp = false } = options || {};
 
 	return `${prefix}${`${comp ? `-${comp}` : ''}`}${timestamp ? `-${now}` : ''}-${++$index}`;
 };
 
-export const getParseDOM = (str) => {
+export const getParseDOM = (str: string): Document | null => {
 	const parser = typeof DOMParser === 'undefined' ? null : new DOMParser();
 
 	if (!parser) {
@@ -23,13 +33,13 @@ export const getParseDOM = (str) => {
 	return parser.parseFromString(str, 'text/html');
 };
 
-export const retrieveImageURL = (dataTransferItems, callback) => {
+export const retrieveImageURL = (dataTransferItems: DataTransferItemList, callback: AnyFunction) => {
 	for (let i = 0; i < dataTransferItems.length; i++) {
 		let item = dataTransferItems[i];
 		if (item.type === 'text/html') {
 			item.getAsString(value => {
 				// value = <img src="" ... /> 即网页拖入的值
-				const doc = getParseDOM(value); // 生成一个document 类似iframe（但有区别）
+				const doc = getParseDOM(value) as Document; // 生成一个document 类似iframe（但有区别）
 				const img = doc.querySelector('img');
 				if (img && img.src) {
 					callback(img.src);
@@ -52,7 +62,7 @@ export const isFileAPISupported = typeof File !== 'undefined';
  * 判断是否是url链接
  * 基于base64正则
  */
-export const isDataURL = (str) => {
+export const isDataURL = (str: string) => {
 	if (str === null) {
 		return false;
 	}
@@ -65,27 +75,27 @@ export const isDataURL = (str) => {
  * [value, label, children]
  * value: Number or String -> '11' == 11
  */
-export const getSelectedData = (value = [], source = [], opts = {}) => {
-	let label = [];
-	let data = [];
-	const { cascader } = opts;
+export const getSelectedData = (value: TreeValue[] = [], source: TreeData[] = []) => {
+	let label: TreeLabel[] = [];
+	let data: TreeData[] = [];
+
 	if (source.length !== 0) {
 		if (source.some(i => !!i.children) || !(source[0] instanceof Array)) { // 联动
 			value.reduce((pre, cur) => {
 				let target = pre.find(it => it.value == cur) || {};
 				data.push(target);
-				label.push(target.label);
+				label.push(target.label as string);
 				return target.children || [];
 			}, source);
 		} else {
 			value.forEach((item, index) => {
-				let target = source[index].find(it => it.value == item);
+				let target = source[index].find((it: TreeData) => it.value == item);
 				data.push(target);
 				label.push(target.label);
 			});
 		}
-		
 	}
+
 	return cloneDeep({
 		value,
 		label,
@@ -95,19 +105,18 @@ export const getSelectedData = (value = [], source = [], opts = {}) => {
 
 /**
  * Table, Tree-Select 组件有多处使用
- * opts: {
- * 	parent
- *  cascader
- * }
  */
-export const flattenData = (data, opts = {}) => {
-	const result = [];
-	data.forEach((item) => {
+export const flattenData = (data: TreeData, options: FlattenDataOptions = {}): TreeData => {
+	let result: TreeData = [];
+	data.forEach((item: TreeData) => {
 		if (item.children) {
 			const { children, ...rest } = item;
-			opts.parent 
-				? result.push(...[opts.cascader ? item : rest, ...flattenData(children, opts)])
-				: result.push(...flattenData(children));
+			const items: TreeData = flattenData(children, options);
+			result = result.concat(
+				options.parent 
+					? [options.cascader ? item : rest].concat(items)
+					: items
+			);
 			
 		} else {
 			result.push(item);
@@ -116,20 +125,14 @@ export const flattenData = (data, opts = {}) => {
 	return result;
 };
 
-export const getLabel = (data, v) => {
-	let { label = '' } = data.find(i => i.value == v) || {};
+export const getLabel = (data: TreeData, v: TreeValue): TreeLabel => {
+	let { label = '' } = data.find((i: TreeData) => i.value == v) || {};
 	return label;
 };
 /**
- * 是否符合条件
- * @exceptions {
- *    id,
- *    tagName,
- *    className,
- *    ...HTMLElement
- * }
+ * 当前节点是否符合条件
  */
-export const eleInRegExp = (el, exceptions) => {
+export const eleInRegExp = (el: HTMLElement, exceptions: Exceptions): boolean => {
 	for (let i in exceptions) {
 		if (exceptions[i].test(el[i])) {
 			return true;
@@ -143,7 +146,7 @@ export const eleInRegExp = (el, exceptions) => {
  * query: 参数为字符串时的规则 如下
  * ['message','duration']
  */
-export const getOption = (target, query = []) => {
+export const getOption = (target: any[], query: string[] = []) => {
 	let result = {};
 	target.map((item, index) => {
 		if (typeof item === 'object' && target.length === index + 1) {
@@ -156,15 +159,14 @@ export const getOption = (target, query = []) => {
 		}
 		return true;
 	});
-	target = result;
-	return target;
+	return result;
 };
 
 /**
  * 查找对应的值
  * {a: {b: {c: 1}}}, a.b.c -> { o, k, v }
  */
-export const getPropByPath = (obj, path) => {
+export const getPropByPath = (obj: object, path: string) => {
 	let target = obj;
 	path = path.replace(/\[(\w+)\]/g, '.$1');
 	path = path.replace(/^\./, '');
@@ -191,7 +193,7 @@ export const getPropByPath = (obj, path) => {
 /**
  * https://github.com/reduxjs/redux/blob/master/src/compose.js
  */
-export const compose = (...funcs) => {
+export const compose = (...funcs: AnyFunction[]): AnyFunction => {
 	if (funcs.length === 0) {
 		return arg => arg;
 	}
@@ -209,7 +211,7 @@ export const placement2mode = {
 	center: '',
 };
 
-export const getComputedStyle = (el, SIZING_STYLE, opts = {}) => {
+export const getComputedStyle = (el: HTMLElement, SIZING_STYLE: string[]) => {
 	// 注: 服务端渲染为0, 在客服端激活前，展示端存在问题【高度不定】
 	if (IS_SERVER) return {};
 	const style = window.getComputedStyle(el);
@@ -242,7 +244,7 @@ const specialChar = ['?', '*', '$', '+', '^', '.', '\\'];
  * 如果字符串内存在正则的符号，RegEx会报错，所以转义下
  * @param {*} str 
  */
-export const escapeString = (str) => {
+export const escapeString = (str: string) => {
 	let val = '';
 	for (let char of str) {
 		val += specialChar.includes(char) ? "\\" + char : char;
@@ -252,11 +254,8 @@ export const escapeString = (str) => {
 
 /**
  * dataURL转file
- * @param {*} dataUrl 
- * @param {String} filename 文件名
- * @param {String} filetype 文件类型
  */
-export const dataURLtoFile = (dataUrl, filename, filetype = 'image/jpeg') => {
+export const dataURLtoFile = (dataUrl: string, filename: string, filetype = 'image/jpeg'): File => {
 	// 获取到base64编码
 	const arr = dataUrl.split(',');
 	// 将base64编码转为字符串
@@ -272,32 +271,29 @@ export const dataURLtoFile = (dataUrl, filename, filetype = 'image/jpeg') => {
 };
 
 /**
- * dataURL转file，注意xls引用了该方法，请勿随意修改方法名compressImg
- * @param {File} file 文件
- * @param {Number} width 图片缩放最大宽度，不传默认源图片宽度
- * @param {Number} height 图片缩放最大高度，不传默认源图片高度
- * @param {String} filetype 文件类型
- * @param {Number} encoderOptions 在指定图片格式为 image/jpeg 或 image/webp的情况下，可以从 0 到 1 的区间内选择图片的质量。如果超出取值范围，使用默认值 0.92
+ * compressImage
  */
-export const compressImg = ({ file, width, height, filetype = 'image/jpeg', encoderOptions }) => {
+export const compressImage = (options: CompressOptions) => {
+	const { file, width, height, filetype = 'image/jpeg', encoderOptions } = options || {};
 	return new Promise((resolve) => {
 		// 压缩图片需要的元素和对象
 		const img = new Image();
 		const reader = new FileReader();
-		reader.readAsDataURL(file); 
+		reader.readAsDataURL(file as File); 
 		// 文件base64化，以便获知图片原始尺寸
-		reader.onload = function (e) {
-			img.src = e.target.result;
+		reader.onload = (e) => {
+			img.src = (e.target as any).result as string;
 		};
 		// 缩放图片需要的canvas
 		const canvas = document.createElement('canvas');
-		let context = canvas.getContext('2d');
+		const context = canvas.getContext('2d') as CanvasRenderingContext2D;
 		// base64地址图片加载完毕后
-		img.onload = function () {
-			const originWidth = this.width;
-			const originHeight = this.height;
+		img.onload = () => {
+			const originWidth = img.width;
+			const originHeight = img.height;
 			const maxWidth = width || originWidth;
 			const maxHeight = height || originHeight;
+
 			let targetWidth = originWidth;
 			let targetHeight = originHeight;
 			if (originWidth > maxWidth || originHeight > maxHeight) {
@@ -306,7 +302,7 @@ export const compressImg = ({ file, width, height, filetype = 'image/jpeg', enco
 					targetHeight = Math.round(maxWidth * (originHeight / originWidth));
 				} else {
 					targetHeight = maxHeight;
-					targetWidth = Math.round(height * (originWidth / originHeight));
+					targetWidth = Math.round(maxHeight * (originWidth / originHeight));
 				}
 			}
 
@@ -322,4 +318,4 @@ export const compressImg = ({ file, width, height, filetype = 'image/jpeg', enco
 	});
 };
 
-export const raf = window.requestAnimationFrame || ((fn) => setTimeout(fn, 16));
+export const raf: Raf = window.requestAnimationFrame || ((fn) => setTimeout(fn, 16));

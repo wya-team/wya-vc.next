@@ -1,44 +1,73 @@
 import VcError from './error';
-import { PORTAL_AUTO_DESTROY_TAG, PORTAL_DESTROY_METHOD } from '../utils/constant';
+import type { Config } from './types';
+import type PortalLeaf from '../portal/portal-leaf';
 
+const portals = new Map<string, PortalLeaf>();
+let globalEvent: MouseEvent;
+let config: Config;
+
+typeof window !== 'undefined' && document.addEventListener('click', (e: MouseEvent) => {
+	globalEvent = e;
+}, true);
 
 class VcBasic {
-	setConfig(options = {}) {
-		/**
-		 * 共享配置
-		 */
-		VcBasic.prototype.config = {
-			...VcBasic.prototype.config,
-			...options
-		};
+	/**
+	 * 组件的配置项
+	 */
+	config: Config;
+
+	/**
+ 	  * 处理全局捕获的事件, 用于计算位置
+ 	  */
+	globalEvent: MouseEvent;
+
+	/**
+	 * 自定义弹窗
+	 */
+	portals: Map<string, PortalLeaf>;
+
+	constructor() {
+		this.globalEvent = globalEvent || {};
+		this.portals = portals;
+		this.config = config || {};
+	}
+
+	/**
+	 * 设置组件配置项, 共享配置
+	 * @param  {Config} options 清理的组件名
+	 */
+	setConfig(options: Config) {
+		config = { ...config, ...options };
 	}
 	
 	/**
 	 * 清理Portals类型组件
-	 * @param  {str | array} cName 清理的组件名
-	 * @param  {str | array} force 是否强制清理, cName 存在会变为true
+	 * @param  {string | string[]} cName 清理的组件名
+	 * @param  {boolean} force 是否强制清理, cName 存在会变为true
 	 */
-	clear(cName, force = false) {
+	clear(cName: string | string[], force: boolean = false) {
 		try {
 			// 清理对象 
-			let target = [];
+			let target = new Map<string, any>();
 			if (cName) {
+				let cNames: string[] = [];
 				if (typeof cName === 'string') {
-					target = [cName];
+					cNames = [cName];
 				} else if (cName instanceof Array && cName.length > 0) {
-					target = cName;
+					cNames = cName;
 				}
-				target = target.reduce((pre, cur) => { pre[cur] = ''; return pre; }, {});
+
+				cNames.forEach(i => target.set(i, '')); 
 
 				// 清理
 				force = true;
 			} else {
-				target = this.APIS;
+				target = this.portals;
 			}
-			for (let i in target) {
-				if (this.APIS[i] && (force === true || this.APIS[i][PORTAL_AUTO_DESTROY_TAG] === true)) {
-					this.APIS[i][PORTAL_DESTROY_METHOD]();
-					delete this.APIS[i];
+			for (let key of target.keys()) {
+				const portal = this.portals.get(key);
+				if (portal && (force === true || portal.autoDestroy === true)) {
+					portal.destroy();
 				}
 			}
 		} catch (e) {
@@ -48,40 +77,16 @@ class VcBasic {
 	}
 
 	/**
-	 * 清理全部
+	 * 清理全部Portals
 	 */
 	clearAll() {
 		try {
-			for (let i in this.APIS) {
-				if (this.APIS[i]) {
-					this.APIS[i][PORTAL_DESTROY_METHOD]();
-					delete this.APIS[i];
-				}
-			}
+			this.portals.forEach((item) => item[1].destroy());
 		} catch (e) {
 			throw new VcError('instance', e);
 		}
 		return this;
 	}
 }
-
-
-/**
- * 处理全局捕获的事件, 用于计算位置
- */
-VcBasic.prototype.globalEvent = {};
-typeof window !== 'undefined' && document.addEventListener('click', (e) => {
-	VcBasic.prototype.globalEvent = e;
-}, true);
-
-/**
- * 仅用户共享属性
- */
-VcBasic.prototype.APIS = {};
-
-VcBasic.prototype.config = {
-	version: '3.0.0',
-	debug: process.env.NODE_ENV === 'development'
-};
 
 export default VcBasic;

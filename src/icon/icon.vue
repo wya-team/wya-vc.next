@@ -11,7 +11,7 @@
 	</i>
 </template>
 <script>
-import { defineComponent, onMounted, reactive, ref, computed, watch } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import IconManager from './manager';
 
 export default defineComponent({
@@ -23,7 +23,7 @@ export default defineComponent({
 			default: false
 		}
 	},
-	setup(props, context) {
+	setup(props) {
 		const viewBox = ref('0 0 1024 1024');
 		const path = ref([]);
 

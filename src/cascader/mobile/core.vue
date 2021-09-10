@@ -25,14 +25,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, computed, getCurrentInstance, onMounted } from 'vue';
+import { defineComponent, ref, watch, getCurrentInstance, onMounted } from 'vue';
 import { pick } from 'lodash';
 import MPicker from '../../picker/index.m';
-import MCascaderView from './cascader-view';
+import MCascaderView from './cascader-view.vue';
 import Portal from '../../portal/index';
 import { getSelectedData } from '../../utils/index';
 
-const wrapperComponent = defineComponent({
+import type { TreeData, TreeValue, TreeLabel } from '../../utils/types';
+
+const WrapperComponent = defineComponent({
 	name: 'vcm-cascader-core',
 	components: {
 		'vcm-picker-popup': MPicker.Popup,
@@ -81,9 +83,9 @@ const wrapperComponent = defineComponent({
 	], 
 	setup(props, context) {
 		const { emit } = context;
-		const instance = getCurrentInstance();
+		const instance = getCurrentInstance() as any;
 		const isActive = ref(false);
-		const currentValue = ref([]);
+		const currentValue = ref([] as TreeValue[]);
 
 		watch(
 			() => props.modelValue,
@@ -111,7 +113,7 @@ const wrapperComponent = defineComponent({
 		/**
 		 * 取消兼容
 		 */
-		const ok = (value, label, data) => {
+		const ok = (value: TreeValue[], label: TreeLabel[], data: TreeData[]) => {
 			const { onOk } = instance.vnode.props || props;
 			onOk ? onOk(value, label, data) : emit('ok', value, label, data);
 		};
@@ -145,7 +147,7 @@ const wrapperComponent = defineComponent({
 			emit('update:modelValue', currentValue.value, label, data);
 		};
 
-		const handleCancel = (v) => {
+		const handleCancel = () => {
 			isActive.value = false;
 			cancel();
 		};
@@ -160,8 +162,8 @@ const wrapperComponent = defineComponent({
 	}
 });
 
-export default wrapperComponent;
-export const Func = new Portal(wrapperComponent, {
+export default WrapperComponent;
+export const Func = new Portal<typeof WrapperComponent>(WrapperComponent, {
 	promise: false
 });
 </script>

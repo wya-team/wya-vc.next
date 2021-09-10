@@ -57,7 +57,7 @@ export default defineComponent({
 			emit('click');
 		};
 
-		const handleEnter = (value, rowIndex) => {
+		const handleEnter = (value: string | number, rowIndex: number) => {
 			emit('change', { value, rowIndex, colIndex: props.index });
 		};
 

@@ -51,7 +51,7 @@ export default defineComponent({
 			screenTop.value = rect.top;
 		};
 
-		const handleTap = (letter) => {
+		const handleTap = (letter: string) => {
 			emit('update:modelValue', letter);
 			emit('change', letter);
 		};

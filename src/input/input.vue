@@ -75,6 +75,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue';
+import type { PropType } from 'vue';
 import inputMixin from './input-mixin';
 import Icon from '../icon/index';
 import Transition from '../transition/index';
@@ -83,6 +84,7 @@ import useInherit from './use-inherit';
 import useMaxlength from './use-maxlength';
 import useNativeEmitter from './use-native-emitter';
 import { getBytesLength } from './utils';
+import type { IndicatorOptions } from './types';
 
 export default defineComponent({
 	name: 'vc-input',
@@ -93,12 +95,12 @@ export default defineComponent({
 	mixins: [inputMixin],
 	props: {
 		indicator: {
-			type: [Boolean, Object],
+			type: [Boolean, Object] as PropType<boolean | IndicatorOptions>,
 			default: false
 		},
 		indicateClassName: String
 	},
-	setup(props, context) {
+	setup(props) {
 		const input = ref(null);
 		const { binds } = useInherit();
 		const { 
@@ -109,20 +111,20 @@ export default defineComponent({
 			listeners,
 			handleClear
 		} = useInput(input);
-		const { currentMaxlength, handlePaste } = useMaxlength(input);
+		const { currentMaxlength, handlePaste } = useMaxlength(currentValue);
 		const { click, focus, blur } = useNativeEmitter(input);
 		
 		const indicatorNum = computed(() => {
 			let currentLength = (String(props.modelValue) || '').length;
 			let extraLength = props.bytes ? getBytesLength(props.modelValue) || 0 : 0;
-			let length = props.indicator && props.indicator.inverted 
+			let length = typeof props.maxlength === 'number' && typeof props.indicator === 'object' && props.indicator.inverted 
 				? props.maxlength + extraLength - currentLength 
 				: currentLength - extraLength;
 			return `${length}/${props.maxlength}`;
 		});
 
 		const indicateInline = computed(() => {
-			return props.indicator && props.indicator.inline;
+			return typeof props.indicator === 'object' && props.indicator.inline;
 		});
 
 		listeners.paste = handlePaste;

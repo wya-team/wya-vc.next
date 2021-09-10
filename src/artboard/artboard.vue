@@ -4,7 +4,7 @@
 	</div>
 </template>
 <script>
-import { getCurrentInstance, defineComponent, watch, ref, computed, onMounted, onBeforeUnmount, reactive } from 'vue';
+import { getCurrentInstance, defineComponent, ref, onMounted, onBeforeUnmount, reactive } from 'vue';
 import { Device } from '@wya/utils';
 import { raf } from '../utils/index';
 

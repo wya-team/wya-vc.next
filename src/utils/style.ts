@@ -1,7 +1,7 @@
 import { DOM } from '@wya/utils';
 
-export const TRANSFORM = DOM.prefixStyle('transform').camel;
-export const TRANSFORM_KEBAB = DOM.prefixStyle('transform').kebab;
+export const TRANSFORM: string = DOM.prefixStyle('transform').camel;
+export const TRANSFORM_KEBAB: string = DOM.prefixStyle('transform').kebab;
 
-export const TRANSITION = DOM.prefixStyle('transition').camel;
-export const ANIMATION = DOM.prefixStyle('animation').camel;
+export const TRANSITION: string = DOM.prefixStyle('transition').camel;
+export const ANIMATION: string = DOM.prefixStyle('animation').camel;

@@ -26,3 +26,4 @@
 - `compose`：多函数传参
 - `placement2mode`：方位转换
 - `getComputedStyle`：获取元素的样式值
+- `compressImage`： 压缩图片

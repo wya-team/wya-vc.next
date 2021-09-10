@@ -1,4 +1,7 @@
-export default {
+import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
+
+export default defineComponent({
 	props: {
 		model: {
 			type: Object
@@ -18,12 +21,12 @@ export default {
 			default: false
 		},
 		labelPosition: {
-			validator: v => /^(left|right|top)$/.test(v),
+			type: String as PropType<'left' | 'right' | 'top'>,
 			default: 'right'
 		},
 		autocomplete: {
-			validator: v => /^(on|off)$/.test(v),
+			type: String as PropType<'on' | 'off'>,
 			default: 'off'
 		},
 	}
-};
+});

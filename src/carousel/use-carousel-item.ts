@@ -1,13 +1,15 @@
-import { getCurrentInstance, cpmputed, ref, watch, computed, onBeforeMount, onBeforeUnmount, inject } from 'vue';
+import { getCurrentInstance, ref, computed, onBeforeMount, onBeforeUnmount, inject } from 'vue';
 import { TRANSFORM } from '../utils';
 import { VcError } from '../vc/index';
-import { getInstance } from '../hooks';
+import type { CarouselItemInstance, CarouselInject } from './types';
 
 export default () => {
-	const instance = getCurrentInstance();
-	const carousel = inject('carousel', {});
+	const instance = getCurrentInstance() as CarouselItemInstance;
+	const carousel: CarouselInject = inject('carousel', {} as any);
 
-	const { props, emit } = instance;
+	// @ts-ignore
+	const props = instance.props;
+
 	const translate = ref(0);
 	const currentScale = ref(1);
 	const isHover = ref(false);
@@ -65,7 +67,7 @@ export default () => {
 		carousel.remove?.(instance);
 	});
 
-	const processIndex = (index, activeIndex, length) => {
+	const processIndex = (index: number, activeIndex: number, length: number) => {
 		if (activeIndex === 0 && index === length - 1) {
 			return -1;
 		} else if (activeIndex === length - 1 && index === 0) {
@@ -78,23 +80,23 @@ export default () => {
 		return index;
 	};
 
-	const calcCardTranslate = (index, activeIndex) => {
-		let value;
-		let widthNumber = parseFloat(props.width) / 100;
+	const calcCardTranslate = (index: number, activeIndex: number) => {
+		let value: number;
+		let widthNumber = (+props.width) / 100;
 		const parentW = carousel.vnode.el.offsetWidth;
 		// 修改了计算公式
 		if (isInStage.value) {
 			if (index === activeIndex) {
-				value = parentW * (1 - widthNumber) / 2;
+				value = (parentW * (1 - widthNumber)) / 2;
 			} else if (index > activeIndex) {
-				value = parentW * (1 + widthNumber * props.scale) / 2 + itemGutter.value;
+				value = (parentW * (1 + widthNumber * props.scale)) / 2 + itemGutter.value;
 			} else {
 				value = -(parentW * ((widthNumber * props.scale - 1) / 2 + widthNumber)) - itemGutter.value;
 			}
 		} else if (index < activeIndex) {
-			value = parentW * (1 - widthNumber) / 2;
+			value = (parentW * (1 - widthNumber)) / 2;
 		} else {
-			value = parentW * (1 - widthNumber) / 2;
+			value = (parentW * (1 - widthNumber)) / 2;
 		}
 		return value;
 	};
@@ -103,9 +105,9 @@ export default () => {
 	 * 暂不考虑宽度 < 50% 的情况
 	 * 如果考虑，需要判断-2的情况，更小则还要判断-3的情况
 	 */
-	const calcSlideOffset = (index, activeIndex, wrapperWidth) => {
+	const calcSlideOffset = (index: number, activeIndex: number, wrapperWidth: number) => {
 		const { length } = carousel.items.value;
-		const offset = wrapperWidth - instance.vnode.el.offsetWidth;
+		const offset = wrapperWidth - (instance.vnode?.el?.offsetWidth || 0);
 		const gutter = itemGutter.value; 
 
 		if (!gutter || isVertical.value) return 0;
@@ -133,7 +135,7 @@ export default () => {
 			} else if (index - activeIndex === 1) {
 				slideOffset = -offset / 2 + gutter;
 			} else if (index - activeIndex === -1) {
-				slideOffset = offset * 3 / 2 - gutter;
+				slideOffset = (offset * 3) / 2 - gutter;
 			}
 		}
 
@@ -149,14 +151,14 @@ export default () => {
 		return slideOffset;
 	};
 
-	const calcTranslate = (index, activeIndex) => {
+	const calcTranslate = (index: number, activeIndex: number) => {
 		const distance = carousel.vnode.el[isVertical.value ? 'offsetHeight' : 'offsetWidth'];
 		const slideOffset = calcSlideOffset(index, activeIndex, distance);
 
 		return distance * (index - activeIndex) + carousel.offset.value + slideOffset;
 	};
 
-	const reset = (index, activeIndex, oldIndex) => {
+	const reset = (index: number, activeIndex: number, oldIndex: number) => {
 		const { length } = carousel.items.value;
 		if (
 			carousel.allowTransition.value 

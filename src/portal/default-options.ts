@@ -1,7 +1,9 @@
-export default {
+import type { PortalOptions } from './types';
+
+const DEFAULT_OPTIONS: PortalOptions = {
 	tag: 'div', 
 	el: 'body', 
-	cName: null,
+	cName: '',
 	alive: false, // 再次调用，实例不销毁
 	multiple: false, // 多个实例共存
 	promise: true,
@@ -9,8 +11,8 @@ export default {
 	aliveKey: 'isVisible',
 	leaveDelay: 0.3,
 	autoDestroy: true,
-	getInstance: null, 
-	onBefore: null, 
+	getInstance: undefined, 
+	onBefore: undefined, 
 	components: {}, // 可以动态注入组件
 	uses: {}, // 可以动态注入plugin
 	dataSource: null,
@@ -20,3 +22,5 @@ export default {
 	slots: null,
 	parent: null
 };
+
+export default DEFAULT_OPTIONS;

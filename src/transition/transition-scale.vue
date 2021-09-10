@@ -15,6 +15,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
+import type { PropType } from 'vue';
 import basicMixin from './basic-mixin';
 import useTransition from './use-transition';
 
@@ -23,9 +24,9 @@ export default defineComponent({
 	mixins: [basicMixin],
 	props: {
 		mode: {
-			type: String,
+			type: String as PropType<'x' | 'y' | 'part' | 'both' | 'none'>,
 			default: 'both',
-			validator: v => /(part|both|y|x|none)/.test(v)
+			validator: (v: string) => /(part|both|y|x|none)/.test(v)
 		},
 		styles: {
 			type: Object,

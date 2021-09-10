@@ -1,8 +1,8 @@
-import { ref, inject, watch, computed, getCurrentInstance } from 'vue';
-import { checkMaxlength } from './utils';
+import { ref, watch, getCurrentInstance } from 'vue';
+import type { InputInstance, InputValue } from './types';
 
-export default (input) => {
-	const { emit, props } = getCurrentInstance();
+export default () => {
+	const { emit, props } = getCurrentInstance() as InputInstance;
 	const currentValue = ref(props.modelValue);
 	const isFocus = ref(false);
 	/**
@@ -16,36 +16,37 @@ export default (input) => {
 		{ immediate: false }
 	);
 
-	const handleInput = (value, e) => {
+	const handleInput = (value: InputValue, e: InputEvent) => {
 		emit('input', value, e);
 		emit('update:modelValue', value, e);
 	};
 
-	const handleFocus = (e) => {
+	const handleFocus = (e: any) => {
 		isFocus.value = true;
 		if (props.focusEnd) {
-			let length = currentValue.value.length;
+			let length = String(currentValue.value).length;
 			// hack chrome浏览器的BUG：setSelectionRange() for input/textarea during onFocus fails when mouse clicks
 			setTimeout(() => {
-				e.srcElement.setSelectionRange(length, length);
+				// @ts-ignore
+				e.srcElement?.setSelectionRange(length, length);
 			}, 0);
 		}
 		emit('focus', e);
 	};
 
-	const handleBlur = (e) => {
+	const handleBlur = (e: InputEvent) => {
 		isFocus.value = false;
 		emit('blur', e);
 	};
 
 	const listeners = {
-		keyup: (e) => emit('keyup', e),
-		keypress: (e) => emit('keypress', e),
-		keydown: (e) => emit('keydown', e),
+		keyup: (e: any) => emit('keyup', e),
+		keypress: (e: any) => emit('keypress', e),
+		keydown: (e: any) => emit('keydown', e),
 		focus: handleFocus,
 		blur: handleBlur,
 		input: handleInput,
-		change: (e) => emit('keyup', e)
+		change: (e: any) => emit('keyup', e)
 	};
 
 	return {

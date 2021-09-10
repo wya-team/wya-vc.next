@@ -12,10 +12,10 @@ import MActionSheet from '..';
 
 export default defineComponent({
 	name: "vc-tpl-basic",
-	setup(props, context) {
+	setup() {
 		const handleClick = async () => {
 
-			const onClick = (action) => {
+			const onClick = () => {
 				return new Promise(r => setTimeout(r, 2000));
 			};
 

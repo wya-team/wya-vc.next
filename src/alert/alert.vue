@@ -46,6 +46,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
+import type { PropType } from 'vue';
 import Icon from '../icon';
 import Transition from '../transition';
 
@@ -56,7 +57,6 @@ const THEME_MAP = {
 	error: ['#ed4014', '#ffb08f', '#fbe9e9'],
 	warning: ['#ffbf00', '#ffe58f', '#fffbe6']
 };
-const THEME_KEY = Object.keys(THEME_MAP);
 
 export default defineComponent({
 	name: 'vc-alert',
@@ -70,11 +70,8 @@ export default defineComponent({
 			default: true
 		},
 		type: {
-			type: String,
-			default: 'info',
-			validator(value) {
-				return THEME_KEY.includes(value);
-			}
+			type: String as PropType<'success' | 'info' | 'error' | 'warning'>,
+			default: 'info'
 		},
 		title: {
 			type: String,
@@ -103,7 +100,7 @@ export default defineComponent({
 		const isActive = ref(false);
 
 		const containerStyle = computed(() => {
-			const [color, borderColor, backgroundColor] = THEME_MAP[props.type];
+			const [_color, borderColor, backgroundColor] = THEME_MAP[props.type];
 			return {
 				borderColor,
 				backgroundColor

@@ -7,7 +7,15 @@ import { getPropByPath } from '../utils';
 import { IS_DEV } from '../utils/constant';
 import { VcError } from '../vc';
 
-const filterEmpty = (val) => {
+
+import type { 
+	FormItemInstance,
+	FormRule,
+	FormInject,
+	FormItemInject
+} from './types';
+
+const filterEmpty = (val: any) => {
 	if (val instanceof Array) {
 		val = val.filter(i => i !== '');
 	}
@@ -15,15 +23,15 @@ const filterEmpty = (val) => {
 };
 
 export default () => {
-	const form = inject('form', {});
-	const instance = getCurrentInstance();
+	const form = inject('form', {} as FormInject);
+	const instance = getCurrentInstance() as FormItemInstance;
 	const { props } = instance;
 	
 	if (IS_DEV && !form.props) {
 		throw new VcError('form-item', 'form-item需要在form内使用');
 	}
 
-	const formItem = inject('form-item', {});// 嵌套
+	const formItem = inject('form-item', {} as FormItemInject);// 嵌套
 
 	const isRequired = ref(false);
 	const validateState = ref('');
@@ -31,7 +39,7 @@ export default () => {
 	const validateDisabled = ref(false);
 	const validator = ref({});
 
-	let initialValue;
+	let initialValue: any;
 
 	const classes = computed(() => {
 		return {
@@ -58,19 +66,16 @@ export default () => {
 		};
 	});
 
-	const fieldValue = computed({
-		cache: false,
-		get: () => {
-			const model = form.props.model;
-			if (!model || !props.prop) { return; }
+	const fieldValue = computed(() => {
+		const model = form.props.model;
+		if (!model || !props.prop) { return; }
 
-			let path = props.prop;
-			if (path.includes(':')) {
-				path = path.replace(/:/, '.');
-			}
-
-			return getPropByPath(model, path).value;
+		let path = props.prop;
+		if (path.includes(':')) {
+			path = path.replace(/:/, '.');
 		}
+
+		return getPropByPath(model, path).value;
 	});
 
 	const showError = computed(() => {
@@ -85,16 +90,16 @@ export default () => {
 		}
 	);
 
-	const getRules = () => {
+	const getRules = (): FormRule[] => {
 		let formRules = form.props.rules;
 		const selfRules = props.rules;
 		
 		// getPropByPath(formRules, this.prop.replace(/\.[0-9]+\./g, '.'));
 		formRules = formRules ? formRules[props.prop] : [];
-		return cloneDeep([].concat(selfRules || formRules || []));
+		return cloneDeep(([] as FormRule[]).concat(selfRules || formRules || []));
 	};
 
-	const getFilteredRule = (trigger) => {
+	const getFilteredRule = (trigger: string) => {
 		const rules = getRules();
 		return rules.filter(rule => !rule.trigger || rule.trigger.includes(trigger));
 	};
@@ -136,7 +141,7 @@ export default () => {
 		}
 	};
 
-	const validate = (trigger, callback = () => {}) => {
+	const validate = (trigger: string, callback: AnyFunction = () => {}) => {
 		let rules = getFilteredRule(trigger);
 
 		/**
@@ -158,7 +163,7 @@ export default () => {
 				callback();
 				return true;
 			} else {
-				rules = [{ required: true }];
+				rules = [{ required: true }] as FormRule[];
 			}
 		}
 
@@ -170,7 +175,7 @@ export default () => {
 		let model = {};
 		model[props.prop] = filterEmpty(fieldValue.value);
 
-		$validator.validate(model, { firstFields: false }, (errors, fields) => {
+		$validator.validate(model, { firstFields: false }, (errors) => {
 			validateState.value = !errors ? 'success' : 'error';
 			validateMessage.value = errors ? errors[0].message : '';
 

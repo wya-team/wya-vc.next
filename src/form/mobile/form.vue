@@ -4,12 +4,13 @@
 	</form>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue';
 import basicFormMixin from '../form-mixin';
 import MToast from '../../toast/index.m';
 import useForm from '../use-form';
 
-export default {
+export default defineComponent({
 	name: 'vcm-form',
 	mixins: [basicFormMixin],
 	props: {
@@ -25,13 +26,13 @@ export default {
 	setup() {
 		return useForm(
 			{
-				throwToast(msg) {
+				throwToast(msg: string) {
 					MToast.info(msg);
 				}
 			}
 		);
 	}
-};
+});
 </script>
 <style lang="scss">
 @import '../../style/vars.scss';

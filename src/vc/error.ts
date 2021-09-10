@@ -1,11 +1,13 @@
 class VcError {
-	constructor(target, msg, options = {}) {
-		if (!msg || !target) return;
+	message?: string;
+	
+	constructor(target: string, message: any) {
+		if (!message || !target) return;
 		
-		msg = `[@wya/vc - ${target}]: ${msg}`;
-		this.msg = msg;
+		message = `[@wya/vc - ${target}]: ${message}`;
+		this.message = message;
 
-		process.env.NODE_ENV === 'development' && console.error(msg);
+		process.env.NODE_ENV === 'development' && console.error(message);
 	}
 }
 

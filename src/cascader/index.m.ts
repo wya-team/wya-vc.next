@@ -1,6 +1,6 @@
-import MCascader from './mobile/cascader';
-import MCascaderView from './mobile/cascader-view';
-import { Func } from './mobile/core';
+import MCascader from './mobile/cascader.vue';
+import MCascaderView from './mobile/cascader-view.vue';
+import { Func } from './mobile/core.vue';
 
 MCascader.View = MCascaderView;
 // 方法

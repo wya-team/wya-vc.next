@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 import inputMixin from './input-mixin';
 import inputNumberMixin from './input-number-mixin';

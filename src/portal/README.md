@@ -5,7 +5,7 @@
 - 变更事件: `close -> portal-rejected`
 - 变更属性 `data -> dataSource`,
 - 变更属性 `$slots -> slots`,
-- 变更属性 `$parent -> PORTAL_PARENT(parent)`,
+- 变更属性 `$parent -> parent`,
 - 变更默认值: `aliveKey`, 'visible' -> 'isVisible'`
 - 变更暴露属性 `vm -> app`, `app.wrapper`同`2.x`
 - 变更取值`onBefore: () => response.data -> response`

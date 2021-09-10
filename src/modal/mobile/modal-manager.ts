@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Modal from './modal';
 import { getOption } from '../../utils/index';
 import Portal from '../../portal/index';
-import { PORTAL_WRAPPER_INSTANCE } from '../../utils/constant';
 
 const registerOptions = {
 	multiple: true,
@@ -26,7 +25,7 @@ class ModalManager extends Portal {
 					onClose: null
 				});
 				// 与2.x不同
-				portal[PORTAL_WRAPPER_INSTANCE].isActive = true;
+				portal.wrapper.isActive = true;
 				return portal;
 			};
 		});

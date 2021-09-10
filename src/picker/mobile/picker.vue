@@ -19,7 +19,7 @@ import { isEqualWith, pick } from 'lodash';
 import Core, { Func } from './core';
 import MPickerPopup from './picker-popup';
 import List from '../../list/index.m';
-import { getSelectedData, PORTAL_DESTROY_METHOD } from '../../utils/index';
+import { getSelectedData } from '../../utils/index';
 import { VcError } from '../../vc/index';
 
 export default defineComponent({
@@ -72,7 +72,7 @@ export default defineComponent({
 
 		// TODO
 		onBeforeUnmount(() => {
-			pickerInstance && pickerInstance[PORTAL_DESTROY_METHOD]();
+			pickerInstance && pickerInstance.destroy();
 		});
 
 		/**

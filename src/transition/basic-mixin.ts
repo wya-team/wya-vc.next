@@ -1,4 +1,6 @@
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
 	/**
 	 * 注意: vue@3.0.x 以下要写组件中
 	 * https://github.com/vuejs/vue-next/pull/3742
@@ -55,4 +57,4 @@ export default {
 			default: ''
 		}
 	}
-};
+});

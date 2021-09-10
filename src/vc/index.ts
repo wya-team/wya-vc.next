@@ -1,4 +1,6 @@
+import type { App } from 'vue';
 import VcManager from './manager';
+import type { Config } from './types';
 
 export { default as VcBasic } from './basic';
 export { default as VcError } from './error';
@@ -8,15 +10,12 @@ export { default as VcError } from './error';
  */
 export const VcInstance = new VcManager();
 
-
 /**
  * 注册使用
  */
 export default {
-	install(app, opts = {}) {
-		app.config.globalProperties.$vc = VcInstance.init(opts);
+	install(app: App, options?: Config) {
+		app.config.globalProperties.$vc = VcInstance.init(options);
 	},
 	instance: VcInstance
 };
-
-

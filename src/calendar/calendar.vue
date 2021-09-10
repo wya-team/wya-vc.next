@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, computed } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { Utils } from "@wya/utils";
 import Customer from "../customer";
 import date2holiday from "./date2holiday";
@@ -91,7 +91,7 @@ export default defineComponent({
 			default: () => weekNames
 		}
 	},
-	setup(props, context) {
+	setup() {
 		const now = new Date();
 
 		const currentDate = ref(now);

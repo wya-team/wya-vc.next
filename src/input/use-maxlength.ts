@@ -1,22 +1,24 @@
-import { ref, inject, watch, getCurrentInstance } from 'vue';
+import { ref, watch, getCurrentInstance } from 'vue';
+import type { Ref } from 'vue';
 import { checkMaxlength, getBytesLength } from './utils';
+import type { InputInstance } from './types';
 
-export default (input, currentValue) => {
-	const { props, emit } = getCurrentInstance();
+export default (currentValue: Ref<string | number>) => {
+	const { props, emit } = getCurrentInstance() as InputInstance;
 	const currentMaxlength = ref(props.maxlength);
 
 	// 输入框内容允许输入的长度
-	const getMaxLength = (value) => {
+	const getMaxLength = (value: number | string) => {
 		if (!props.bytes) return props.maxlength;
 		let extraLength = getBytesLength(value);
 		return props.maxlength + extraLength;
 	};
 
-	const handlePaste = (e) => {
+	const handlePaste = (e: ClipboardEvent) => {
 		// 只有在bytes下,会需要重新计算maxlength
 		if (props.bytes) {
-			let content = currentValue.value + e.clipboardData.getData('text');
-			if (!checkMaxlength(content)) { e.preventDefault(); }
+			let content = currentValue.value + (e.clipboardData as DataTransfer).getData('text');
+			if (!checkMaxlength(content, props.maxlength)) { e.preventDefault(); }
 			currentMaxlength.value = getMaxLength(content);
 		}
 
@@ -26,6 +28,7 @@ export default (input, currentValue) => {
 	watch(
 		() => props.modelValue,
 		(v) => {
+			if (Array.isArray(v)) return;
 			currentMaxlength.value = getMaxLength(v);
 		},
 		{ immediate: false }
