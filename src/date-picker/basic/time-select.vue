@@ -1,5 +1,5 @@
 <template>
-	<div class="vc-time-select">
+	<div class="vc-time-select" :class="{ 'is-touch': isTouch }">
 		<div :ref="setRef('hours')" class="vc-time-select__list">
 			<ul class="vc-time-select__ul">
 				<li 
@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, onMounted, ref, watch, computed, reactive } from 'vue';
-import { $, Utils } from '@wya/utils';
+import { $, Utils, Device } from '@wya/utils';
 import _ from 'lodash';
 import { clearTime, getDateOfTime } from '../helper/date-utils';
 
@@ -101,6 +101,7 @@ export default defineComponent({
 	},
 	emits: ['pick'],
 	setup(props, { emit }) {
+		const isTouch = ref(Device.touch);
 		const spinerSteps = ref([1, 1, 1].map((one, i) => Math.abs(props.steps[i]) || one));
 		const compiled = ref(false);
 		const isFirst = ref(false);
@@ -281,6 +282,7 @@ export default defineComponent({
 		});
 
 		return {
+			isTouch,
 			spinerSteps,
 			compiled,
 			hoursList,
@@ -304,6 +306,11 @@ $block: vc-time-select;
 @include block($block) {
 	display: flex;
 	font-size: 14px;
+	@include when(touch) {
+		@include element(list) {
+			overflow-y: auto;
+		}
+	}
 	@include element(list) {
 		width: 56px; // time-picker
 		max-height: 144px;
