@@ -9,6 +9,7 @@
 			:style="[wrapperStyle, wrapperW, portalStyle]"
 			:class="[wrapperClasses, portalClassName]"
 			class="vc-popover-core" 
+			@mousedown="!hover && handleMouseDown($event)"
 			@mouseenter="hover && handleChange($event, { visible: true })"
 			@mouseleave="hover && handleChange($event, { visible: false })"
 		>
@@ -212,6 +213,7 @@ const WrapperComponent = defineComponent({
 		};
 
 		let timer: Nullable<TimeoutHandle>;
+		let isPressMouse = false;
 		const handleTriggerChange = (e: Event) => {
 			let visible = e.type === 'mouseenter';
 
@@ -222,7 +224,24 @@ const WrapperComponent = defineComponent({
 			}, 200);
 		};
 
+		const handleMouseDown = () => {
+			isPressMouse = true;
+		};
+
+		/**
+		 * 不会销毁的两种情况
+		 * 1. 在容器内的点击
+		 * 2. 内部按下，外部释放
+		 */
 		const handleClick = (e: Event) => {
+			const isIn = ctx.$el.contains(e.target);
+			const isPress = isPressMouse;
+
+			isPressMouse = false;
+			if (isIn || isPress) {
+				return;
+			}
+
 			props.alone && (isActive.value = false);
 			props.onChange(e, { context: instance });
 		};
@@ -318,7 +337,8 @@ const WrapperComponent = defineComponent({
 			themeClasses,
 			posClasses,
 			handleRemove,
-			handleChange
+			handleChange,
+			handleMouseDown
 		};
 	}
 });
