@@ -42,8 +42,6 @@ const babelParseConfig = {
 	]
 };
 
-const ImportDeclaration = 
-
 // jsx/tsx -> js
 const transform = (code) => {
 	return babel.transformFromAstSync(code, undefined, {
@@ -370,6 +368,15 @@ files.forEach((filepath) => {
 					if (/\.(vue)$/.test(value)) {
 						$path.node.source.value = value.replace(/\.vue/, '');
 					}
+				},
+				ExportNamedDeclaration($path) {
+					if ($path.node.source) {
+						let { value } = $path.node.source;
+						// 去掉.vue后缀
+						if (/\.(vue)$/.test(value)) {
+							$path.node.source.value = value.replace(/\.vue/, '');
+						}
+					}
 				}
 			});
 
@@ -463,14 +470,13 @@ files.forEach((filepath) => {
 				NewExpression($path) {
 					if ($path.node.callee.name === 'Portal') {
 						let arg0 = $path.node.arguments[0].name;
-						if (arg0 !== 'wrapperComponent') {
+						if (!/(w|W)rapperComponent/.test(arg0)) {
 							throw new Error(`
 								\nPortal第一个参数应该命名为wrapperComponent
 								\n当前值: ${arg0}
 								\n文件: ${FILE_PATH}
 							`);
 						}
-						
 					}
 				}
 			});
