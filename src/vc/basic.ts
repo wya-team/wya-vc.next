@@ -4,7 +4,7 @@ import type PortalLeaf from '../portal/portal-leaf';
 
 const portals = new Map<string, PortalLeaf>();
 let globalEvent: MouseEvent;
-let config: Config;
+let config: Config = {};
 
 typeof window !== 'undefined' && document.addEventListener('click', (e: MouseEvent) => {
 	globalEvent = e;
@@ -29,15 +29,19 @@ class VcBasic {
 	constructor() {
 		this.globalEvent = globalEvent || {};
 		this.portals = portals;
-		this.config = config || {};
+		this.config = config;
 	}
 
 	/**
-	 * 设置组件配置项, 共享配置
+	 * 设置组件配置项, 共享配置, 应用修改
 	 * @param  {Config} options 清理的组件名
 	 */
 	setConfig(options: Config) {
-		config = { ...config, ...options };
+		if (options) {
+			Object.keys(options).forEach(i => {
+				config[i] = options[i];
+			});
+		}
 	}
 	
 	/**
