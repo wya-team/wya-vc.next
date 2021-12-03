@@ -38,6 +38,7 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 		this.destroy = this.destroy.bind(this);
 	}
 
+	// TODO: 考虑globalProperties等属性叠加 { ...x1, ...x2 }
 	_getDefaultOptions() {
 		return {
 			...defaultOptions, 
@@ -129,6 +130,7 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 			// 不推荐使用
 			slots,
 			parent,
+			globalProperties,
 			...rest
 		} = options;
 
@@ -245,6 +247,10 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 			leaf.app = app;
 
 			app.mount(container);
+
+			if (globalProperties) {
+				app.config.globalProperties = globalProperties;
+			}
 
 			// store, router等
 			for (let key in components) {
