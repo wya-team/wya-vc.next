@@ -28,7 +28,11 @@ import IMGStore from './store';
 import { IS_SERVER } from '../utils/constant';
 import { useAttrs } from '../hooks';
 
-const isSupportObjectFit = !IS_SERVER && document.documentElement.style.objectFit !== undefined;
+let isSupportObjectFit = false;
+
+window.addEventListener('DOMContentLoaded', () => {
+	isSupportObjectFit = !IS_SERVER && document.documentElement.style.objectFit !== undefined;
+});
 
 const ObjectFit = {
 	NONE: 'none',

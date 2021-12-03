@@ -148,6 +148,58 @@ import * as Utils from './utils/index';
 
 import Extends from './extends/index';
 
+const ButtonGroup = Button.Group;
+const MButtonGroup = MButton.Group;
+const CarouselItem = Carousel.Item;
+const MCarouselItem = MCarousel.Item;
+const MCascaderView = MCascader.View;
+const CheckboxGroup = Checkbox.Group;
+const MCheckboxGroup = MCheckbox.Group;
+const CollapseItem = Collapse.Item;
+const MCollapseItem = MCollapse.Item;
+const MDatePickerView = MDatePicker.View;
+const DropdownItem = Dropdown.Item;
+const MDropdownItem = MDropdown.Item;
+const DropdownMenu = Dropdown.Menu;
+const MDropdownMenu = MDropdown.Menu;
+const EditorView = Editor.View;
+const MEditorView = MEditor.View;
+const FormItem = Form.Item;
+const MFormItem = MForm.Item;
+const InputNumber = Input.Number;
+const MInputNumber = MInput.Number;
+const InputSearch = Input.Search;
+const MInputSearch = MInput.Search;
+const ListItem = List.Item;
+const MListItem = MList.Item;
+const PickerView = Picker.View;
+const MPickerView = MPicker.View;
+const PickerPopup = Picker.Popup;
+const MPickerPopup = MPicker.Popup;
+const RadioGroup = Radio.Group;
+const MRadioGroup = MRadio.Group;
+const StepsItem = Steps.Item;
+const MStepsItem = MSteps.Item;
+const StepsBar = Steps.Bar;
+const MStepsBar = MSteps.Bar;
+const TabsPane = Tabs.Pane;
+const MTabsPane = MTabs.Pane;
+const TimelineItem = Timeline.Item;
+const MTimelineItem = MTimeline.Item;
+const TransitionFade = Transition.Fade;
+const MTransitionFade = MTransition.Fade;
+const TransitionScale = Transition.Scale;
+const MTransitionScale = MTransition.Scale;
+const TransitionSlide = Transition.Slide;
+const MTransitionSlide = MTransition.Slide;
+const TransitionZoom = Transition.Zoom;
+const MTransitionZoom = MTransition.Zoom;
+const TransitionCollapse = Transition.Collapse;
+const MTransitionCollapse = MTransition.Collapse;
+const TreeSelect = Tree.Select;
+const MTreeSelect = MTree.Select;
+const version = '__VC_VERSION__';
+
 const Components = {
 	// components
 	ActionSheet,
@@ -158,29 +210,29 @@ const Components = {
 	MArtboard,
 	Button,
 	MButton,
-	ButtonGroup: Button.Group,
-	MButtonGroup: MButton.Group,
+	ButtonGroup,
+	MButtonGroup,
 	Calendar,
 	MCalendar,
 	Card,
 	MCard,
 	Carousel,
 	MCarousel,
-	CarouselItem: Carousel.Item,
-	MCarouselItem: MCarousel.Item,
+	CarouselItem,
+	MCarouselItem,
 	Cascader,
 	MCascader,
-	MCascaderView: MCascader.View,
+	MCascaderView,
 	Checkbox,
 	MCheckbox,
-	CheckboxGroup: Checkbox.Group,
-	MCheckboxGroup: MCheckbox.Group,
+	CheckboxGroup,
+	MCheckboxGroup,
 	Clipboard,
 	MClipboard,
 	Collapse,
 	MCollapse,
-	CollapseItem: Collapse.Item,
-	MCollapseItem: MCollapse.Item,
+	CollapseItem,
+	MCollapseItem,
 	ColorPicker,
 	MColorPicker,
 	Countdown,
@@ -189,7 +241,7 @@ const Components = {
 	MCustomer,
 	DatePicker,
 	MDatePicker,
-	MDatePickerView: MDatePicker.View,
+	MDatePickerView,
 	DebounceClick,
 	MDebounceClick,
 	Divider,
@@ -198,24 +250,24 @@ const Components = {
 	MDrawer,
 	Dropdown,
 	MDropdown,
-	DropdownItem: Dropdown.Item,
-	MDropdownItem: MDropdown.Item,
-	DropdownMenu: Dropdown.Menu,
-	MDropdownMenu: MDropdown.Menu,
+	DropdownItem,
+	MDropdownItem,
+	DropdownMenu,
+	MDropdownMenu,
 	Echarts,
 	MEcharts,
 	Editor,
 	MEditor,
-	EditorView: Editor.View,
-	MEditorView: MEditor.View,
+	EditorView,
+	MEditorView,
 	Expand,
 	MExpand,
 	// FilesPicker,
 	// MFilesPicker,
 	Form,
 	MForm,
-	FormItem: Form.Item,
-	MFormItem: MForm.Item,
+	FormItem,
+	MFormItem,
 	Fragment,
 	MFragment,
 	HtmlImage,
@@ -234,14 +286,14 @@ const Components = {
 	MImageProcessing,
 	Input,
 	MInput,
-	InputNumber: Input.Number,
-	MInputNumber: MInput.Number,
-	InputSearch: Input.Search,
-	MInputSearch: MInput.Search,
+	InputNumber,
+	MInputNumber,
+	InputSearch,
+	MInputSearch,
 	List,
 	MList,
-	ListItem: List.Item,
-	MListItem: MList.Item,
+	ListItem,
+	MListItem,
 	Marquee,
 	MMarquee,
 	Modal,
@@ -256,10 +308,10 @@ const Components = {
 	// MPaging,
 	Picker,
 	MPicker,
-	PickerView: Picker.View,
-	MPickerView: MPicker.View,
-	PickerPopup: Picker.Popup,
-	MPickerPopup: MPicker.Popup,
+	PickerView,
+	MPickerView,
+	PickerPopup,
+	MPickerPopup,
 	Popconfirm,
 	MPopconfirm,
 	Popover,
@@ -272,8 +324,8 @@ const Components = {
 	MProgress,
 	Radio,
 	MRadio,
-	RadioGroup: Radio.Group,
-	MRadioGroup: MRadio.Group,
+	RadioGroup,
+	MRadioGroup,
 	Rate,
 	MRate,
 	// RecycleList,
@@ -290,18 +342,18 @@ const Components = {
 	MSpin,
 	Steps,
 	MSteps,
-	StepsItem: Steps.Item,
-	MStepsItem: Steps.Item,
-	StepsBar: Steps.Bar,
-	MStepsBar: Steps.Bar,
+	StepsItem,
+	MStepsItem,
+	StepsBar,
+	MStepsBar,
 	Switch,
 	MSwitch,
 	Table,
 	MTable,
 	Tabs,
 	MTabs,
-	TabsPane: Tabs.Pane,
-	MTabsPane: MTabs.Pane,
+	TabsPane,
+	MTabsPane,
 	Tag,
 	MTag,
 	Text,
@@ -310,28 +362,28 @@ const Components = {
 	MTextarea,
 	Timeline,
 	MTimeline,
-	TimelineItem: Timeline.Item,
-	MTimelineItem: Timeline.Item,
+	TimelineItem,
+	MTimelineItem,
 	TimePicker,
 	MTimePicker,
 	Touch,
 	MTouch,
 	Transition,
 	MTransition,
-	TransitionFade: Transition.Fade,
-	MTransitionFade: MTransition.Fade,
-	TransitionScale: Transition.Scale,
-	MTransitionScale: MTransition.Scale,
-	TransitionSlide: Transition.Slide,
-	MTransitionSlide: MTransition.Slide,
-	TransitionZoom: Transition.Zoom,
-	MTransitionZoom: MTransition.Zoom,
-	TransitionCollapse: Transition.Collapse,
-	MTransitionCollapse: MTransition.Collapse,
+	TransitionFade,
+	MTransitionFade,
+	TransitionScale,
+	MTransitionScale,
+	TransitionSlide,
+	MTransitionSlide,
+	TransitionZoom,
+	MTransitionZoom,
+	TransitionCollapse,
+	MTransitionCollapse,
 	Tree,
 	MTree,
-	TreeSelect: Tree.Select,
-	MTreeSelect: MTree.Select,
+	TreeSelect,
+	MTreeSelect,
 	Upload,
 	MUpload,
 	UploadPicker,
@@ -353,211 +405,215 @@ if (typeof window !== 'undefined' && !window.Vue) {
 }
 
 // extra
-exports.Vc = Vc;
-exports.VcInstance = VcInstance;
-exports.VcBasic = VcBasic;
-exports.VcError = VcError;
-exports.Utils = Utils;
-exports.Extends = Extends;
+export {
+	Vc,
+	VcInstance,
+	VcBasic,
+	VcError,
+	Utils,
+	Extends
+};
 
 // component
-exports.ActionSheet = ActionSheet;
-exports.MActionSheet = ActionSheet;
-exports.Alert = Alert;
-exports.MAlert = Alert;
-exports.Artboard = MArtboard;
-exports.MArtboard = MArtboard;
-exports.Button = Button;
-exports.MButton = MButton;
-exports.ButtonGroup = Button.Group;
-exports.MButtonGroup = MButton.Group;
-exports.Calendar = Calendar;
-exports.MCalendar = MCalendar;
-exports.Card = Card;
-exports.MCard = MCard;
-exports.Carousel = Carousel;
-exports.MCarousel = MCarousel;
-exports.CarouselItem = Carousel.Item;
-exports.MCarouselItem = MCarousel.Item;
-exports.Cascader = Cascader;
-exports.MCascader = MCascader;
-exports.MCascaderView = MCascader.View;
-exports.Checkbox = Checkbox;
-exports.MCheckbox = MCheckbox;
-exports.CheckboxGroup = Checkbox.Group;
-exports.MCheckboxGroup = MCheckbox.Group;
-exports.Clipboard = Clipboard;
-exports.MClipboard = MClipboard;
-exports.Collapse = Collapse;
-exports.MCollapse = MCollapse;
-exports.CollapseItem = Collapse.Item;
-exports.MCollapseItem = MCollapse.Item;
-exports.ColorPicker = ColorPicker;
-exports.MColorPicker = MColorPicker;
-exports.Countdown = Countdown;
-exports.MCountdown = MCountdown;
-exports.Customer = Customer;
-exports.MCustomer = MCustomer;
-exports.DatePicker = DatePicker;
-exports.MDatePicker = MDatePicker;
-exports.MDatePickerView = MDatePicker.View;
-exports.DebounceClick = DebounceClick;
-exports.MDebounceClick = MDebounceClick;
-exports.Divider = Divider;
-exports.MDivider = MDivider;
-exports.Drawer = Drawer;
-exports.MDrawer = MDrawer;
-exports.Dropdown = Dropdown;
-exports.MDropdown = MDropdown;
-exports.DropdownItem = Dropdown.Item;
-exports.MDropdownItem = MDropdown.Item;
-exports.DropdownMenu = Dropdown.Menu;
-exports.MDropdownMenu = MDropdown.Menu;
-exports.Echarts = Echarts;
-exports.MEcharts = MEcharts;
-exports.Editor = Editor;
-exports.MEditor = MEditor;
-exports.EditorView = Editor.View;
-exports.MEditorView = MEditor.View;
-exports.Expand = Expand;
-exports.MExpand = MExpand;
-exports.Form = Form;
-exports.MForm = MForm;
-exports.FormItem = Form.Item;
-exports.MFormItem = MForm.Item;
-exports.Fragment = Fragment;
-exports.MFragment = MFragment;
-exports.HtmlImage = HtmlImage;
-exports.MHtmlImage = MHtmlImage;
-exports.Icon = Icon;
-exports.MIcon = MIcon;
-exports.Image = Image;
-exports.MImage = MImage;
-exports.ImageCrop = ImageCrop;
-exports.MImageCrop = MImageCrop;
-exports.ImagePreview = ImagePreview;
-exports.MImagePreview = MImagePreview;
-exports.ImageProcessing = ImageProcessing;
-exports.MImageProcessing = MImageProcessing;
-exports.Input = Input;
-exports.MInput = MInput;
-exports.InputNumber = Input.Number;
-exports.MInputNumber = MInput.Number;
-exports.InputSearch = Input.Search;
-exports.MInputSearch = MInput.Search;
-exports.List = List;
-exports.MList = MList;
-exports.ListItem = List.Item;
-exports.MListItem = MList.Item;
-exports.Marquee = Marquee;
-exports.MMarquee = MMarquee;
-exports.Notice = Notice;
-exports.MNotice = MNotice;
-exports.Option = Option;
-exports.MOption = MOption;
-exports.Page = Page;
-exports.MPage = MPage;
-// exports.Paging = Paging;
-// exports.MPaging = MPaging;
-exports.Picker = Picker;
-exports.MPicker = MPicker;
-exports.PickerView = Picker.View;
-exports.MPickerView = MPicker.View;
-exports.PickerPopup = Picker.Popup;
-exports.MPickerPopup = MPicker.Popup;
-exports.Popconfirm = Popconfirm;
-exports.MPopconfirm = MPopconfirm;
-exports.Popover = Popover;
-exports.MPopover = MPopover;
-exports.Popup = Popup;
-exports.MPopup = MPopup;
-exports.Print = Print;
-exports.MPrint = MPrint;
-exports.Progress = Progress;
-exports.MProgress = MProgress;
-exports.Radio = Radio;
-exports.MRadio = MRadio;
-exports.RadioGroup = Radio.Group;
-exports.MRadioGroup = MRadio.Group;
-exports.Rate = Rate;
-exports.MRate = MRate;
-// exports.RecycleList = RecycleList;
-// exports.MRecycleList = MRecycleList;
-exports.Scroller = Scroller;
-exports.MScroller = MScroller;
-exports.Select = Select;
-exports.MSelect = MSelect;
-exports.Slider = Slider;
-exports.MSlider = MSlider;
-exports.SortList = SortList;
-exports.MSortList = MSortList;
-exports.Spin = Spin;
-exports.MSpin = MSpin;
-exports.Steps = Steps;
-exports.MSteps = MSteps;
-exports.StepsItem = Steps.Item;
-exports.MStepsItem = MSteps.Item;
-exports.StepsBar = Steps.Bar;
-exports.MStepsBar = MSteps.Bar;
-exports.Switch = Switch;
-exports.MSwitch = MSwitch;
-exports.Table = Table;
-exports.MTable = MTable;
-exports.Tabs = Tabs;
-exports.MTabs = MTabs;
-exports.TabsPane = Tabs.Pane;
-exports.MTabsPane = MTabs.Pane;
-exports.Tag = Tag;
-exports.MTag = MTag;
-exports.Text = Text;
-exports.MText = MText;
-exports.Textarea = Textarea;
-exports.MTextarea = MTextarea;
-exports.Timeline = Timeline;
-exports.MTimeline = MTimeline;
-exports.TimelineItem = Timeline.Item;
-exports.MTimelineItem = MTimeline.Item;
-exports.TimePicker = TimePicker;
-exports.MTimePicker = MTimePicker;
-exports.Touch = Touch;
-exports.MTouch = MTouch;
-exports.Transition = Transition;
-exports.MTransition = MTransition;
-exports.TransitionFade = Transition.Fade;
-exports.MTransitionFade = MTransition.Fade;
-exports.TransitionScale = Transition.Scale;
-exports.MTransitionScale = MTransition.Scale;
-exports.TransitionSlide = Transition.Slide;
-exports.MTransitionSlide = MTransition.Slide;
-exports.TransitionZoom = Transition.Zoom;
-exports.MTransitionZoom = MTransition.Zoom;
-exports.TransitionCollapse = Transition.Collapse;
-exports.MTransitionCollapse = MTransition.Collapse;
-exports.Tree = Tree;
-exports.MTree = MTree;
-exports.TreeSelect = Tree.Select;
-exports.MTreeSelect = MTree.Select;
-exports.Upload = Upload;
-exports.MUpload = MUpload;
-exports.UploadPicker = UploadPicker;
-exports.MUploadPicker = MUploadPicker;
-// 弹
-exports.Message = Message;
-exports.MMessage = MMessage;
-exports.Modal = Modal;
-exports.MModal = MModal;
-exports.Portal = Portal;
-exports.MPortal = MPortal;
-exports.Toast = Toast;
-exports.MToast = MToast;
+export {
+	ActionSheet,
+	MActionSheet,
+	Alert,
+	MAlert,
+	Artboard,
+	MArtboard,
+	Button,
+	MButton,
+	ButtonGroup,
+	MButtonGroup,
+	Calendar,
+	MCalendar,
+	Card,
+	MCard,
+	Carousel,
+	MCarousel,
+	CarouselItem,
+	MCarouselItem,
+	Cascader,
+	MCascader,
+	MCascaderView,
+	Checkbox,
+	MCheckbox,
+	CheckboxGroup,
+	MCheckboxGroup,
+	Clipboard,
+	MClipboard,
+	Collapse,
+	MCollapse,
+	CollapseItem,
+	MCollapseItem,
+	ColorPicker,
+	MColorPicker,
+	Countdown,
+	MCountdown,
+	Customer,
+	MCustomer,
+	DatePicker,
+	MDatePicker,
+	MDatePickerView,
+	DebounceClick,
+	MDebounceClick,
+	Divider,
+	MDivider,
+	Drawer,
+	MDrawer,
+	Dropdown,
+	MDropdown,
+	DropdownItem,
+	MDropdownItem,
+	DropdownMenu,
+	MDropdownMenu,
+	Echarts,
+	MEcharts,
+	Editor,
+	MEditor,
+	EditorView,
+	MEditorView,
+	Expand,
+	MExpand,
+	Form,
+	MForm,
+	FormItem,
+	MFormItem,
+	Fragment,
+	MFragment,
+	HtmlImage,
+	MHtmlImage,
+	Icon,
+	MIcon,
+	Image,
+	MImage,
+	ImageCrop,
+	MImageCrop,
+	ImagePreview,
+	MImagePreview,
+	ImageProcessing,
+	MImageProcessing,
+	Input,
+	MInput,
+	InputNumber,
+	MInputNumber,
+	InputSearch,
+	MInputSearch,
+	List,
+	MList,
+	ListItem,
+	MListItem,
+	Marquee,
+	MMarquee,
+	Notice,
+	MNotice,
+	Option,
+	MOption,
+	Page,
+	MPage,
+	// 	Paging,
+	// 	MPaging,
+	Picker,
+	MPicker,
+	PickerView,
+	MPickerView,
+	PickerPopup,
+	MPickerPopup,
+	Popconfirm,
+	MPopconfirm,
+	Popover,
+	MPopover,
+	Popup,
+	MPopup,
+	Print,
+	MPrint,
+	Progress,
+	MProgress,
+	Radio,
+	MRadio,
+	RadioGroup,
+	MRadioGroup,
+	Rate,
+	MRate,
+	// 	RecycleList,
+	// 	MRecycleList,
+	Scroller,
+	MScroller,
+	Select,
+	MSelect,
+	Slider,
+	MSlider,
+	SortList,
+	MSortList,
+	Spin,
+	MSpin,
+	Steps,
+	MSteps,
+	StepsItem,
+	MStepsItem,
+	StepsBar,
+	MStepsBar,
+	Switch,
+	MSwitch,
+	Table,
+	MTable,
+	Tabs,
+	MTabs,
+	TabsPane,
+	MTabsPane,
+	Tag,
+	MTag,
+	Text,
+	MText,
+	Textarea,
+	MTextarea,
+	Timeline,
+	MTimeline,
+	TimelineItem,
+	MTimelineItem,
+	TimePicker,
+	MTimePicker,
+	Touch,
+	MTouch,
+	Transition,
+	MTransition,
+	TransitionFade,
+	MTransitionFade,
+	TransitionScale,
+	MTransitionScale,
+	TransitionSlide,
+	MTransitionSlide,
+	TransitionZoom,
+	MTransitionZoom,
+	TransitionCollapse,
+	MTransitionCollapse,
+	Tree,
+	MTree,
+	TreeSelect,
+	MTreeSelect,
+	Upload,
+	MUpload,
+	UploadPicker,
+	MUploadPicker,
+	// 弹
+	Message,
+	MMessage,
+	Modal,
+	MModal,
+	Portal,
+	MPortal,
+	Toast,
+	MToast,
 
-// 用于打包映射
-exports.version = '__VC_VERSION__';
-exports.install = install;
+	// 用于打包映射
+	version,
+	install
+};
 
 export default merge(
 	{ 
-		version: '__VC_VERSION__', 
+		version, 
 		install
 	},
 	{

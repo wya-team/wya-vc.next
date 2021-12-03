@@ -20,7 +20,8 @@ const DEFAULT_OPTIONS: PortalOptions = {
 	fragment: false, // 是否使用片段
 
 	slots: null,
-	parent: null
+	parent: null,
+	globalProperties: null
 };
 
 export default DEFAULT_OPTIONS;

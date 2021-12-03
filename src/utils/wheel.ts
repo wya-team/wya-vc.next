@@ -18,8 +18,15 @@ if (typeof document !== 'undefined') {
 			}, wait);
 		});
 	};
-	document.body.addEventListener('wheel', handler, true);
-	document.body.addEventListener('mousedown', handler, true);
+	const handleAddEvent = () => {
+		document.body.addEventListener('wheel', handler, true);
+		document.body.addEventListener('mousedown', handler, true);
+	};
+	if (document.body) {
+		handleAddEvent();
+	} else {
+		window.addEventListener("DOMContentLoaded", handleAddEvent);
+	}
 }
 
 export default class WheelHandler {
