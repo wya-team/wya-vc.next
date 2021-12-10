@@ -20,7 +20,6 @@ const { parse } = require('@babel/parser');
 // rollup 
 const { rollup } = require('rollup');
 const replace = require('@rollup/plugin-replace');
-const buble = require('@rollup/plugin-buble');
 const commonjs = require('@rollup/plugin-commonjs');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const alias = require('@rollup/plugin-alias');
@@ -231,7 +230,6 @@ process.on('beforeExit', async () => {
 			'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
 			preventAssignment: false
 		}),
-		// buble(),
 		terser()
 	];
 
