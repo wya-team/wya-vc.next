@@ -269,6 +269,9 @@ export default defineComponent({
 		 */
 		const resetOrigin = debounce(function () {
 			let el = container.value;
+
+			if (!el) return;
+
 			let $x = 0;
 			let $y = 0;
 			/**
