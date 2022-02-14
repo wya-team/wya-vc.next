@@ -394,7 +394,7 @@ const install = (app, opts = {}) => {
 	app.use(Vc, opts);
 	Object.keys(Components).forEach(key => {
 		let comp = kebabCase(key);
-		comp = comp.includes('m-') ? `vc${comp}` : `vc-${comp}`;
+		comp = comp.startsWith('m-') ? `vc${comp}` : `vc-${comp}`;
 		app.component(comp, Components[key]);
 	});
 };
