@@ -21,7 +21,8 @@ const DEFAULT_OPTIONS: PortalOptions = {
 
 	slots: null,
 	parent: null,
-	globalProperties: null
+	globalProperties: null,
+	install: null
 };
 
 export default DEFAULT_OPTIONS;
