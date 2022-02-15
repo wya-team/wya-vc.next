@@ -3,7 +3,6 @@ import { useAttrs } from '../hooks/index';
 
 export default () => {
 	const instance = getCurrentInstance();
-	const group = inject('radio-group', {});
 	const formItem = inject('form-item', {});
 
 	const { props, emit, attrs } = instance;
@@ -31,6 +30,7 @@ export default () => {
 	);
 
 	const reset = (value) => {
+		console.log(value);
 		currentValue.value = value === props.trueValue 
 			? props.trueValue
 			: props.falseValue;
@@ -45,7 +45,8 @@ export default () => {
 		formItem?.change?.(currentValue.value);
 	};
 
-	const handdleToggle = (e) => {
+	const handleToggle = (e) => {
+		console.log(e);
 		e.preventDefault();
 
 		if (props.disabled || isLoading.value) {
@@ -80,9 +81,8 @@ export default () => {
 		currentValue,
 		isLoading,
 		classes,
-		inherit,
 		checked,
-		handdleToggle,
+		handleToggle,
 		sync,
 		reset
 	};

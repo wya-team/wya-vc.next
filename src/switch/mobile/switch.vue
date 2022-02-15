@@ -1,11 +1,10 @@
 <template>
 	<!-- tabindex="0" -->
 	<span
-		:class="[classes, inherit.class]"
-		:style="inherit.style"
+		:class="[classes]"
 		class="vcm-switch"
-		@click="handdleToggle"
-		@keydown.space="handdleToggle"
+		@click="handleToggle"
+		@keydown.space="handleToggle"
 	>
 		<input :name="name" :value="currentValue" type="hidden">
 		<span class="vcm-switch__content">

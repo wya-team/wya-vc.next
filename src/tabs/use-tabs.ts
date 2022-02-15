@@ -18,11 +18,15 @@ export default (options = {}) => {
 	const scrollOffset = ref(0);
 	// 可滚动
 	const scrollable = ref(false);
-	// 给paging， 做判断使用
+	// 给paging， 做判断使用 , TODO: v3移除
 	const hasClick = ref(false);
 	// 正在切换
 	const timer = ref(null);
 
+	const getTabIndex = (name) => {
+		return list.value.findIndex((nav, index) => (nav.name || index) === name);
+	};
+	
 	const afloatStyle = computed(() => {
 		let style = {
 			width: `${afloatWidth.value}px`
@@ -51,10 +55,6 @@ export default (options = {}) => {
 			[`is-${props.theme}`]: !!props.theme,
 		};
 	});
-
-	const getTabIndex = (name) => {
-		return list.value.findIndex((nav, index) => (nav.name || index) === name);
-	};
 
 	/**
 	 * 下层值变化：刷新tabs
