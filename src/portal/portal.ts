@@ -122,15 +122,18 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 			autoDestroy,
 			getInstance, 
 			dataSource,
-			components,
-			uses,
 			multiple,
 			fragment,
+
+			// 全局注册
+			globalProperties,
+			install,
+			components,
+			uses,
 
 			// 不推荐使用
 			slots,
 			parent,
-			globalProperties,
 			...rest
 		} = options;
 
@@ -246,8 +249,6 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 
 			leaf.app = app;
 
-			app.mount(container);
-
 			if (globalProperties) {
 				app.config.globalProperties = globalProperties;
 			}
@@ -260,6 +261,10 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 			for (let key in uses) {
 				app.use(uses[key]);
 			}
+
+			install && install(app);
+			
+			app.mount(container);
 		}
 
 		// destroy method
