@@ -145,6 +145,7 @@ import MUploadPicker from './upload-picker/index.m';
 import Vc, { VcInstance, VcError, VcBasic } from './vc/index';
 
 import * as Utils from './utils/index';
+import * as Hooks from './hooks/index';
 
 import Extends from './extends/index';
 
@@ -411,6 +412,7 @@ export {
 	VcBasic,
 	VcError,
 	Utils,
+	Hooks,
 	Extends
 };
 
@@ -622,6 +624,7 @@ export default merge(
 		VcBasic,
 		VcError,
 		Utils,
+		Hooks,
 		Extends
 	},
 	{
