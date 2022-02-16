@@ -20,6 +20,12 @@ export const useListeners = (options: Options = {}) => {
 				if (exclude.includes(key)) return pre;
 				if (/^on([A-Z])/.test(key)) {
 					key = kebabCase(key.replace(/^on([^\s]+)/, "$1"));
+					
+					// update- -> update:
+					if (/^update-/.test(key)) {
+						key = key.replace(/-/, ":");
+					}
+
 					pre[key] = val;	
 				}
 				return pre;
