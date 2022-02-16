@@ -116,6 +116,8 @@ export default (input: Ref<Nullable<HTMLElement>>) => {
 
 		emit('change', e);
 
+		emit('clear')
+
 		input.value?.focus?.();
 	};
 
