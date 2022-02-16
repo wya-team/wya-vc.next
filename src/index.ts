@@ -183,6 +183,10 @@ const StepsItem = Steps.Item;
 const MStepsItem = MSteps.Item;
 const StepsBar = Steps.Bar;
 const MStepsBar = MSteps.Bar;
+const TableItem = Table.Item;
+const MTableItem = MTable.Item;
+const TableColumn = Table.Column;
+const MTableColumn = MTable.Column;
 const TabsPane = Tabs.Pane;
 const MTabsPane = MTabs.Pane;
 const TimelineItem = Timeline.Item;
@@ -351,6 +355,10 @@ const Components = {
 	MSwitch,
 	Table,
 	MTable,
+	TableItem,
+	MTableItem,
+	TableColumn,
+	MTableColumn,
 	Tabs,
 	MTabs,
 	TabsPane,
@@ -560,6 +568,10 @@ export {
 	MSwitch,
 	Table,
 	MTable,
+	TableItem,
+	MTableItem,
+	TableColumn,
+	MTableColumn,
 	Tabs,
 	MTabs,
 	TabsPane,
