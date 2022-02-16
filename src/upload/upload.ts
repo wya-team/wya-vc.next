@@ -195,7 +195,7 @@ export default {
 			} = VcInstance.config.Upload || {};
 
 			// 上传前/后的回调
-			const onBefore = instance.vnode.props.onPostBefore || onPostBefore || (() => ({}));
+			const onBefore = instance.vnode.props.onPostBefore || onPostBefore || (() => {});
 			const onAfter = instance.vnode.props.onPostAfter || onPostAfter;
 
 			const { uid: $uid } = file;
