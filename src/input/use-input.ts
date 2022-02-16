@@ -115,8 +115,7 @@ export default (input: Ref<Nullable<HTMLElement>>) => {
 		emit('update:modelValue', '');
 
 		emit('change', e);
-
-		emit('clear')
+		emit('clear', e);
 
 		input.value?.focus?.();
 	};
