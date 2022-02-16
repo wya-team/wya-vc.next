@@ -11,7 +11,7 @@ class VcManager extends VcBasic {
 	}
 
 	/**
-	 * 初始化配置全局
+	 * 初始化配置全局, 且只能初始化一次
 	 */
 	async init(options = {}) {
 		if (!this.hasInit) {
@@ -23,8 +23,6 @@ class VcManager extends VcBasic {
 			} catch (e) {
 				throw new VcError('instance', e);
 			}
-		} else {
-			throw new VcError('instance', '只能初始化一次');
 		}
 		return this;
 	}
