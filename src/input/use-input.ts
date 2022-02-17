@@ -79,14 +79,14 @@ export default (input: Ref<Nullable<HTMLElement>>) => {
 			&& !checkMaxlength(value, props.maxlength) 
 		) {
 			e.preventDefault();
-			ctx.$forceUpdate();
+			ctx?.$forceUpdate?.();
 			return;
 		}
 		emit('input', value, e);
 		emit('update:modelValue', value, e);
 
 		emit('change', e);
-		ctx.$forceUpdate();
+		ctx?.$forceUpdate?.();
 	};
 
 	const handleComposition = (e: InputEvent) => {

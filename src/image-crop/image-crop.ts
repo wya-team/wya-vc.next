@@ -702,7 +702,7 @@ export default {
 			watch(
 				() => (typeof item === 'string' ? props[item] : item[1].value), 
 				() => {
-					instance.ctx.$forceUpdate();
+					instance.ctx?.$forceUpdate?.();
 					emit('image-change', typeof item === 'string' ? item : item[0]);
 				}
 			);

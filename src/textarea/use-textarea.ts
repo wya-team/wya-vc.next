@@ -77,7 +77,7 @@ export default (textarea) => {
 
 		if (!checkMaxlength(value, props.maxlength)) {
 			e.preventDefault();
-			instance.ctx.$forceUpdate(); // hack
+			instance.ctx?.$forceUpdate?.(); // hack
 			return;
 		}
 

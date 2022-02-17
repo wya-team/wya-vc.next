@@ -104,7 +104,7 @@ const wrapperComponent = defineComponent({
 					break;
 			}
 
-			ctx.$forceUpdate();
+			ctx?.$forceUpdate?.();
 		};
 		/**
 		 * 外部调用
