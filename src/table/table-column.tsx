@@ -328,7 +328,6 @@ export default defineComponent({
 			);
 		});
 
-		console.log(columnConfig);
 		return {
 			columnId,
 			columnConfig
@@ -356,7 +355,6 @@ export default defineComponent({
 		} catch {
 			children = [];
 		}
-
 		return h('div', children);
 	}
 });
