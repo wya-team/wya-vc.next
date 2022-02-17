@@ -212,7 +212,7 @@ export default {
 						child = vnode.children;
 					}
 
-					vnodes.push(...child.filter(i => /option$/.test(i.type.name)));
+					child && vnodes.push(...child.filter(i => /option$/.test(i.type.name)));
 				});
 
 				let data = [];
