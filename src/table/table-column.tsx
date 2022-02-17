@@ -77,7 +77,7 @@ export default defineComponent({
 		const realHeaderAlign = computed(() => {
 			return props.headerAlign 
 				? 'is-' + props.headerAlign 
-				: props.realAlign;
+				: realAlign.value;
 		});
 
 		let columnConfig = reactive({});
@@ -223,49 +223,38 @@ export default defineComponent({
 				'className', 
 				'labelClassName', 
 				'filteredValue', 
-				'filters'
+				'filters',
+				'prop'
 			];
-			// 一些属性具有别名
-			const aliases = {
-				prop: 'prop',
-				realAlign: 'align',
-				realHeaderAlign: 'headerAlign',
-				// realWidth: 'width'
-			};
-			const allAliases = $props.reduce((prev, cur) => {
-				prev[cur] = cur;
-				return prev;
-			}, aliases);
 
-			Object.keys(allAliases).forEach(key => {
-				const columnKey = aliases[key];
-
-				watch(() => props[columnKey], (v) => {
-					columnConfig[columnKey] = v;
-					columnKey !== key && (columnConfig[key] = v);
+			$props.forEach(key => {
+				watch(() => props[key], (v) => {
+					columnConfig[key] = v;
 				});
+			});
+
+			watch(() => realAlign, (v) => {
+				columnConfig.align = v;
+			});
+
+			watch(() => realHeaderAlign, (v) => {
+				columnConfig.headerAlign = v;
 			});
 		};
 
 		const registerComplexWatchers = () => {
-			const $props = ['fixed'];
-			const aliases = {
-				realWidth: 'width',
-				realMinWidth: 'minWidth'
-			};
-			const allAliases = $props.reduce((prev, cur) => {
-				prev[cur] = cur;
-				return prev;
-			}, aliases);
-
-			Object.keys(allAliases).forEach(key => {
-				const columnKey = aliases[key];
-				watch(() => props[columnKey], (v) => {
-					columnConfig[columnKey] = v;
-					columnKey !== key && (columnConfig[key] = v);
-
-					table.proxy.store.scheduleLayout(columnKey === 'fixed');
-				});
+			watch(() => props.fixed, (v) => {
+				columnConfig.fixed = v;
+				table.proxy.store.scheduleLayout(true);
+			});
+			watch(() => realWidth, (v) => {
+				columnConfig.width = v;
+				table.proxy.store.scheduleLayout(false);
+				
+			});
+			watch(() => realMinWidth, (v) => {
+				columnConfig.minWidth = v;
+				table.proxy.store.scheduleLayout(false);
 			});
 		};
 
@@ -274,9 +263,9 @@ export default defineComponent({
 				...cellStarts[props.type],
 				type: props.type,
 				id: columnId.value,
+				align: realAlign.value,
+				headerAlign: realHeaderAlign.value,
 				prop: props.prop,
-				align: props.realAlign,
-				headerAlign: props.realHeaderAlign,
 				showPopover: props.showPopover,
 				// index 列
 				index: props.index
@@ -339,6 +328,7 @@ export default defineComponent({
 			);
 		});
 
+		console.log(columnConfig);
 		return {
 			columnId,
 			columnConfig
