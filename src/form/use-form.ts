@@ -124,9 +124,27 @@ export default (options: FormOptions = {}) => {
 		});
 	};
 
+	const validateField = (prop, opts: FormValidateOptions = {}) => {
+		const { scroll = true } = opts;
+
+		return new Promise<void | object[]>((resolve, reject) => {
+			let field = getField(prop);
+			field.proxy.validate('', (res = {}) => {
+				let errorMsg = res.msg || res.message;
+				if (errorMsg) {
+					reject(errorMsg);
+					showToast(errorMsg);
+					scroll && scrollIntoView(prop);
+				}
+				resolve();
+			});
+		});
+	};
+	
 	return {
 		getField,
 		resetFields,
-		validate
+		validate,
+		validateField
 	};
 };
