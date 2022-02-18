@@ -368,7 +368,7 @@ export default defineComponent({
 														column.sortable
 															? <TableSort 
 																order={column.prop === props.defaultSort.prop ? props.defaultSort.order : ''}
-																onClick={() => handleSort(column.prop)}
+																onClick={(order) => handleSort(column.prop, order)}
 															/>
 															: null
 													}
@@ -380,7 +380,7 @@ export default defineComponent({
 																icon={column.filterIcon}
 																portalClassName={column.filterPopupClassName}
 																multiple={column.filterMultiple}
-																onChange={() => handleFilter(column)}
+																onChange={(v) => handleFilter(column, v)}
 															/>
 															: null
 													}
