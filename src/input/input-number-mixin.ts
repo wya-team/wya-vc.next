@@ -37,7 +37,7 @@ export default defineComponent({
 		output: {
 			type: [Function, String], // Number, String, (v) => v, 'number', 'string'
 			// default: v => v 
-			default: ''
+			default: 'number'
 		}
 	}
 });
