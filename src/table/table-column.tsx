@@ -1,4 +1,4 @@
-import { getCurrentInstance, h, defineComponent, ref, reactive, watch, computed, onBeforeMount, onMounted, onBeforeUnmount, Fragment } from 'vue';
+import { getCurrentInstance, h, defineComponent, ref, reactive, watch, computed, onBeforeMount, onMounted, onUnmounted, Fragment } from 'vue';
 import { Utils } from '@wya/utils';
 import { merge, isEmpty } from 'lodash';
 import { compose, getUid } from '../utils/index';
@@ -319,7 +319,7 @@ export default defineComponent({
 			);
 		});
 
-		onBeforeUnmount(() => {
+		onUnmounted(() => {
 			if (!instance.parent) return;
 			table.proxy.store.commit(
 				'removeColumn', 

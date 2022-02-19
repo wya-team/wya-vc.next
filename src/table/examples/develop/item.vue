@@ -3,7 +3,7 @@
 		<vc-table-column
 			fixed="left"
 			prop="date"
-			label="日期"
+			:label="label"
 			sortable
 			:filters="filters"
 			:filtered-value="filteredValue"
@@ -46,7 +46,7 @@
 		<vc-table-column
 			fixed="right"
 			prop="name2"
-			label="姓名2"
+			label="姓名"
 		>
 			<template #default="{ row }">
 				<div>{{ row.name }}</div>
@@ -72,13 +72,17 @@ export default defineComponent({
 			{ label: '代理加入', value: 2, disabled: true }
 		]);
 
+		const label = ref('日期');
 		const filteredValue = ref([]);
 
 		return {
+			label,
 			filters,
 			filteredValue,
 			handleFilter(value) {
 				filteredValue.value = value;
+
+				label.value = Math.random().toString();
 			}
 		};
 	}
