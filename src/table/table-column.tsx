@@ -268,11 +268,11 @@ export default defineComponent({
 			watch(() => props.fixed, (v) => {
 				table.proxy.store.scheduleLayout(true);
 			});
-			watch(() => realWidth, (v) => {
+			watch(() => realWidth.value, (v) => {
 				table.proxy.store.scheduleLayout(false);
 				
 			});
-			watch(() => realMinWidth, (v) => {
+			watch(() => realMinWidth.value, (v) => {
 				table.proxy.store.scheduleLayout(false);
 			});
 		};
