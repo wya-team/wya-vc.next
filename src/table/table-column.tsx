@@ -1,4 +1,17 @@
-import { getCurrentInstance, h, defineComponent, ref, reactive, watch, computed, onBeforeMount, onMounted, onUnmounted, Fragment } from 'vue';
+import { 
+	getCurrentInstance, 
+	h, 
+	defineComponent, 
+	ref, 
+	reactive, 
+	watch, 
+	computed, 
+	onBeforeMount, 
+	onMounted, 
+	onUnmounted, 
+	onUpdated, 
+	Fragment 
+} from 'vue';
 import { Utils } from '@wya/utils';
 import { merge, isEmpty } from 'lodash';
 import { compose, getUid } from '../utils/index';
@@ -152,11 +165,11 @@ export default defineComponent({
 			if (props.renderHeader) {
 				column.renderHeader = props.renderHeader;
 			} else if (specialTypes.indexOf(column.type) === -1) {
-				column.renderHeader = (scope) => {
+				column.renderHeader = (data) => {
 					const renderHeader = slots.header;
 					return renderHeader 
-						? renderHeader(scope) 
-						: column.label;
+						? renderHeader(data) 
+						: data?.column?.label;
 				};
 			}
 
@@ -196,7 +209,7 @@ export default defineComponent({
 						prefix = <span class="vc-table-un-expand__indent"/>;
 					}	
 					
-					if (column.showPopover) {
+					if (data.column.showPopover) {
 						$props.class += ' vc-popover';
 						$props.style = { 
 							width: (data.column.realWidth || data.column.width) - 1 + 'px' 
@@ -215,50 +228,7 @@ export default defineComponent({
 			return column;
 		};
 
-		const registerNormalWatchers = () => {
-			const $props = [
-				'label', 
-				'index', 
-				'formatter', 
-				'className', 
-				'labelClassName', 
-				'filteredValue', 
-				'filters',
-				'prop'
-			];
-
-			$props.forEach(key => {
-				watch(() => props[key], (v) => {
-					columnConfig[key] = v;
-				});
-			});
-
-			watch(() => realAlign, (v) => {
-				columnConfig.align = v;
-			});
-
-			watch(() => realHeaderAlign, (v) => {
-				columnConfig.headerAlign = v;
-			});
-		};
-
-		const registerComplexWatchers = () => {
-			watch(() => props.fixed, (v) => {
-				columnConfig.fixed = v;
-				table.proxy.store.scheduleLayout(true);
-			});
-			watch(() => realWidth, (v) => {
-				columnConfig.width = v;
-				table.proxy.store.scheduleLayout(false);
-				
-			});
-			watch(() => realMinWidth, (v) => {
-				columnConfig.minWidth = v;
-				table.proxy.store.scheduleLayout(false);
-			});
-		};
-
-		onBeforeMount(() => {
+		const refreshColumnBasicConfig = () => {
 			const defaults = {
 				...cellStarts[props.type],
 				type: props.type,
@@ -292,11 +262,27 @@ export default defineComponent({
 					columnConfig[key] = column[key];
 				}
 			}
-			// 注册 watcher
-			registerNormalWatchers();
+		};
+
+		const registerComplexWatchers = () => {
+			watch(() => props.fixed, (v) => {
+				table.proxy.store.scheduleLayout(true);
+			});
+			watch(() => realWidth, (v) => {
+				table.proxy.store.scheduleLayout(false);
+				
+			});
+			watch(() => realMinWidth, (v) => {
+				table.proxy.store.scheduleLayout(false);
+			});
+		};
+
+		onBeforeMount(() => {
+			refreshColumnBasicConfig();
 			registerComplexWatchers();
 		});
 
+		onUpdated(refreshColumnBasicConfig);
 		onMounted(() => {
 			let children = isSubColumn 
 				? parent.vnode.el.children 
@@ -328,33 +314,31 @@ export default defineComponent({
 			);
 		});
 
-		return {
-			columnId,
-			columnConfig
-		};
-	},
+		instance.columnId = columnId;
+		instance.columnConfig = columnConfig;
 
-	/**
-	 * 可以计算 columnIndex(外层需要标签元素), 即h('div')
-	 * this.$slots?.default?.() 用于多级表头
-	 */
-	render() {
-		let children = [];
+		/**
+		 * 可以计算 columnIndex(外层需要标签元素), 即h('div')
+		 * this.$slots?.default?.() 用于多级表头
+		 */
+		return () => {
+			let children = [];
 
-		try {
-			let renderDefault = this.$slots?.default?.({ column: {}, $index: -1 });
-			if (renderDefault instanceof Array) {
-				for (const childNode of renderDefault) {
-					if (/^vcm?-table-column$/.test(childNode.type?.name)) {
-						children.push(childNode);
-					} else if (childNode.type === Fragment && childNode.children instanceof Array) {
-						renderDefault.push(...childNode.children);
+			try {
+				let renderDefault = slots?.default?.({ row: {}, column: {}, $index: -1 });
+				if (renderDefault instanceof Array) {
+					for (const childNode of renderDefault) {
+						if (/^vcm?-table-column$/.test(childNode.type?.name)) {
+							children.push(childNode);
+						} else if (childNode.type === Fragment && childNode.children instanceof Array) {
+							renderDefault.push(...childNode.children);
+						}
 					}
 				}
+			} catch {
+				children = [];
 			}
-		} catch {
-			children = [];
-		}
-		return h('div', children);
+			return h('div', children);
+		};
 	}
 });

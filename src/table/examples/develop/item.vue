@@ -49,7 +49,9 @@
 			label="姓名"
 		>
 			<template #default="{ row }">
-				<div>{{ row.name }}</div>
+				<div @click="handleClick(row)">
+					{{ row.name }}
+				</div> 
 			</template>
 		</vc-table-column>
 	</vc-table-item>
@@ -83,6 +85,10 @@ export default defineComponent({
 				filteredValue.value = value;
 
 				label.value = Math.random().toString();
+			},
+
+			handleClick(row) {
+				row.name = '1';
 			}
 		};
 	}
