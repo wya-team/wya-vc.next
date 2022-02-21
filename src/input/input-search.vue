@@ -19,6 +19,7 @@
 					<vc-icon 
 						v-if="enterText === true" 
 						:type="append || 'search'"
+						@click="handleSearch"
 					/>
 					<template v-else>
 						{{ enterText }}
@@ -50,7 +51,7 @@ export default defineComponent({
 	setup() {
 		const input = ref(null);
 		const { click, focus, blur } = useNativeEmitter(input);
-		const { currentValue, isFocus, listeners } = useInputSearch();
+		const { currentValue, isFocus, listeners, handleSearch } = useInputSearch();
 		const { binds } = useInherit();
 
 		return {
@@ -62,7 +63,8 @@ export default defineComponent({
 
 			isFocus,
 			listeners,
-			binds
+			binds,
+			handleSearch
 		};
 	}
 

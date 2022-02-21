@@ -39,14 +39,24 @@ export default () => {
 		emit('blur', e);
 	};
 
+	const handleSearch = (e: InputEvent) => {
+		emit('enter', e);
+	};
+	
+
 	const listeners = {
-		keyup: (e: any) => emit('keyup', e),
+		keyup: (e: any) => {
+			if (e.keyCode == 13 || e.keyCode == 108) {
+				emit('enter', e);
+			}
+			emit('keyup', e);
+		},
 		keypress: (e: any) => emit('keypress', e),
 		keydown: (e: any) => emit('keydown', e),
+		change: (e: any) => emit('change', e),
 		focus: handleFocus,
 		blur: handleBlur,
 		input: handleInput,
-		change: (e: any) => emit('keyup', e)
 	};
 
 	return {
