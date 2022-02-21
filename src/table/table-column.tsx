@@ -314,8 +314,10 @@ export default defineComponent({
 			);
 		});
 
-		instance.columnId = columnId;
-		instance.columnConfig = columnConfig;
+		if (instance && instance.proxy) {
+			instance.proxy.columnId = columnId;
+			instance.proxy.columnConfig = columnConfig;
+		}
 
 		/**
 		 * 可以计算 columnIndex(外层需要标签元素), 即h('div')
