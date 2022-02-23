@@ -5,7 +5,7 @@
 				<textarea
 					ref="textarea"
 					v-bind="binds"
-					:model-value="currentValue"
+					:value="currentValue"
 					:maxlength="currentMaxlength"
 					:style="[textareaStyle, calcTextareaStyle]"
 					v-on="listeners"
