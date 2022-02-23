@@ -13,7 +13,7 @@
 		/>
 		<vc-table-column
 			prop="name"
-			label="姓名"
+			label="姓名s"
 			width="180"
 			sortable
 		/>

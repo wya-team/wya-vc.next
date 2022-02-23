@@ -288,12 +288,6 @@ export default defineComponent({
 				? parent.vnode.el.children 
 				: parent.proxy.hiddenColumns.children;
 			
-			if (!isSubColumn 
-				&& children.length === 1 
-				&& /vc-table-item/.test(children[0].className)
-			) {
-				children = children[0].children;
-			}
 			// DOM上
 			let columnIndex = [...children].indexOf(instance.vnode.el);
 
