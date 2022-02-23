@@ -58,7 +58,7 @@
 				:panel-date="panelDate"
 				@pick="handleTimePick"
 			/>
-			<vc-date-confrim
+			<vc-date-confirm
 				v-if="confirm"
 				:show-time="showTime && !multiple"
 				:current-view="currentView"
@@ -92,7 +92,7 @@ export default {
 		'vc-month-table': MonthTable,
 		'vc-quarter-table': QuarterTable,
 		'vc-date-table': DateTable,
-		'vc-date-confrim': Confirm,
+		'vc-date-confirm': Confirm,
 		'vc-time-select': TimeSelect,
 		'vc-shortcuts-select': ShortcutsSelect
 	},
@@ -179,6 +179,7 @@ export default {
 		};
 
 		const handleTimePick = (value) => {
+			console.log('value', value);
 			let newDate = getDateOfTime(dates.value[0] || panelDate.value, value);
 			panelDate.value = newDate;
 			dates.value = [newDate];

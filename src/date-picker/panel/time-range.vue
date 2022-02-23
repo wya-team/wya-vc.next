@@ -16,7 +16,7 @@
 					:hide-disabled-options="hideDisabledOptions"
 					:show-seconds="showSeconds"
 					:steps="steps"
-					@pick="handlePick('left')"
+					@pick="(value) => handlePick('left', value)"
 				/>
 			</div>
 			<div class="vc-timerange-panel__content is-right">
@@ -34,11 +34,11 @@
 					:hide-disabled-options="hideDisabledOptions"
 					:show-seconds="showSeconds"
 					:steps="steps"
-					@pick="handlePick('right')"
+					@pick="(value) => handlePick('right', value)"
 				/>
 			</div>
 		</div>
-		<vc-date-confrim 
+		<vc-date-confirm 
 			v-if="confirm"
 			:show-time="false"
 			current-view="timerange"
@@ -75,7 +75,7 @@ export default defineComponent({
 	components: {
 		'vc-date-header': DateHeader,
 		'vc-time-select': TimeSelect,
-		'vc-date-confrim': Confirm,
+		'vc-date-confirm': Confirm,
 	},
 	mixins: [TimeMixin],
 	emits: [
@@ -112,7 +112,7 @@ export default defineComponent({
 			};
 		});
 
-		const handlePick = type => (value) => {
+		const handlePick = (type, value) => {
 			let leftNewDate = dates.value[0] || clearTime(new Date()); 
 			let rightNewDate = dates.value[1] || clearTime(new Date());
 			type === 'left' && (leftNewDate = getDateOfTime(leftNewDate, value));

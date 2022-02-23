@@ -12,7 +12,7 @@
 			:steps="steps"
 			@pick="handlePick"
 		/>
-		<vc-date-confrim 
+		<vc-date-confirm 
 			v-if="confirm"
 			:show-time="false"
 			current-view="time"
@@ -33,7 +33,7 @@ import useReady from '../use-ready';
 export default defineComponent({
 	name: 'vc-time-panel',
 	components: {
-		'vc-date-confrim': Confirm,
+		'vc-date-confirm': Confirm,
 		'vc-time-select': TimeSelect
 	},
 	mixins: [TimeMixin],

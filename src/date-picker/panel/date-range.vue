@@ -50,7 +50,7 @@
 						:show-seconds="showSeconds"
 						v-bind="timePickerOptions"
 						:panel-date="dates[0]"
-						@pick="handleTimePick('left')"
+						@pick="(value) => handleTimePick('left', value)"
 					/>
 				</div>
 				<div class="vc-daterange-panel__content is-right">
@@ -95,7 +95,7 @@
 						:show-seconds="showSeconds"
 						v-bind="timePickerOptions"
 						:panel-date="dates[1]"
-						@pick="handleTimePick('right')"
+						@pick="(value) => handleTimePick('right', value)"
 					/>
 				</div>
 			</div>
@@ -435,7 +435,8 @@ export default {
 			}
 		};
 
-		const handleTimePick = type => value => {
+		const handleTimePick = (type, value) => {
+			console.log('type', type, value);
 			let date = type === 'left' ? dates.value[0] : dates.value[1];
 			let leftNewDate = dates.value[0];
 			let rightNewDate = dates.value[1];
