@@ -10,7 +10,7 @@
 		class="vc-input-number"
 		v-on="listeners"
 	>
-		<template #prepend>
+		<template v-if="$slots.prepend" #prepend>
 			<slot name="prepend" />
 		</template>
 		<template v-if="step" #append>

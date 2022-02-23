@@ -10,7 +10,7 @@
 		class="vc-input-search"
 		v-on="listeners"
 	>
-		<template #prepend>
+		<template v-if="$slots.prepend" #prepend>
 			<slot name="prepend" />
 		</template>
 		<template #append>
