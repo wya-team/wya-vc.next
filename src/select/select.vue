@@ -212,7 +212,15 @@ export default {
 					child = vnode.children;
 				}
 
-				child && vnodes.push(...child.filter(i => /option$/.test(i.type.name)));
+				if (child && !child.filter && child.default) {
+					child = child.default();
+				}
+
+				try {
+					child && vnodes.push(...child.filter(i => /option$/.test(i.type.name)));
+				} catch (e) {
+					throw new VcError('select', e.message);
+				}
 			});
 
 			let result = [];
