@@ -32,6 +32,19 @@
 					{{ item.label }}
 				</vc-option>
 			</vc-select>
+
+			<vc-select 
+				v-model="value1"
+				:data-source="cityList"
+				:disabled="disabled"
+				clearable 
+				search
+				style="width: 200px"
+				@change="handleChange"
+				@ready="handleReady"
+				@close="handleClose"
+				@visible-change="handleVisibleChange"
+			/>
 		</div>
 
 		<!-- 基本分组 -->

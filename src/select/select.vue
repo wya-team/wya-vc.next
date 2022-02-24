@@ -66,7 +66,32 @@
 					<vc-spin :size="16" />
 				</div>
 				<div class="vc-select__options">
-					<slot />
+					<div v-if="dataSource">
+						<template
+							v-for="(item) in data"
+							:key="item.value" 	 
+						>
+							<vc-option-group 
+								v-if="item.children && item.children.length"
+								:label="item.label"
+							>
+								<vc-option 
+									v-for="($item) in item.children"
+									:key="$item.value"
+									:value="$item.value"
+									:label="$item.label"
+									:disabled="$item.disabled"
+								/>
+							</vc-option-group>
+							<vc-option 
+								v-else
+								:value="item.value"
+								:label="item.label"
+								:disabled="item.disabled"
+							/>
+						</template>
+					</div>
+					<slot v-else />
 				</div>
 			</div>
 		</template>
@@ -85,6 +110,8 @@ import Tag from '../tag/index';
 import Icon from '../icon/index';
 import InputMixin from '../input/input-mixin';
 import { useAttrs } from '../hooks';
+import Option from './option.vue';
+import OptionGroup from './option-group.vue';
 
 export default {
 	name: 'vc-select',
@@ -95,6 +122,8 @@ export default {
 		'vc-popover': Popover,
 		'vc-tag': Tag,
 		'vc-spin': Spin,
+		'vc-option': Option,
+		'vc-option-group': OptionGroup
 	},
 	inheritAttrs: false,
 	props: {
@@ -348,7 +377,9 @@ export default {
 
 			add,
 			remove,
-			close
+			close,
+
+			data
 		};
 	}
 };
