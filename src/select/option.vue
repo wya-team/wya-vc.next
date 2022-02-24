@@ -58,7 +58,7 @@ export default defineComponent({
 
 		const isSelect = computed(() => {
 			const { modelValue, multiple } = owner.props;
-			if (typeof modelValue !== 'undefined' || modelValue === '') return;
+			if (typeof modelValue === 'undefined' || modelValue === '') return;
 			return !multiple
 				? modelValue == props.value
 				: modelValue.includes(props.value);
