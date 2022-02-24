@@ -57,13 +57,16 @@ export default defineComponent({
 		});
 
 		const isSelect = computed(() => {
-			return !owner.props.multiple 
-				? owner.props.modelValue == props.value
-				: owner.props.modelValue.includes(props.value);
+			const { modelValue, multiple } = owner.props;
+			if (typeof modelValue !== 'undefined' || modelValue === '') return;
+			return !multiple
+				? modelValue == props.value
+				: modelValue.includes(props.value);
 		});
 
 		const isLast = computed(() => {
-			return !owner.props.multiple ? true : owner.props.modelValue.slice(-1)[0] === props.value;
+			const { modelValue, multiple } = owner.props;
+			return !multiple ? true : modelValue.slice(-1)[0] === props.value;
 		});
 
 		const isActive = computed(() => {

@@ -126,6 +126,7 @@ export const flattenData = (data: TreeData, options: FlattenDataOptions = {}): T
 };
 
 export const getLabel = (data: TreeData, v: TreeValue): TreeLabel => {
+	if (typeof v === 'undefined' || v === '') return '';
 	let { label = '' } = data.find((i: TreeData) => i.value == v) || {};
 	return label;
 };
