@@ -282,6 +282,7 @@ export default defineComponent({
 			registerComplexWatchers();
 		});
 
+		// watch(() => slots.default(), (v) => {})
 		onUpdated(refreshColumnBasicConfig);
 		onMounted(() => {
 			let children = isSubColumn 

@@ -68,15 +68,13 @@
 				<div class="vc-select__options">
 					<slot />
 				</div>
-				<!-- hack for slot, 异步数据弹层已打开时未刷新 -->
-				<span v-show="false" v-text="currentLabel" />
 			</div>
 		</template>
 	</vc-popover>
 </template>
 
 <script>
-import { defineComponent, getCurrentInstance, provide, inject, ref, computed, watch, onMounted, onBeforeUpdate, nextTick } from 'vue';
+import { defineComponent, getCurrentInstance, provide, inject, ref, computed, watch, onMounted, onUpdated, nextTick } from 'vue';
 import { pick, cloneDeep, debounce, isEqualWith } from 'lodash';
 import { getSelectedData, getUid, getLabel, escapeString } from '../utils/index';
 import { VcError } from '../vc/index';
@@ -112,6 +110,9 @@ export default {
 			'placeholder',
 			'clearable'
 		]),
+		dataSource: {
+			type: Array
+		},
 		searchPlaceholder: {
 			type: String,
 			default: ''
@@ -135,9 +136,6 @@ export default {
 		autoWidth: {
 			type: Boolean,
 			default: true
-		},
-		extra: {
-			type: [String, Array]
 		},
 		max: {
 			type: Number,
@@ -168,6 +166,44 @@ export default {
 		const currentValue = ref(props.max > 1 ? [] : '');
 		const currentLabel = ref(props.max > 1 ? [] : '');
 
+		// vnode的写法性能一般, 建议直接传dataSource
+		const data = computed(() => {
+			if (props.dataSource) {
+				return props.dataSource;
+			}
+			const defaults = slots?.default?.() || [];
+			let vnodes = [];
+			defaults.forEach((vnode) => {
+				let child = [];
+				if (typeof vnode.children !== 'object') return;
+
+				if (vnode && /option-group$/.test(vnode.type.name)) {
+					child = vnode.children.default()[0].children;
+				} else {
+					child = vnode.children;
+				}
+
+				child && vnodes.push(...child.filter(i => /option$/.test(i.type.name)));
+			});
+
+			let result = [];
+			vnodes.forEach((vnode) => {
+				let { value, label = '', disabled } = vnode.props;
+
+				label = String(
+					(vnode.children && vnode.children.default()[0].children) 
+					|| label 
+					|| value
+				);
+
+				result.push({
+					disabled,
+					value,
+					label: label.trim()
+				});
+			});
+			return result;
+		});
 		const icon = computed(() => {
 			return isActive.value ? 'up' : 'down';
 		});
@@ -187,60 +223,6 @@ export default {
 				'is-disabled': props.disabled
 			};
 		});
-
-		// v-model可能延迟设置且在数据注入之前
-		let hasInit = false;
-		let dataSource = []; 
-		const update = (force = false) => {
-			if (force === false && (hasInit || props.extra)) return;
-			if (!slots.default) {
-				currentLabel.value = props.max > 1 ? [] : '';
-				return;
-			}
-			/**
-			 * 可能存在耗时操作
-			 */
-			nextTick(() => {
-				let vnodes = [];
-				slots.default().forEach((vnode) => {
-					let child = [];
-					if (typeof vnode.children !== 'object') return;
-
-					if (vnode && /option-group$/.test(vnode.type.name)) {
-						child = vnode.children.default()[0].children;
-					} else {
-						child = vnode.children;
-					}
-
-					child && vnodes.push(...child.filter(i => /option$/.test(i.type.name)));
-				});
-
-				let data = [];
-				vnodes.forEach((vnode) => {
-					let { value, label = '', disabled } = vnode.props;
-
-					label = String(
-						(vnode.children && vnode.children.default()[0].children) 
-						|| label 
-						|| value
-					);
-
-					data.push({
-						disabled,
-						value,
-						label: label.trim()
-					});
-				});
-				if (!force && isEqualWith(dataSource, data)) return;
-
-				currentLabel.value = multiple.value
-					? currentValue.value.map(getLabel.bind(null, data))
-					: getLabel(data, currentValue.value);
-
-				hasInit = true;
-				dataSource = data;
-			});
-		};
 
 		/**
 		 * v-model 同步, 外部的数据改变时不会触发
@@ -319,6 +301,16 @@ export default {
 			props.loadData && _loadData();
 		};
 
+		const update = () => {
+			if (!data.value.length) {
+				currentLabel.value = multiple.value ? [] : '';
+				return;
+			}
+			
+			currentLabel.value = multiple.value
+				? currentValue.value.map(getLabel.bind(null, data.value))
+				: getLabel(data.value, currentValue.value);
+		};
 
 		watch(
 			() => props.modelValue,
@@ -328,10 +320,12 @@ export default {
 				}
 				currentValue.value = v;
 
-				update(true);
+				update();
 			},
 			{ immediate: true }
 		);
+
+		watch(() => data.value, (v) => update());
 
 		return {
 			selectId,
