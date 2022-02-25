@@ -2,7 +2,7 @@ import { defineComponent, ref, computed, watch, reactive, onMounted, onUpdated, 
 import { $ } from '@wya/utils';
 
 export default (store, dropIndicator) => {
-	const { props, emit, ctx } = getCurrentInstance();
+	const { props, emit, vnode } = getCurrentInstance();
 	const state = ref({
 		showDropIndicator: false,
 		draggingNode: null,
@@ -35,7 +35,7 @@ export default (store, dropIndicator) => {
 		const oldDropNode = state.value.dropNode;
 
 		if (oldDropNode && oldDropNode !== dropNode) {
-			$(oldDropNode.ctx.$el).removeClass('is-drop-inner');
+			$(oldDropNode.vnode.el).removeClass('is-drop-inner');
 		}
 		const draggingNode = state.value.draggingNode;
 
@@ -81,8 +81,8 @@ export default (store, dropIndicator) => {
 			dropNext = false;
 		}
 
-		const targetPosition = dropNode.ctx.$el.getBoundingClientRect();
-		const treePosition = ctx.$el.getBoundingClientRect();
+		const targetPosition = dropNode.vnode.el.getBoundingClientRect();
+		const treePosition = vnode.el.getBoundingClientRect();
 
 		let dropType;
 		const prevPercent = dropPrev ? (dropInner ? 0.25 : (dropNext ? 0.45 : 1)) : -1;
@@ -100,7 +100,7 @@ export default (store, dropIndicator) => {
 			dropType = 'none';
 		}
 
-		const iconPosition = dropNode.ctx.$el.querySelector('.vc-tree-node__expand-icon').getBoundingClientRect();
+		const iconPosition = dropNode.vnode.el.querySelector('.vc-tree-node__expand-icon').getBoundingClientRect();
 		if (dropType === 'before') {
 			indicatorTop = iconPosition.top - treePosition.top;
 		} else if (dropType === 'after') {
@@ -110,9 +110,9 @@ export default (store, dropIndicator) => {
 		dropIndicator.value.style.left = (iconPosition.right - treePosition.left) + 'px';
 
 		if (dropType === 'inner') {
-			$(dropNode.ctx.$el).addClass('is-drop-inner');
+			$(dropNode.vnode.el).addClass('is-drop-inner');
 		} else {
-			$(dropNode.ctx.$el).removeClass('is-drop-inner');
+			$(dropNode.vnode.el).removeClass('is-drop-inner');
 		}
 
 
@@ -147,7 +147,7 @@ export default (store, dropIndicator) => {
 				store.registerNode(draggingNodeCopy);
 			}
 
-			$(dropNode.ctx.$el).removeClass('is-drop-inner');
+			$(dropNode.vnode.el).removeClass('is-drop-inner');
 
 			emit('node-drag-end', $draggingNode, $dropNode, dropType, e);
 			if (dropType !== 'none') {

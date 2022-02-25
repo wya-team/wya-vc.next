@@ -12,8 +12,8 @@
 > `getCurrentInstance()` 以下统一叫`instance`
 
 - `defineComponent` 有助于IDE检查TS（包括Mixin也需要）
-- `instance.ctx.$xxx`: Vue2类似相关`this.$xxx`, 如可以使用`ctx.$forceUpdate()`
-- `instance.ctx.$el` 与 `instance.vnode.el`相同
+- `instance.ctx.$xxx`: Vue2类似相关`this.$xxx`, 如可以使用`ctx.$forceUpdate()`（vite build时，不存在了, 不明未细查?）
+- `instance.ctx.$el` 与 `instance.vnode.el`相同（前者在vite build的时候undefined, 不明未细查?）
 - `instance.parent`可以寻找到父层
 - `@click`事件作为函数使用的两种方式
 	- `instance.vnode.props`: 其中含事件如`onClick`, 可以将事件转化为函数使用

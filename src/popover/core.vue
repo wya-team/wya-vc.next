@@ -108,6 +108,7 @@ const WrapperComponent = defineComponent({
 	emits: ['portal-fulfilled', 'close'],
 	/**
 	 * instance.ctx.$el与instance.vnode.el
+	 * 前者在vite build的时候undefined, 不明未细查?
 	 */
 	setup(props, context) {
 		const { emit, slots } = context;
@@ -116,8 +117,8 @@ const WrapperComponent = defineComponent({
 			getFitPos,
 			getRect
 		} = usePos();
-		const instance = getCurrentInstance() as (ComponentInternalInstance & { ctx: any });
-		const { ctx } = instance;
+		const instance = getCurrentInstance() as (ComponentInternalInstance & { vnode: any });
+		const { vnode } = instance;
 		const isActive = ref(false);
 		const wrapperStyle = ref({} as PopoverWrapperStyle);
 		const arrowStyle = ref({});
@@ -172,7 +173,7 @@ const WrapperComponent = defineComponent({
 		};
 
 		const setPopupStyle = () => {
-			if (!ctx.$el) return;
+			if (!vnode.el) return;
 
 			const triggerEl = getHackContainer();
 
@@ -181,13 +182,13 @@ const WrapperComponent = defineComponent({
 			let rect = getRect({
 				portal,
 				triggerEl,
-				el: ctx.$el,
+				el: vnode.el,
 				hasContainer: !!getPopupContainer
 			});
 
 			let result = getFitPos({
 				triggerEl,
-				el: ctx.$el,
+				el: vnode.el,
 				placement: props.placement
 			});
 
@@ -195,7 +196,7 @@ const WrapperComponent = defineComponent({
 			let { wrapperStyle: $wrapperStyle, arrowStyle: $arrowStyle } = getPopupStyle({
 				rect,
 				triggerEl,
-				el: ctx.$el,
+				el: vnode.el,
 				placement: result
 			});
 
@@ -234,7 +235,7 @@ const WrapperComponent = defineComponent({
 		 * 2. 内部按下，外部释放
 		 */
 		const handleClick = (e: Event) => {
-			const isIn = ctx.$el.contains(e.target);
+			const isIn = vnode.el.contains(e.target);
 			const isPress = isPressMouse;
 
 			isPressMouse = false;
@@ -261,10 +262,10 @@ const WrapperComponent = defineComponent({
 			switch (direction[0]) {
 				case 'top':
 				case 'bottom':
-					if (left + ctx.$el.offsetWidth >= window.innerWidth) {
+					if (left + vnode.el.offsetWidth >= window.innerWidth) {
 						wrapperStyle.value = {
 							...wrapperStyle.value,
-							left: `${window.innerWidth - ctx.$el.offsetWidth}px`
+							left: `${window.innerWidth - vnode.el.offsetWidth}px`
 						};
 					} else {
 						setPopupStyle();
@@ -314,7 +315,7 @@ const WrapperComponent = defineComponent({
 			// 监听触发节点的Resize
 			Resize.on(props.triggerEl, setPopupStyle);
 			// 监听弹层的Resize
-			Resize.on(ctx.$el, handleWrapperResize);
+			Resize.on(vnode.el, handleWrapperResize);
 
 			props.onReady && props.onReady();
 		});
@@ -323,7 +324,7 @@ const WrapperComponent = defineComponent({
 			!props.hover && document.removeEventListener('click', handleClick, true);
 			document.removeEventListener('scroll', setPopupStyle);
 			Resize.off(props.triggerEl, setPopupStyle);
-			Resize.off(ctx.$el, handleWrapperResize);
+			Resize.off(vnode.el, handleWrapperResize);
 
 			props.alone && props.hover && removeEvents();
 		});

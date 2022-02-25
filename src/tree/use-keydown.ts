@@ -8,7 +8,7 @@ import useDragNode from './use-drag-node';
 import useCollectNode from './use-collect-node';
 
 export default () => {
-	const { ctx } = getCurrentInstance();
+	const { vnode } = getCurrentInstance();
 	const treeItems = ref(null);
 	const checkboxItems = ref([]);
 	const treeItemArray = computed(() => {
@@ -16,9 +16,9 @@ export default () => {
 	});
 
 	const initTabIndex = () => {
-		treeItems.value = ctx.$el.querySelectorAll('.is-focusable[role=treeitem]');
-		checkboxItems.value = ctx.$el.querySelectorAll('input[type=checkbox]');
-		const checkedItem = ctx.$el.querySelectorAll('.is-checked[role=treeitem]');
+		treeItems.value = vnode.el.querySelectorAll('.is-focusable[role=treeitem]');
+		checkboxItems.value = vnode.el.querySelectorAll('input[type=checkbox]');
+		const checkedItem = vnode.el.querySelectorAll('.is-checked[role=treeitem]');
 		if (checkedItem.length) {
 			checkedItem[0].setAttribute('tabindex', 0);
 			return;
@@ -30,7 +30,7 @@ export default () => {
 		const currentItem = ev.target;
 		if (currentItem.className.indexOf('vc-tree-node') === -1) return;
 		const keyCode = ev.keyCode;
-		treeItems.value = ctx.$el.querySelectorAll('.is-focusable[role=treeitem]');
+		treeItems.value = vnode.el.querySelectorAll('.is-focusable[role=treeitem]');
 		const currentIndex = treeItemArray.value.indexOf(currentItem);
 		let nextIndex;
 		if ([38, 40].indexOf(keyCode) > -1) { // up、down
@@ -64,14 +64,14 @@ export default () => {
 
 	onMounted(() => {
 		initTabIndex();
-		ctx.$el.addEventListener('keydown', handleKeydown);
+		vnode.el.addEventListener('keydown', handleKeydown);
 	});
 
 	onUpdated(() => {
-		treeItems.value = ctx.$el.querySelectorAll('[role=treeitem]');
-		checkboxItems.value = ctx.$el.querySelectorAll('input[type=checkbox]');
+		treeItems.value = vnode.el.querySelectorAll('[role=treeitem]');
+		checkboxItems.value = vnode.el.querySelectorAll('input[type=checkbox]');
 
-		ctx.$el.removeEventListener('keydown', handleKeydown);
+		vnode.el.removeEventListener('keydown', handleKeydown);
 	});
 
 	return {
