@@ -179,7 +179,7 @@ export default defineComponent({
 		);
 
 		watch(
-			() => props.disabled,
+			() => props.modelValue,
 			(v) => {
 				if (editor.value) {
 					if (v && v !== content.value) {
