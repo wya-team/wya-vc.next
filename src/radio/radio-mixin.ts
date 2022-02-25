@@ -8,6 +8,9 @@ export default {
 			type: [String, Number, Boolean],
 			default: false
 		},
+		value: {
+			type: [String, Number, Boolean]
+		},
 		label: {
 			type: [String, Number, Boolean]
 		},

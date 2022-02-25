@@ -10,13 +10,26 @@ export default () => {
 	const currentValue = ref(undefined);
 	const isFocus = ref(false);
 
+	// 优先找value和label都有值，value用于选择，label用于展示
+	const computedValue = computed(() => {
+		return typeof props.value === 'undefined' 
+			? props.label
+			: props.value;
+	});
+
+	const computedLabel = computed(() => {
+		return typeof props.label === 'undefined' 
+			? props.value
+			: props.label;
+	});
+
 	const hasGroup = computed(() => {
 		return !!group.props;
 	});
 
 	const checked = computed(() => {
 		return hasGroup.value 
-			? group.currentValue.value === props.label
+			? group.currentValue.value === computedValue.value
 			: currentValue.value === props.trueValue;
 	});
 
@@ -68,7 +81,7 @@ export default () => {
 		let $checked = e.target.checked;
 
 		if (hasGroup.value) {
-			group.reset(props.label);
+			group.reset(computedValue.value);
 			group.sync(e);
 		} else {
 			reset($checked);
@@ -96,6 +109,8 @@ export default () => {
 		handleBlur,
 		handleFocus,
 		sync,
-		reset
+		reset,
+		computedValue,
+		computedLabel
 	};
 };
