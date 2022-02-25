@@ -12,13 +12,13 @@ export default () => {
 
 	// 优先找value和label都有值，value用于选择，label用于展示
 	const computedValue = computed(() => {
-		return typeof props.value === 'undefined' 
+		return typeof props.value === 'undefined' || props.value === ''
 			? props.label
 			: props.value;
 	});
 
 	const computedLabel = computed(() => {
-		return typeof props.label === 'undefined' 
+		return typeof props.label === 'undefined' || props.label === ''
 			? props.value
 			: props.label;
 	});
