@@ -15,7 +15,7 @@
 			>
 		</span>
 		<slot>
-			<span v-if="label">{{ label }}</span>
+			<span v-if="computedLabel">{{ computedLabel }}</span>
 		</slot>
 	</label>
 </template>

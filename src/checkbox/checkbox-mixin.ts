@@ -8,8 +8,13 @@ export default {
 			type: [String, Number, Boolean],
 			default: false
 		},
+		value: {
+			type: [String, Number, Boolean],
+			default: undefined
+		},
 		label: {
-			type: [String, Number, Boolean]
+			type: [String, Number, Boolean],
+			default: undefined
 		},
 		indeterminate: {
 			type: Boolean,
