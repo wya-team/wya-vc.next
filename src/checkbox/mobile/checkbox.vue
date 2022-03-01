@@ -1,6 +1,6 @@
 <template>
 	<label :class="classes" class="vcm-checkbox">
-		<span class="vcm-checkbox__wrapper">
+		<span class="vcm-checkbox__wrapper" :class="{ 'has-sibling': !!(computedLabel || $slots.default) }">
 			<span class="vcm-checkbox__border">
 				<span class="vcm-checkbox__inner" />
 			</span>
@@ -47,6 +47,9 @@ export default defineComponent({
 		cursor: pointer;
 		line-height: 1;
 		position: relative;
+		@include when(sibling, true) {
+			margin-right: 12px;
+		}
 		input {
 			width: 100%;
 			height: 100%;

@@ -1,6 +1,6 @@
 <template>
 	<label :class="classes" class="vc-radio">
-		<span class="vc-radio__wrapper">
+		<span class="vc-radio__wrapper" :class="{ 'has-sibling': computedLabel || $slots.default }">
 			<span class="vc-radio__border">
 				<span class="vc-radio__inner" />
 			</span>
@@ -46,12 +46,14 @@ export default defineComponent({
 	cursor: pointer;
 	@include element(wrapper) {
 		display: inline-block;
-		margin-right: 4px;
 		white-space: nowrap;
 		position: relative;
 		line-height: 1;
 		vertical-align: middle;
 		cursor: pointer;
+		@include when(sibling, true) {
+			margin-right: 4px;
+		}
 		input {
 			position: absolute;
 			top: 0;
