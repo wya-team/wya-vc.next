@@ -91,12 +91,25 @@ export default () => {
 	);
 
 	const getRules = (): FormRule[] => {
-		let formRules = form.props.rules;
-		const selfRules = props.rules;
-		
-		// getPropByPath(formRules, this.prop.replace(/\.[0-9]+\./g, '.'));
-		formRules = formRules ? formRules[props.prop] : [];
-		return cloneDeep(([] as FormRule[]).concat(selfRules || formRules || []));
+		const formRules = form.props.rules;
+		const formItemBindRules = props.rules instanceof Array 
+			? props.rules 
+			: props.rules 
+				? [props.rules]
+				: undefined;
+
+		let formItemRules = formItemBindRules || [];
+		if (!formItemRules.length) {
+			try {
+				// 如果是数组的话 xxx.1.xxx -> xxx.xxx
+				let { value } = getPropByPath(formRules, props.prop.replace(/\.[0-9]+\./g, '.')) || {};
+				formItemRules = value || [];
+			} catch {
+				formItemRules = formRules ? formRules[props.prop] : [];
+			}
+		}
+
+		return cloneDeep(formItemRules);
 	};
 
 	const getFilteredRule = (trigger: string) => {

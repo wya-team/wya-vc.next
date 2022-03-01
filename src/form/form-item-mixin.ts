@@ -20,7 +20,7 @@ export default defineComponent({
 			type: String
 		},
 		rules: {
-			type: Array
+			type: [Array, Object]
 		},
 		showMessage: {
 			type: Boolean,
