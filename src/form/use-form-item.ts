@@ -236,6 +236,13 @@ export default () => {
 		form.remove?.(instance);
 	});
 
+	watch(
+		() => props.rules,
+		() => {
+			resetField();
+		}
+	);
+
 	return {
 		isRequired,
 		validateState,
