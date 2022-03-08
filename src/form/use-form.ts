@@ -66,7 +66,12 @@ export default (options: FormOptions = {}) => {
 					) {
 						basicSort[prop] = count++;
 					} else if (children && typeof (children as any).default === 'function') {
-						fn((children as any).default());
+						// 如果children中含 vc-table 且使用了#default="{ row }"，目前暂时先屏蔽报错
+						try {
+							fn((children as any).default({ row: {}, $index: -1 }));
+						} catch {
+							// any	
+						}
 					} else if (children && children instanceof Array) {
 						fn(children as VNode[]);
 					}
