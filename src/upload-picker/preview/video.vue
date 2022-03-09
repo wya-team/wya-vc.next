@@ -71,9 +71,11 @@ const wrapperComponent = defineComponent({
 		};
 
 		return {
+			srcList,
 			video,
 			isVisible,
-			isMobile
+			isMobile,
+			handleClose
 		};
 	}
 });

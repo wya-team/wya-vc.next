@@ -64,9 +64,11 @@ const wrapperComponent = defineComponent({
 		};
 
 		return {
+			srcList,
 			audio,
 			isVisible,
-			isMobile
+			isMobile,
+			handleClose
 		};
 	}
 });
