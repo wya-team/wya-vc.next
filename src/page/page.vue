@@ -139,7 +139,7 @@
 			<div v-if="showElevator" class="vc-page__elevator">
 				<span>跳至</span>
 				<vc-input-number
-					:value="hackPage"
+					:model-value="hackPage"
 					:spellcheck="false"
 					:step="0"
 					:min="1"
