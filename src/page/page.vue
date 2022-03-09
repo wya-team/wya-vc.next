@@ -288,7 +288,7 @@ export default defineComponent({
 		};
 
 		const handleChangePageSize = (pageSize) => {
-			emit('page-size-change', currentPageSize.value);
+			emit('page-size-change', pageSize);
 
 			// 切换条数时，强制为第一页
 			hackPage.value = totalPage.value < currentPage.value ? totalPage.value : currentPage.value;
