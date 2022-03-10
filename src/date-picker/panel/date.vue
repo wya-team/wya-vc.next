@@ -200,7 +200,7 @@ export default {
 				dates.value = newYear;
 				emit('pick', newYear);
 			} else {
-				const newDate = changeYearMonthAndClampDate(dates.value[0] || panelDate.value, value.getFullYear(), this.month);
+				const newDate = changeYearMonthAndClampDate(dates.value[0] || panelDate.value, value.getFullYear(), month.value);
 				panelDate.value = newDate;
 				currentView.value = 'month';
 			}
@@ -212,7 +212,7 @@ export default {
 				dates.value = newMonth;
 				emit('pick', newMonth);
 			} else {
-				const newDate = changeYearMonthAndClampDate(dates.value[0] || panelDate.value, this.year, value.getMonth());
+				const newDate = changeYearMonthAndClampDate(dates.value[0] || panelDate.value, year.value, value.getMonth());
 				panelDate.value = newDate;
 				currentView.value = 'date';
 			}

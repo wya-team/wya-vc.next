@@ -95,7 +95,7 @@ export default () => {
 		const dateString = formatDate(value);
 
 		emit('input', date);
-		emit('update:modelValue', date);
+		emit('update:modelValue', dateString);
 		eventName = typeof eventName === 'string' ? [eventName] : eventName;
 		eventName.forEach(name => {
 			emit(name, dateString, rest);
