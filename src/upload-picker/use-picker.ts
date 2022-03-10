@@ -205,7 +205,7 @@ export default () => {
 
 	const handleError = (err, type, file) => {
 		let { onError } = instance.vnode.props;
-		!onError && (Device.touch ? Toast.info(err.message, 2) : Message.error(err.message, 2));
+		!onError && (Device.touch ? Toast.info(err.message || err.msg, 2) : Message.error(err.message || err.msg, 2));
 		emit('error', err, type, file);
 	};
 
