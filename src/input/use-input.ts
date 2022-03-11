@@ -67,7 +67,7 @@ export default (input: Ref<Nullable<HTMLElement>>) => {
 		isFocus.value = false;
 
 		emit('blur', e);
-		formItem.change?.(currentValue.value);
+		formItem.blur?.(currentValue.value);
 	};
 
 	const handleInput = (e: InputEvent) => {
