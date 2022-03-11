@@ -239,7 +239,7 @@ export default () => {
 	watch(
 		() => props.rules,
 		() => {
-			resetField();
+			props.resetByRulesChanged && resetField();
 		}
 	);
 

@@ -22,6 +22,10 @@ export default defineComponent({
 		rules: {
 			type: [Array, Object]
 		},
+		resetByRulesChanged: {
+			type: Boolean,
+			default: false
+		},
 		showMessage: {
 			type: Boolean,
 			default: true
