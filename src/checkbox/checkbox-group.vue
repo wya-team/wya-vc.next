@@ -1,7 +1,8 @@
 <template>
-	<div class="vc-checkbox-group">
+	<div v-if="!fragment" class="vc-checkbox-group">
 		<slot />
 	</div>
+	<slot v-else />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';

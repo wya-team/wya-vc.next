@@ -1,7 +1,11 @@
 <template>
-	<div class="vcm-checkbox-group">
+	<div 
+		v-if="!fragment"
+		class="vcm-checkbox-group"
+	>
 		<slot />
 	</div>
+	<slot v-else />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';

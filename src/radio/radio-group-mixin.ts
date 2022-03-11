@@ -21,6 +21,10 @@ export default {
 		disabled: {
 			type: Boolean,
 			default: false
+		},
+		fragment: {
+			type: Boolean,
+			default: false
 		}
 	},
 	emits: ['update:modelValue', 'change']

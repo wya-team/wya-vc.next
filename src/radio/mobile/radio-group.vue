@@ -1,7 +1,13 @@
 <template>
-	<div :name="name" :class="classes" class="vcm-radio-group">
+	<div 
+		v-if="!fragment"
+		:name="name" 
+		:class="classes" 
+		class="vcm-radio-group"
+	>
 		<slot />
 	</div>
+	<slot v-else />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';

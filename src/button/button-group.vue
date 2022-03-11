@@ -1,7 +1,12 @@
 <template>
-	<div :class="classes" class="vc-button-group">
+	<div 
+		v-if="!fragment"
+		:class="classes" 
+		class="vc-button-group"
+	>
 		<slot />
 	</div>
+	<slot v-else />
 </template>
 <script lang="ts">
 import { defineComponent, computed, provide } from 'vue';
@@ -20,6 +25,10 @@ export default defineComponent({
 		size: {
 			type: String,
 			default: 'medium'
+		},
+		fragment: {
+			type: Boolean,
+			default: false
 		}
 	},
 	setup(props) {
