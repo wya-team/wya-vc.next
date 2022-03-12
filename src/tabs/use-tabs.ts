@@ -108,6 +108,7 @@ export default (options = {}) => {
 					.from(options.content.value.children)
 					.filter(i => /vcm?-tabs-pane/.test(i.className))
 					.indexOf(item.vnode.el);
+
 				if (index != -1) {
 					list.value.splice(index, 0, item.props);
 					typeof currentName.value === 'undefined' && (
@@ -118,6 +119,7 @@ export default (options = {}) => {
 			}
 
 			list.value.push(item.props);
+
 			typeof currentName.value === 'undefined' && (
 				item.proxy.currentName = list.value.length - 1
 			);
@@ -153,6 +155,15 @@ export default (options = {}) => {
 			options.scrollToActive?.();
 		}
 	);
+
+	watch(
+		() => list.value.length,
+		(v) => {
+			options.refreshAfloat?.();
+			options.scrollToActive?.();
+		}
+	);
+	
 	return {
 		tabsId,
 		list,

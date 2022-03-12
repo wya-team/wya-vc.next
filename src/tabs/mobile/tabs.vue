@@ -217,6 +217,15 @@ export default defineComponent({
 			tabs.scrollOffset.value = offset;
 		};
 
+		const operateDOMScrollEvents = (type) => {
+			let fn = type === 'add' ? window.addEventListener : window.removeEventListener;
+			fn('scroll', handleScroll);
+
+			fn('touchstart', handleTouchstart, false);
+			fn('touchmove', handleTouchmove, false);
+			fn('touchend', handleTouchend, false);
+		};
+
 		/**
 		 * 处理是否需要滚动
 		 */
@@ -225,14 +234,11 @@ export default defineComponent({
 			scrollViewW.value = viewEl.offsetWidth;
 			scrollContentW.value = nav.value.offsetWidth;
 			if (scrollContentW.value > scrollViewW.value) {
-				viewEl.addEventListener('touchstart', handleTouchstart, false);
-				viewEl.addEventListener('touchmove', handleTouchmove, false);
-				viewEl.addEventListener('touchend', handleTouchend, false);
+				operateDOMScrollEvents('remove');
+				operateDOMScrollEvents('add');
 				tabs.scrollable.value = true;
 			} else if (tabs.scrollable.value) {
-				viewEl.removeEventListener('touchstart', handleTouchstart, false);
-				viewEl.removeEventListener('touchmove', handleTouchmove, false);
-				viewEl.removeEventListener('touchend', handleTouchend, false);
+				operateDOMScrollEvents('remove');
 				tabs.scrollable.value = false;
 			}
 			tabs.scrollable.value && scrollToActive();
@@ -309,6 +315,7 @@ export default defineComponent({
 
 		onUnmounted(() => {
 			operateDOMEvents('remove');
+			operateDOMScrollEvents('remove');
 		});
 
 		watch(

@@ -4,21 +4,21 @@
 		<div style="flex: 1; overflow-x: auto;">
 			<vc-tabs>
 				<vc-tabs-pane 
-					v-for="item in 10" 
+					v-for="item in tabs" 
 					:key="item" 
 					:label="`标签${item}`"
 					:name="item"
 				>
-					<vc-table>
-						<!-- any -->
-					</vc-table>	
+					<div @click="handleClick">
+						Tabs: {{ tabs }}
+					</div>
 				</vc-tabs-pane>
 			</vc-tabs>
 		</div>
 	</div>
 </template>
 <script lang="jsx">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import Tabs from '..';
 
 export default defineComponent({
@@ -26,6 +26,15 @@ export default defineComponent({
 	components: {
 		'vc-tabs': Tabs,
 		'vc-tabs-pane': Tabs.Pane
+	},
+	setup() {
+		const tabs = ref(10);
+		return {
+			tabs,
+			handleClick() {
+				tabs.value += 10;
+			}
+		};
 	}
 });
 </script>

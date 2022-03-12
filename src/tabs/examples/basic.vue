@@ -91,7 +91,7 @@ export default defineComponent({
 		'vc-button': Button
 	},
 	setup(props) {
-		const value = ref(6);
+		const value = ref(2);
 		const animated = ref(false);
 		const type = ref('line');
 		const list = ref(Array.from({ length: 200 }, (_, i) => i));

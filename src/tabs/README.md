@@ -69,6 +69,7 @@
 
 <script>
 import { Tabs } from '@wya/vc';
+
 export default {
 	components: {
 		"vc-tabs": Tabs,
@@ -78,7 +79,7 @@ export default {
 		return {
 			value: 0,
 			list: Array.from({ length: 2 }, (_, i) => i)
-		}
+		};
 	}
 };
 </script>
