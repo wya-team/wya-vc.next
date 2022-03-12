@@ -1,20 +1,20 @@
 <template>
 	<div style="display: flex;">
-		<div>Flex下的问题</div>
-		<vc-tabs>
-			<vc-tabs-pane 
-				v-for="item in 10" 
-				:key="item" 
-				:label="`标签${item}`"
-				:name="item"
-			>
-				<div>
-					<div style="width: 1160px">
-						每增加一个标签，宽度增加1160px(bug);(vc-tabs-pane元素)
-					</div>
-				</div>
-			</vc-tabs-pane>
-		</vc-tabs>
+		<div>Flex布局时，要增加`flex: 1; overflow-x: auto;`</div>
+		<div style="flex: 1; overflow-x: auto;">
+			<vc-tabs>
+				<vc-tabs-pane 
+					v-for="item in 10" 
+					:key="item" 
+					:label="`标签${item}`"
+					:name="item"
+				>
+					<vc-table>
+						<!-- any -->
+					</vc-table>	
+				</vc-tabs-pane>
+			</vc-tabs>
+		</div>
 	</div>
 </template>
 <script lang="jsx">
