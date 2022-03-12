@@ -88,9 +88,10 @@ export default () => {
 			? String(props.min)
 			: value;
 
+		// Number('') -> 0 会赋值，除非添加required，否者这里不修改
 		return typeof props.output === 'function' 
 			? props.output(value) 
-			: props.output === 'number'
+			: props.output === 'number' && value !== ''
 				? Number(value)
 				: value;
 	};
@@ -154,6 +155,7 @@ export default () => {
 
 		try {
 			let state = await afterHook(value);
+
 			state && (emit('input', value), emit('update:modelValue', value));
 			emit('blur', e, Number((e.target as any).value));
 		} catch (error) {
