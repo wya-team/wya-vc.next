@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, ref, watch } from 'vue';
+import { defineComponent, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
 import draggable from './draggable';
 
 export default defineComponent({
@@ -61,7 +61,7 @@ export default defineComponent({
 			
 			draggable(bar.value, dragConfig);
 			draggable(thumb.value, dragConfig);
-			update();
+			nextTick(() => update());
 		});
 
 		watch(

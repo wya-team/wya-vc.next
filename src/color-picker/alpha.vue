@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, ref, watch } from 'vue';
+import { defineComponent, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
 import draggable from './draggable';
 
 export default defineComponent({
@@ -67,7 +67,7 @@ export default defineComponent({
 			
 			draggable(bar.value, dragConfig);
 			draggable(thumb.value, dragConfig);
-			update();
+			nextTick(() => update());
 		});
 
 		watch(
@@ -100,7 +100,7 @@ $color-block: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8u
 @include block($block) {
 	position: relative;
 	box-sizing: border-box;
-	width: 240px;
+	width: 100%;
 	height: 10px;
 	margin-top: 8px;
 	cursor: pointer;

@@ -66,7 +66,8 @@ export default defineComponent({
 
 		return {
 			rgbaColors,
-			update
+			update,
+			handleSelect
 		};
 	}
 });
@@ -79,7 +80,7 @@ $url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUl
 
 @include block($block) {
 	display: flex;
-	width: 240px;
+	width: 100%;
 	margin-top: 8px;
 	display: flex;
 	flex: 1;

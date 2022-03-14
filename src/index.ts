@@ -158,6 +158,8 @@ const CheckboxGroup = Checkbox.Group;
 const MCheckboxGroup = MCheckbox.Group;
 const CollapseItem = Collapse.Item;
 const MCollapseItem = MCollapse.Item;
+const ColorPickerView = ColorPicker.View;
+const MColorPickerView = MColorPicker.View;
 const MDatePickerView = MDatePicker.View;
 const DropdownItem = Dropdown.Item;
 const MDropdownItem = MDropdown.Item;
@@ -239,7 +241,9 @@ const Components = {
 	CollapseItem,
 	MCollapseItem,
 	ColorPicker,
+	ColorPickerView,
 	MColorPicker,
+	MColorPickerView,
 	Countdown,
 	MCountdown,
 	Customer,
@@ -458,7 +462,9 @@ export {
 	CollapseItem,
 	MCollapseItem,
 	ColorPicker,
+	ColorPickerView,
 	MColorPicker,
+	MColorPickerView,
 	Countdown,
 	MCountdown,
 	Customer,

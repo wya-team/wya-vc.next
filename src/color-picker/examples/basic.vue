@@ -31,16 +31,18 @@
 			@color-change="handleColorChange"
 			@visible-change="handleVisibleChange"
 		/>
+		<vc-color-picker-view v-model="color1" alpha hue recommend />
 	</div>
 </template>
-<script>
+<script lang="ts">
 import { defineComponent, ref } from 'vue';
-import ColorPicker from '../color-picker';
+import ColorPicker from '../index';
 
 export default defineComponent({
 	name: "vc-color-picker-basic",
 	components: {
 		'vc-color-picker': ColorPicker,
+		'vc-color-picker-view': ColorPicker.View,
 	},
 	setup() {
 		const color1 = ref('#19be6b');

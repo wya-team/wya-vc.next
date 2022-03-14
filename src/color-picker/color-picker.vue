@@ -25,10 +25,10 @@
 					<input :model-value="modelValue" type="hidden">
 					<div class="vc-color-picker__input">
 						<div class="vc-color-picker__color">
-							<div v-show="modelValue === '' && !showPanelColor">
+							<div v-show="modelValue === ''">
 								<vc-icon type="close" />
 							</div>
-							<div v-show="modelValue || showPanelColor" :style="{ backgroundColor: displayedColorStyle }" />
+							<div v-show="modelValue" :style="{ backgroundColor: displayedColorStyle }" />
 						</div>
 					</div>
 				</div>
@@ -42,19 +42,14 @@
 		<template #content>
 			<div class="vc-color-picker__picker">
 				<div class="vc-color-picker__wrapper">
-					<vc-panel :color="color" />	
-					<vc-hue-slider v-if="hue" :color="color" />
-					<vc-alpha v-if="alpha" :color="color" />
-					<vc-predefine 
-						v-if="colors.length"
+					<vc-color-picker-view 
+						v-model="currentColor"
 						:colors="colors"
-						:color="color" 
-					/> 
-					<vc-predefine 
-						v-if="!colors.length && recommend"
-						:colors="recommendColors"
-						:color="color" 
-					/> 
+						:hue="hue"
+						:alpha="alpha"
+						:recommend="recommend"
+						@change="handleColorChange"
+					/>
 				</div>
 				<div class="vc-color-picker__confirm">
 					<span class="vc-color-picker__value">
@@ -67,10 +62,10 @@
 						</template>
 						<template v-else>{{ currentColor }}</template>
 					</span>
-					<vc-button @click="handleClearValue">
+					<vc-button size="small" class="vc-btn is-default" @click="handleClearValue">
 						清空
 					</vc-button>
-					<vc-button type="primary" @click="handleConfirmValue">
+					<vc-button type="primary" class="vc-btn" size="small" @click="handleConfirmValue">
 						确定
 					</vc-button>
 				</div>
@@ -85,10 +80,7 @@ import { COLORS } from './constants';
 import { VcError } from '../vc/index';
 import Color from "./color";
 // components
-import Panel from "./panel";
-import HueSlider from "./hue-slider";
-import Alpha from "./alpha";
-import Predefine from "./predefine";
+import PickerView from './picker-view';
 import Popover from "../popover/index";
 import Icon from "../icon/index";
 import Input from "../input/index";
@@ -114,20 +106,14 @@ export default {
 		'vc-icon': Icon,
 		'vc-input': Input,
 		'vc-button': Button,
-		'vc-panel': Panel,
-		'vc-hue-slider': HueSlider,
-		'vc-alpha': Alpha,
-		'vc-predefine': Predefine,
+		'vc-color-picker-view': PickerView
 	},
 	inheritAttrs: false,
 	props: {
 		...pick(Popover.props, [
 			'portalClassName'
 		]),
-		modelValue: {
-			type: String,
-			default: ''
-		},
+		...PickerView.props,
 		disabled: {
 			type: Boolean,
 			default: false
@@ -149,26 +135,6 @@ export default {
 			type: Boolean,
 			default: true
 		},
-		alpha: {
-			type: Boolean,
-			default: false
-		},
-		hue: {
-			type: Boolean,
-			default: true
-		},
-		recommend: {
-			type: Boolean,
-			default: false
-		},
-		colors: {
-			type: Array,
-			default: () => ([])
-		},
-		format: {
-			type: String,
-			validator: v => /(hsl|hsv|hex|rgb)/.test(v),
-		}
 	},
 	emits: [
 		'update:modelValue',
@@ -180,14 +146,11 @@ export default {
 	setup(props, { emit }) {
 		const formItem = inject('form-item', {});
 		const its = useAttrs();
-		const color = reactive(new Color({
-			enableAlpha: props.alpha,
-			format: props.format
-		}));
 		const isActive = ref(false);
-		const showPanelColor = ref(false);
 		const customColor = ref('');
 		const recommendColors = ref([...COLORS]);
+		const currentColor = ref('');
+		const displayedColorStyle = ref('');
 
 		const classes = computed(() => {
 			return {
@@ -195,37 +158,21 @@ export default {
 				'is-disabled': props.disabled
 			};
 		});
-		const currentColor = computed(() => {
-			return !props.modelValue && !showPanelColor.value ? '' : color.value;
-		});
-		const displayedColorStyle = computed(() => {
-			if (!props.modelValue && !showPanelColor.value) {
-				return 'transparent';
-			}
-			
-			return getColorRgb(color, props.alpha);
-		});
+		
 		const icon = computed(() => {
 			return isActive.value ? 'up' : 'down';
 		});
 		watch(
 			() => props.modelValue,
 			(v) => {
+				currentColor.value = v;
 				if (!v) {
-					showPanelColor.value = false;
-				} else if (v && v !== color.value) {
-					color.fromString(v);
+					displayedColorStyle.value = "transparent";
+				} else {
+					displayedColorStyle.value = v;
 				}
 			},
 			{ immediate: true }
-		);
-
-		watch(
-			() => color,
-			(v) => {
-				showPanelColor.value = true;
-			},
-			{ deep: true }
 		);
 
 		watch(
@@ -244,37 +191,35 @@ export default {
 			isActive.value = false;
 		};
 
+		const handleColorChange = (color) => {
+			displayedColorStyle.value = getColorRgb(color, props.alpha);
+		};
+
 		const handleRestColor = () => {
-			if (props.modelValue) {
-				color.fromString(props.modelValue);
-			} else {
-				showPanelColor.value = false;
-			}
+			currentColor.value = props.modelValue || '';
 		};
 		const handleConfirm = () => {
-			color.fromString(customColor.value);
+			currentColor.value = customColor.value;
 		};
 
 		const handleClearValue = () => {
 			sync('');
-			showPanelColor.value = false;
 		};
 
 		const handleConfirmValue = () => {
-			sync(color.value);
+			sync(currentColor.value);
 		};
 
 		return {
 			its,
-			color,
 			isActive,
-			showPanelColor,
 			customColor,
 			recommendColors,
 			classes,
 			currentColor,
 			displayedColorStyle,
 			icon,
+			handleColorChange,
 			handleRestColor,
 			sync,
 			handleClearValue,
@@ -398,6 +343,7 @@ $block: vc-color-picker;
 	}
 	@include element(wrapper) {
 		padding: 8px 8px 0;
+		width: 256px;
 	}
 	@include element(confirm) {
 		margin-top: 8px;

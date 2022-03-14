@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, ref, watch, computed } from 'vue';
+import { defineComponent, getCurrentInstance, onMounted, ref, watch, computed, nextTick } from 'vue';
 import draggable from './draggable';
 
 export default defineComponent({
@@ -71,7 +71,7 @@ export default defineComponent({
 				drag: handleDrag,
 				end: handleDrag
 			});
-			update();
+			nextTick(() => update());
 		});
 
 		watch(() => colorValue.value, update);
@@ -91,7 +91,7 @@ export default defineComponent({
 $block: vc-color-picker-panel;
 
 @include block($block) {
-    width: 240px;
+	width: 100%;
     height: 180px;
     margin: 0 auto;
 	cursor: pointer;
