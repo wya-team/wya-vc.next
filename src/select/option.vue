@@ -57,7 +57,8 @@ export default defineComponent({
 		});
 
 		const isSelect = computed(() => {
-			const { modelValue, multiple } = owner.props;
+			const { modelValue } = owner.props;
+			const { multiple } = owner?.proxy;
 			if (typeof modelValue === 'undefined' || modelValue === '') return;
 			return !multiple
 				? modelValue == props.value
@@ -65,7 +66,8 @@ export default defineComponent({
 		});
 
 		const isLast = computed(() => {
-			const { modelValue, multiple } = owner.props;
+			const { modelValue } = owner.props;
+			const { multiple } = owner?.proxy;
 			return !multiple ? true : modelValue.slice(-1)[0] === props.value;
 		});
 
@@ -77,7 +79,7 @@ export default defineComponent({
 			// 禁止操作
 			if (props.disabled) return;
 			// 已选中，弹层关闭
-			if (!owner.props.multiple && isSelect.value) {
+			if (!owner.proxy.multiple && isSelect.value) {
 				owner.proxy.close();
 				return;
 			} else if (isSelect.value) {
