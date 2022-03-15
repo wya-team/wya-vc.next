@@ -31,7 +31,13 @@
 			@color-change="handleColorChange"
 			@visible-change="handleVisibleChange"
 		/>
-		<vc-color-picker-view v-model="color1" alpha hue recommend />
+		<vc-color-picker-view
+			v-model="color1"
+			alpha
+			hue
+			recommend
+			format="hex"
+		/>
 	</div>
 </template>
 <script lang="ts">

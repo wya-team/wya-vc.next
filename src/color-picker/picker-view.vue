@@ -15,7 +15,7 @@
 </template>
 
 <script  lang="ts">
-import { ref, reactive, watch, computed } from 'vue';
+import { ref, reactive, watch, computed, onMounted } from 'vue';
 import Color from "./color";
 import Panel from "./panel.vue";
 import HueSlider from "./hue-slider.vue";
@@ -72,17 +72,19 @@ export default {
 			(v) => {
 				color.fromString(v);
 			},
-			{ immediate: true }
 		);
 
 		watch(
 			() => color,
 			(v) => {
 				emit('change', color);
-				emit('update:modelValue', color.value);
 			},
-			{ deep: true, immediate: true }
+			{ deep: true }
 		);
+
+		onMounted(() => {
+			color.fromString(props.modelValue);
+		});
 
 		return {
 			color,

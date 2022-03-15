@@ -43,11 +43,12 @@
 			<div class="vc-color-picker__picker">
 				<div class="vc-color-picker__wrapper">
 					<vc-color-picker-view 
-						v-model="currentColor"
+						:model-value="currentColor"
 						:colors="colors"
 						:hue="hue"
 						:alpha="alpha"
 						:recommend="recommend"
+						:format="format"
 						@change="handleColorChange"
 					/>
 				</div>
@@ -98,7 +99,6 @@ const getColorRgb = (color, alpha) => {
 		? `rgba(${r}, ${g}, ${b}, ${color.get('alpha') / 100})`
 		: `rgb(${r}, ${g}, ${b})`;
 };
-
 export default {
 	name: 'vc-color-picker',
 	components: {
@@ -192,11 +192,13 @@ export default {
 		};
 
 		const handleColorChange = (color) => {
+			customColor.value = color.value;
 			displayedColorStyle.value = getColorRgb(color, props.alpha);
 		};
 
 		const handleRestColor = () => {
 			currentColor.value = props.modelValue || '';
+			displayedColorStyle.value = props.modelValue || '';
 		};
 		const handleConfirm = () => {
 			currentColor.value = customColor.value;
@@ -207,7 +209,7 @@ export default {
 		};
 
 		const handleConfirmValue = () => {
-			sync(currentColor.value);
+			sync(displayedColorStyle.value);
 		};
 
 		return {

@@ -39,14 +39,7 @@ const bound01 = (value, max) => {
 	return (value % max) / parseFloat(max);
 };
 
-const INT_HEX_MAP = {
-	10: 'A',
-	11: 'B',
-	12: 'C',
-	13: 'D',
-	14: 'E',
-	15: 'F'
-};
+const INT_HEX_MAP = { 10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F' };
 
 const toHex = ({ r, g, b }) => {
 	const hexOne = (value) => {
@@ -61,14 +54,7 @@ const toHex = ({ r, g, b }) => {
 	return '#' + hexOne(r) + hexOne(g) + hexOne(b);
 };
 
-const HEX_INT_MAP = {
-	A: 10,
-	B: 11,
-	C: 12,
-	D: 13,
-	E: 14,
-	F: 15
-};
+const HEX_INT_MAP = { A: 10, B: 11, C: 12, D: 13, E: 14, F: 15 };
 
 const parseHexChannel = (hex) => {
 	if (hex.length === 2) {
@@ -110,8 +96,7 @@ const rgb2hsv = (r, g, b) => {
 
 	const max = Math.max(r, g, b);
 	const min = Math.min(r, g, b);
-	let h,
-		s;
+	let h; let s;
 	let v = max;
 
 	const d = max - min;
@@ -134,11 +119,7 @@ const rgb2hsv = (r, g, b) => {
 		h /= 6;
 	}
 
-	return {
-		h: h * 360,
-		s: s * 100,
-		v: v * 100
-	};
+	return { h: h * 360, s: s * 100, v: v * 100 };
 };
 
 // `hsvToRgb`
@@ -223,7 +204,7 @@ export default class Color {
 		}
 
 		const fromHSV = (h, s, v) => {
-			this._hue = Math.max(0, Math.min(360, h));
+			this._hue = Math.max(0, Math.min(360, Math.ceil(h)));
 			this._saturation = Math.max(0, Math.min(100, s));
 			this._value = Math.max(0, Math.min(100, v));
 
@@ -240,11 +221,7 @@ export default class Color {
 				this._alpha = 100;
 			}
 			if (parts.length >= 3) {
-				const {
-					h,
-					s,
-					v
-				} = hsl2hsv(parts[0], parts[1], parts[2]);
+				const { h, s, v } = hsl2hsv(parts[0], parts[1], parts[2]);
 				fromHSV(h, s, v);
 			}
 		} else if (value.indexOf('hsv') !== -1) {
@@ -269,19 +246,13 @@ export default class Color {
 				this._alpha = 100;
 			}
 			if (parts.length >= 3) {
-				const {
-					h,
-					s,
-					v
-				} = rgb2hsv(parts[0], parts[1], parts[2]);
+				const { h, s, v } = rgb2hsv(parts[0], parts[1], parts[2]);
 				fromHSV(h, s, v);
 			}
 		} else if (value.indexOf('#') !== -1) {
 			const hex = value.replace('#', '').trim();
-			if (!/^(?:[0-9a-fA-F]{3}){1,2}$/.test(hex)) return;
-			let r;
-			let g;
-			let b;
+			if (!/^(?:[0-9a-fA-F]{3}){1,2}|[0-9a-fA-F]{8}$/.test(hex)) return;
+			let r; let g; let b;
 
 			if (hex.length === 3) {
 				r = parseHexChannel(hex[0] + hex[0]);
@@ -299,30 +270,20 @@ export default class Color {
 				this._alpha = 100;
 			}
 
-			const {
-				h,
-				s,
-				v
-			} = rgb2hsv(r, g, b);
+			const { h, s, v } = rgb2hsv(r, g, b);
 			fromHSV(h, s, v);
 		}
 	}
 
 	compare(color) {
-		return Math.abs(color._hue - this._hue) < 2 &&
-			Math.abs(color._saturation - this._saturation) < 1 &&
-			Math.abs(color._value - this._value) < 1 &&
-			Math.abs(color._alpha - this._alpha) < 1;
+		return Math.abs(color._hue - this._hue) < 2
+			&& Math.abs(color._saturation - this._saturation) < 1
+			&& Math.abs(color._value - this._value) < 1
+			&& Math.abs(color._alpha - this._alpha) < 1;
 	}
 
 	doOnChange() {
-		const {
-			_hue,
-			_saturation,
-			_value,
-			_alpha,
-			format
-		} = this;
+		const { _hue, _saturation, _value, _alpha, format } = this;
 
 		if (this.enableAlpha) {
 			switch (format) {
@@ -334,9 +295,7 @@ export default class Color {
 					this.value = `hsva(${_hue}, ${Math.round(_saturation)}%, ${Math.round(_value)}%, ${_alpha / 100})`;
 					break;
 				default:
-					const {
-						r, g, b
-					} = hsv2rgb(_hue, _saturation, _value);
+					const { r, g, b } = hsv2rgb(_hue, _saturation, _value);
 					this.value = `rgba(${r}, ${g}, ${b}, ${_alpha / 100})`;
 			}
 		} else {
@@ -349,9 +308,7 @@ export default class Color {
 					this.value = `hsv(${_hue}, ${Math.round(_saturation)}%, ${Math.round(_value)}%)`;
 					break;
 				case 'rgb':
-					const {
-						r, g, b
-					} = hsv2rgb(_hue, _saturation, _value);
+					const { r, g, b } = hsv2rgb(_hue, _saturation, _value);
 					this.value = `rgb(${r}, ${g}, ${b})`;
 					break;
 				default:
