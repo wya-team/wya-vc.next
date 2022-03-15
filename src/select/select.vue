@@ -206,8 +206,11 @@ export default {
 				let child = [];
 				if (typeof vnode.children !== 'object') return;
 
-				if (vnode && /option-group$/.test(vnode.type.name)) {
+				if (vnode && /vcm?-select-option-group$/.test(vnode.type.name)) {
 					child = vnode.children.default()[0].children;
+				} else if (vnode && /vc-select-option$/.test(vnode.type.name)) {
+					vnodes.push(vnode);
+					return;
 				} else {
 					child = vnode.children;
 				}
@@ -252,7 +255,7 @@ export default {
 		const showClear = computed(() => {
 			let value = !multiple.value ? currentValue.value : currentValue.value.length > 0;
 			let basic = props.clearable && !props.disabled && isHover.value;
-			return value && basic;
+			return (typeof value === 'number' || value) && basic;
 		});
 		
 		const classes = computed(() => {
@@ -343,7 +346,7 @@ export default {
 				currentLabel.value = multiple.value ? [] : '';
 				return;
 			}
-			
+
 			currentLabel.value = multiple.value
 				? currentValue.value.map(getLabel.bind(null, data.value))
 				: getLabel(data.value, currentValue.value);
