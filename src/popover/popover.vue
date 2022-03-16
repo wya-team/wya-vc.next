@@ -42,7 +42,7 @@ export default defineComponent({
 		trigger: {
 			type: String,
 			default: 'hover',
-			validator: (v: string) => /(hover|click|focus)/.test(v)
+			validator: (v: string) => /(hover|click|focus|custom)/.test(v)
 		},
 		tag: {
 			type: String,
