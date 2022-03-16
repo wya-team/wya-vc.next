@@ -82,8 +82,8 @@ export default (input: Ref<Nullable<HTMLElement>>) => {
 			ctx?.$forceUpdate?.();
 			return;
 		}
-		emit('input', value, e);
 		emit('update:modelValue', value, e);
+		emit('input', value, e);
 
 		emit('change', e);
 		ctx?.$forceUpdate?.();
