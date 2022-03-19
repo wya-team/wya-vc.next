@@ -62,6 +62,7 @@ export default () => {
 	return {
 		isFocus,
 		currentValue,
-		listeners
+		listeners,
+		handleSearch
 	};
 };
