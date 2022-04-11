@@ -385,6 +385,11 @@ export default {
 			}
 		};
 
+		// 对外暴露 uploadFiles 方法
+		if (instance && instance.proxy) {
+			instance.proxy.uploadFiles = uploadFiles;
+		}
+
 		onMounted(() => {
 			__isMounted = true;
 			if (!props.showTips) return;
