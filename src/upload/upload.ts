@@ -399,8 +399,6 @@ export default {
 			});
 
 			tips = app.wrapper;
-
-			window.tips = tips;
 		});
 
 		onUnmounted(() => {
