@@ -43,7 +43,7 @@
 			<div class="vc-color-picker__picker">
 				<div class="vc-color-picker__wrapper">
 					<vc-color-picker-view 
-						:model-value="currentColor"
+						:value="currentColor"
 						:colors="colors"
 						:hue="hue"
 						:alpha="alpha"
@@ -76,7 +76,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, watch, inject, ref, onUnmounted, onMounted, computed, getCurrentInstance, reactive } from 'vue';
-import { pick } from "lodash";
+import { pick, omit } from "lodash";
 import { COLORS } from './constants';
 import { VcError } from '../vc/index';
 import Color from "./color";
@@ -113,7 +113,11 @@ export default {
 		...pick(Popover.props, [
 			'portalClassName'
 		]),
-		...PickerView.props,
+		...omit(PickerView.props, ['value']),
+		modelValue: {
+			type: String,
+			default: ''
+		},
 		disabled: {
 			type: Boolean,
 			default: false

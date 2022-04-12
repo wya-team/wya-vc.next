@@ -32,7 +32,7 @@
 			@visible-change="handleVisibleChange"
 		/>
 		<vc-color-picker-view
-			v-model="color1"
+			:value="color1"
 			alpha
 			hue
 			recommend
