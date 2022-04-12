@@ -718,7 +718,8 @@ export default defineComponent({
 						className
 					);
 				});
-			}
+			},
+			{ immediate: true }
 		);
 
 		onMounted(() => {
