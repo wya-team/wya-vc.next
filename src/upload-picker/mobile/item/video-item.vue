@@ -1,14 +1,14 @@
 <template>
-	<div 
+	<div
 		:class="{ 'is-error': it.status == 0 }"
 		class="vcm-upload-picker-video-item"
 	>
 		<slot :it="it">
 			<div v-if="typeof it !== 'object'">
-				<video 
-					:src="it" 
+				<video
+					:src="it"
 					:controls="false"
-					class="vcm-upload-picker-video-item__content" 
+					class="vcm-upload-picker-video-item__content"
 					style="background-color: #000"
 				/>
 				<div class="vcm-upload-picker-video-item__play" @click="handlePreview">
@@ -22,11 +22,11 @@
 				</div>
 			</div>
 			<!-- 上传失败或者成功后显示 -->
-			<vc-icon 
-				v-if="!disabled && (typeof it !== 'object' || it.status == 0)" 
-				type="close" 
+			<vc-icon
+				v-if="!disabled && (typeof it !== 'object' || it.status == 0)"
+				type="close"
 				class="vcm-upload-picker__delete"
-				@click="handleDel" 
+				@click="handleDel"
 			/>
 		</slot>
 	</div>
@@ -37,6 +37,8 @@ import { defineComponent } from 'vue';
 import Icon from '../../../icon/index';
 import Spin from '../../../spin';
 import { VideoPreview } from '../../preview/video';
+import { VcInstance } from '../../../vc';
+import { VideoPreviewConfig } from '../../types';
 
 export default defineComponent({
 	name: 'vcm-upload-picker-video-item',
@@ -53,10 +55,15 @@ export default defineComponent({
 	},
 	emits: ['delete'],
 	setup(props, { emit }) {
-		const handlePreview = (e) => {
-			VideoPreview.popup({
-				dataSource: [props.it]
-			});
+		const handlePreview = () => {
+			const { enhancer } = VcInstance.config.VideoPreview || {} as VideoPreviewConfig;
+			if (enhancer) {
+				enhancer(props.it);
+			} else {
+				VideoPreview.popup({
+					dataSource: [props.it]
+				});
+			}
 		};
 		const handleDel = () => {
 			emit('delete');
@@ -92,7 +99,7 @@ export default defineComponent({
 		border-radius: 2px;
 		background-size: cover;
 		overflow: hidden;
-		
+
 	}
 	@include element(play) {
 		position: absolute;

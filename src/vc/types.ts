@@ -5,7 +5,7 @@ import { HtmlImageConfig } from '../html-image/types';
 import { IconConfig } from '../icon/types';
 import { PortalConfig } from '../portal/types';
 import { UploadConfig } from '../upload/types';
-import { UploadPickerConfig } from '../upload-picker/types';
+import { UploadPickerConfig, VideoPreviewConfig } from '../upload-picker/types';
 
 /**
  * 组件的配置项
@@ -22,6 +22,8 @@ export interface Config {
 	Portal?: PortalConfig;
 
 	Upload?: UploadConfig;
-	
+
 	UploadPicker?: UploadPickerConfig;
+
+	VideoPreview?: VideoPreviewConfig
 }
