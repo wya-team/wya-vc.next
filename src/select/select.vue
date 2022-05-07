@@ -358,6 +358,15 @@ export default {
 				if (isEqualWith(v, currentValue.value)) {
 					return;
 				}
+
+				if (multiple.value && !(v instanceof Array)) {
+					if (v) {
+						throw new VcError('select', `多选时初始值应该为数组，当前值是${v}`);	
+					} else {
+						v = [];
+					}
+				}
+
 				currentValue.value = v;
 
 				update();
