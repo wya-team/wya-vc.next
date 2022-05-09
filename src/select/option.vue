@@ -49,8 +49,8 @@ export default defineComponent({
 
 		const formatterLabel = computed(() => {
 			let v = String(
-				(slots.default && slots.default()[0].children) 
-				|| props.label 
+				props.label
+				|| (slots.default && slots.default()[0].children) 
 				|| props.value
 			);
 			return v.trim();

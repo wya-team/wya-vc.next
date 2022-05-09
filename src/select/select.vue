@@ -231,8 +231,8 @@ export default {
 				let { value, label = '', disabled } = vnode.props;
 
 				label = String(
-					(vnode.children && vnode.children.default()[0].children) 
-					|| label 
+					label
+					|| (vnode.children && vnode.children.default()[0].children) 
 					|| value
 				);
 
