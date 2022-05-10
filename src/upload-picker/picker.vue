@@ -27,7 +27,7 @@
 			</template>
 			<vc-sort-list
 				v-else 
-				:data-source="currentValue[picker.type]" 
+				:model-value="currentValue[picker.type]" 
 				:mask="mask" 
 				value-key="uid" 
 				class="is-sort"
