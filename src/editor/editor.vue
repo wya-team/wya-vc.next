@@ -12,13 +12,13 @@
 						accept="image/gif,image/jpeg,image/jpg,image/png"
 						v-bind="imageUploadOptions"
 						:max="imageMax"
-						@file-success="handleImgSuccess"
+						@file-success="handleImageSuccess"
 						@file-start="handleUploadStart"
 						@file-error="(...args) => handleUploadError(args[0], 'image')"
 						@error="(...args) => handleUploadError(args[0], 'image')"
 						@complete="handleComplete"
 					>
-						<vc-icon type="image" style="font-size: 15px" @click="handleUploadImg" />
+						<vc-icon type="image" style="font-size: 15px" @click="handleUploadImage" />
 					</vc-upload>
 				</button>
 				<button class="vc-quill-editor__icon">
@@ -267,7 +267,7 @@ export default defineComponent({
 			let selection = editor.value.getSelection();
 			return selection ? selection.index : (selectionIndex.value || editor.value.getLength());
 		};
-		const handleImgSuccess = (res) => {
+		const handleImageSuccess = (res) => {
 			// 获取光标所在位置
 			let length = getLength();
 			editor.value.insertEmbed(length, 'image', res.data.url);
@@ -358,7 +358,7 @@ export default defineComponent({
 		};
 
 		
-		const handleUploadImg = (e) => {
+		const handleUploadImage = (e) => {
 			const { UploadPicker = {} } = VcInstance.config;
 			if (
 				typeof props.gallery === 'function' 
@@ -440,7 +440,7 @@ export default defineComponent({
 
 		// 跟imgs-picker 对外暴露的增加方法保持同名
 		const add = (source = [], type = 'image') => {
-			const fn = type === 'video' ? handleVideoSuccess : handleImgSuccess;
+			const fn = type === 'video' ? handleVideoSuccess : handleImageSuccess;
 			source.forEach(item => {
 				fn({ data: { url: item } });
 			});
@@ -471,15 +471,17 @@ export default defineComponent({
 			imageMax,
 			selectionIndex,
 
-			handleImgSuccess,
+			handleImageSuccess,
 			handleUploadStart,
 			handleUploadError,
 			handleComplete,
-			handleUploadImg,
+			handleUploadImage,
 			handleVideoSuccess,
 			handleUploadVideo,
 			handleUndo,
-			handleRedo
+			handleRedo,
+
+			add
 		};
 	}
 });
