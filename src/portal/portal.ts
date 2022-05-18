@@ -330,9 +330,9 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 		if (instance) {
 			instance.destroy();
 		} else if (multiple) {
-			this.portals.forEach((item) => {
-				if (item[0].includes(cName)) {
-					item[1].destroy();
+			this.portals.forEach((item, key) => {
+				if (key.includes(cName)) {
+					item.destroy();
 				}
 			});
 		}
