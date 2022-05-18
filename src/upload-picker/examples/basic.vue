@@ -65,6 +65,7 @@ VcInstance.init({
 		}
 	},
 	// UploadPicker: {
+	// 	// formatter: (res) => {},
 	// 	/**
 	// 	 * 全局的上传文件类型识别器
 	// 	 * 返回 image | video | file 

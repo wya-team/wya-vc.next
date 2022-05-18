@@ -5,6 +5,7 @@
 export const recognizer = (url) => {
 	const reg = /\.(jpe?g|png|gif|bmp|webp|mp4|mov|avi|mpg|mpeg|rmvb)/ig;
 	const result = url.match(reg);
+
 	return result && result.length
 		? /.(jpe?g|png|gif|bmp|webp)/ig.test(result[result.length - 1]) ? 'image' : 'video'
 		: 'file';

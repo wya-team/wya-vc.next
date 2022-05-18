@@ -17,13 +17,13 @@
 				/>
 				<template v-else>
 					<vc-icon type="file" class="vc-upload-picker-file-item__file-icon" />
-					<div :title="it.title" class="vc-upload-picker-file-item__title">
-						{{ it.title }}
+					<div :title="it.title || it" class="vc-upload-picker-file-item__title">
+						{{ it.title || it }}
 					</div>
 				</template>
 			</div>
 			<vc-icon 
-				v-if="!disabled && (isError || it[urlKey])" 
+				v-if="!disabled && (isError || it[urlKey] || (typeof it === 'string' && it))" 
 				type="close-small" 
 				class="vc-upload-picker__delete"
 				@click="handleDel" 

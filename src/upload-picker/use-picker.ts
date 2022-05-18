@@ -97,7 +97,13 @@ export default () => {
 	const _recognizer = (url) => {
 		const fn = (VcInstance.config.UploadPicker || {}).recognizer || recognizer;
 		if (url && typeof url === 'object') url = url[props.urlKey];
-		return fn(url, recognizer);
+
+		let defaultType = '';
+		// 长度为1时，强制类型
+		if (props.picker.length === 1) {
+			return props.picker[0];
+		}
+		return fn(url, recognizer, instance);
 	};
 
 	const parseDataSource = (dataSource) => {
@@ -133,9 +139,14 @@ export default () => {
 		}, []);
 	};
 	
+	const getFormatter = () => {
+		return props.formatter || (VcInstance.config.UploadPicker || {}).formatter;
+	};
+
 	const getUrl = (res) => {
-		return props.formatter 
-			? props.formatter(res) 
+		const fn = getFormatter();
+		return fn 
+			? fn(res, instance) 
 			: typeof res === 'string'
 				? res 
 				: (typeof res === 'object' && res?.data?.[props.urlKey]) || res[props.urlKey];
@@ -191,7 +202,8 @@ export default () => {
 					return getUrl(res);
 				} else { // 其他文件，要求文件为对象Object[]
 					let result = { ...item, ...((res.data ? res.data : res) || {}) };
-					return props.formatter ? props.formatter(result) : result;
+					const fn = getFormatter();
+					return fn ? fn(result, instance) : result;
 				}
 			}
 			return item;

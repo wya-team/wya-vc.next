@@ -2,6 +2,7 @@
 export interface UploadPickerConfig {
 	recognizer?: () => any;
 	gallery?: () => any;
+	formatter?: () => any;
 }
 
 export interface VideoPreviewConfig {
