@@ -52,6 +52,17 @@ export default defineComponent({
 			} else if (typeof props.toolbar === 'object' && props.toolbar.container instanceof Array) {
 				array = props.toolbar.container;
 			}
+
+			try {
+				array = array.map(i => {
+					if (typeof i[0] === 'object' && i[0].lineHeight) {
+						i[0].lineHeight = i[0].lineHeight.map(j => j * 10);
+					}
+					return i;
+				});
+			} catch (e) {
+				console.log(e);
+			}
 			return array;
 		});
 
@@ -113,8 +124,7 @@ export default defineComponent({
 						if (key === 'size') {
 							insertFontStyle(options, this.styleId);
 						} else if (key === 'lineHeight') {
-							// 设置的样式1.2为class不起由于有.不生效, 默认扩大十倍，样式再除以10
-							insertLineHeightStyle(options.map(i => String(i * 10)), this.lineHeightStyleId);
+							insertLineHeightStyle(options, this.lineHeightStyleId);
 						} else if (key === 'letterSpacing') {
 							insertLetterSpacingStyle(options, this.letterSpacingStyleId);
 						}

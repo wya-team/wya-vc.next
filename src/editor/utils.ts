@@ -15,10 +15,10 @@ export const insertFontStyle = (value, id) => {
 	Load.cssCode(code, { id });
 };
 
+// 设置的样式1.2为class不起由于有.不生效, 默认扩大十倍
 export const insertLineHeightStyle = (value, id) => {
 	// 动态生成line-height的css，插入head
 	let code = value.reduce((pre, lineHeight) => {
-		// 设置的样式1.2为class不起由于有.不生效, 默认扩大十倍，样式再除以10
 		pre += `.ql-snow .ql-lineHeight.ql-picker .ql-picker-item[data-value="${lineHeight}"]:before,
 				.ql-snow .ql-lineHeight.ql-picker .ql-picker-label[data-value="${lineHeight}"]:before {
 					content: "${lineHeight / 10}" 
