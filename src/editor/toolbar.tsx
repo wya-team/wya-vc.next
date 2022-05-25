@@ -1,5 +1,6 @@
 import { h, defineComponent, watch, ref, computed, onUnmounted } from 'vue';
 import { Load } from '@wya/utils';
+import { cloneDeep } from 'lodash';
 import { getUid } from '../utils/utils';
 import { insertFontStyle, insertLineHeightStyle, insertLetterSpacingStyle } from './utils';
 import { lineHeight, letterSpacing } from './constant';
@@ -54,7 +55,8 @@ export default defineComponent({
 			}
 
 			try {
-				array = array.map(i => {
+				let v = cloneDeep(array);
+				return v.map(i => {
 					if (typeof i[0] === 'object' && i[0].lineHeight) {
 						i[0].lineHeight = i[0].lineHeight.map(j => j * 10);
 					}
