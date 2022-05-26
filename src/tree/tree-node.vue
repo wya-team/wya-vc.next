@@ -163,8 +163,8 @@ export default defineComponent({
 				tree.emit('check', props.node.data, data);
 
 				// for v-model
-				tree.emit('change', data.checkedKeys, data);
 				tree.emit('update:modelValue', data.checkedKeys, data);
+				tree.emit('change', data.checkedKeys, data);
 				props.allowDispatch && formItem?.change?.();
 			});
 		};

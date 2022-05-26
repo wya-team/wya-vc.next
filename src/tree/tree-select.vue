@@ -222,8 +222,8 @@ export default defineComponent({
 		 * v-model 同步, 外部的数据改变时不会触发
 		 */
 		const sync = () => {
-			emit('change', currentValue.value);
 			emit('update:modelValue', currentValue.value);
+			emit('change', currentValue.value);
 
 			// form表单
 			formItem?.change?.(currentValue.value);

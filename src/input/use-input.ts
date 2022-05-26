@@ -111,8 +111,8 @@ export default (input: Ref<Nullable<HTMLElement>>) => {
 	const handleClear = () => {
 		const e = { target: { value: '' } };
 		
-		emit('input', '');
 		emit('update:modelValue', '');
+		emit('input', '');
 
 		emit('change', e);
 		emit('clear', e);

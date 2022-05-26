@@ -140,8 +140,8 @@ const wrapperComponent = defineComponent({
 
 			ok(currentValue.value, label, data);
 			// 普通组件
-			emit('change', currentValue.value, label, data);
 			emit('update:modelValue', currentValue.value, label, data);
+			emit('change', currentValue.value, label, data);
 		};
 
 		const handleCancel = (v) => {

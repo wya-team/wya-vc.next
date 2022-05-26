@@ -141,8 +141,8 @@ export default defineComponent({
 			isActive.value = false;
 
 			emit('close');
-			emit('visible-change', false);
 			emit('update:modelValue', false);
+			emit('visible-change', false);
 		};
 
 		watch(

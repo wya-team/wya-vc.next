@@ -72,9 +72,10 @@ export default (options = {}) => {
 		if (nav.disabled) return;
 
 		currentName.value = nav.name || index;
+		
+		emit('update:modelValue', currentName.value);
 		emit('change', currentName.value);
 		emit('click', currentName.value);
-		emit('update:modelValue', currentName.value);
 
 		hasClick.value = true;
 	};

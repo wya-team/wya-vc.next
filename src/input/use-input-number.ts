@@ -45,8 +45,8 @@ export default () => {
 		if (state) {
 			hookValue = value;
 		} else {
-			emit('input', hookValue);
 			emit('update:modelValue', hookValue);
+			emit('input', hookValue);
 		}
 		return state;
 	};

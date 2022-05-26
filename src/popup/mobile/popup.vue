@@ -121,8 +121,8 @@ export default defineComponent({
 			!instance.isUnmounted && (
 				emit('close'),
 				emit('portal-fulfilled'),
+				emit('update:modelValue', false),
 				emit('visible-change', false),
-				emit('update:modelValue', false)
 			);
 		};
 

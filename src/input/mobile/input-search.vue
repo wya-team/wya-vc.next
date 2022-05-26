@@ -70,8 +70,8 @@ export default defineComponent({
 		const { binds } = useInherit();
 
 		const handleCancel = () => {
-			emit('input', '');
 			emit('update:modelValue', '');
+			emit('input', '');
 			emit('cancel');
 		};
 

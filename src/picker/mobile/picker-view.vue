@@ -57,8 +57,8 @@ export default {
 		 */
 		const sync = () => {
 			const { label, data } = getSelectedData(currentValue.value, props.dataSource);
-			emit('change', currentValue.value, label, data);
 			emit('update:modelValue', currentValue.value, label, data);
+			emit('change', currentValue.value, label, data);
 
 			props.allowDispatch && formItem?.change?.(currentValue.value);
 		};
