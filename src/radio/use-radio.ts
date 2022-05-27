@@ -48,7 +48,7 @@ export default () => {
 	const classes = computed(() => {
 		return { 
 			'is-checked': checked.value, 
-			'is-disabled': props.disabled,
+			'is-disabled': isDisabled.value,
 			'is-focus': isFocus.value,
 		};
 	});
