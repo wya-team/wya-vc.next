@@ -30,7 +30,6 @@ export default () => {
 	);
 
 	const reset = (value) => {
-		console.log(value);
 		currentValue.value = value === props.trueValue 
 			? props.trueValue
 			: props.falseValue;
@@ -46,7 +45,6 @@ export default () => {
 	};
 
 	const handleToggle = (e) => {
-		console.log(e);
 		e.preventDefault();
 
 		if (props.disabled || isLoading.value) {

@@ -61,7 +61,9 @@ export default defineComponent({
 		// 筛选弹层的样式
 		filterPopupClassName: String,
 		// 筛选的方法
-		filter: Function
+		filter: Function,
+
+		tooltip: [String, Function]
 	},
 	setup(props, context) {
 		const { slots } = context;
@@ -241,7 +243,7 @@ export default defineComponent({
 				index: props.index
 			};
 
-			const basicProps = ['columnKey', 'label', 'className', 'labelClassName', 'type', 'renderHeader', 'resizable', 'formatter', 'fixed', 'resizable']; // eslint-disable-line
+			const basicProps = ['columnKey', 'label', 'className', 'labelClassName', 'type', 'renderHeader', 'resizable', 'formatter', 'fixed', 'resizable', 'tooltip']; // eslint-disable-line
 			const selectProps = ['selectable', 'reserveSelection'];
 			const sortProps = ['sortable'];
 			const filterProps = ['filters', 'filteredValue', 'filterMultiple', 'filter', 'filterIcon', 'filterPopupClassName'];

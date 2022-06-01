@@ -1,6 +1,8 @@
 import { defineComponent, watch, ref, computed, getCurrentInstance } from 'vue';
 import { Utils, $ } from '@wya/utils';
 import Checkbox from '../checkbox';
+import Popover from '../popover';
+import Icon from '../icon';
 import { useLayoutObserver } from './layout/index';
 import { useStates } from './store';
 import TableSort from './table-sort';
@@ -300,6 +302,21 @@ export default defineComponent({
 			filter && filter(value);
 		};
 
+		let popperInstance;
+		const handleCellMouseEnter = (e, column) => {
+			popperInstance = null;
+			popperInstance = Popover.open({
+				el: document.body,
+				cName: 'vc-table-header-popover', // 确保不重复创建
+				triggerEl: e.currentTarget,
+				hover: true,
+				theme: 'dark',
+				placement: "top",
+				content: column.tooltip,
+				alone: true
+			});
+		};
+
 		return () => {
 			const { originColumns } = props.store.states;
 			const columnRows = convertToRows(originColumns);
@@ -363,6 +380,14 @@ export default defineComponent({
 																}
 															)
 															: column.label
+													}
+													{
+														column.tooltip
+															? <Icon 
+																type="o-info" 
+																onMouseenter={(e) => handleCellMouseEnter(e, column)}
+															/>
+															: null
 													}
 													{
 														column.sortable

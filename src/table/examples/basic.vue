@@ -12,6 +12,7 @@
 					fixed="left"
 					prop="date"
 					label="日期"
+					tooltip="222"
 					sortable
 					:filters="filters"
 					:filtered-value="filteredValue"
