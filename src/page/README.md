@@ -160,7 +160,7 @@ export default {
 current | 当前页码，支持 .sync 修饰符 | `Number` | - | 1
 count | 数据总数 | `Number` | - | 0
 page-size | 每页条数 | `Number` | -| 10
-page-size-opts | 每页条数切换的配置 | `Array` | - | [10, 20, 30, 40]
+page-size-options | 每页条数切换的配置 | `Array` | - | [10, 20, 30, 40]
 placement | 条数切换弹窗的展开方向 | `String` | `bottom`、`top` | `bottom`
 show-count | 显示总数 | `Boolean` | - | `true`
 show-elevator | 显示电梯，可以快速切换到某一页 | `Boolean` | - | `false`
