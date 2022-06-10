@@ -2,7 +2,7 @@
 	<div class="vc-page">
 		<span v-if="showCount" class="vc-page__count">
 			<slot>
-				<span>共 {{ count }} 条</span> 
+				<span>共 {{ count }} 条</span>
 			</slot>
 		</span>
 		<div
@@ -14,7 +14,7 @@
 			<vc-icon type="left" />
 		</div>
 		<!-- 第一页 -->
-		<div 
+		<div
 			:class="{'is-active': currentPage == 1 }"
 			class="vc-page__item"
 			title="1"
@@ -22,43 +22,43 @@
 		>
 			<span>1</span>
 		</div>
-		<div 
-			v-if="currentPage > 5" 
-			title="向前 5 页" 
+		<div
+			v-if="currentPage > 5"
+			title="向前 5 页"
 			class="vc-page__item is-jump"
 			@click="handleFastPre"
 		>
 			...
 		</div>
-		<div 
-			v-if="currentPage === 5" 
+		<div
+			v-if="currentPage === 5"
 			:title="currentPage - 3"
-			class="vc-page__item" 
+			class="vc-page__item"
 			@click="handleChangePage(currentPage - 3)"
 		>
 			<span>{{ currentPage - 3 }}</span>
 		</div>
 
-		<div 
-			v-if="currentPage - 2 > 1" 
+		<div
+			v-if="currentPage - 2 > 1"
 			:title="currentPage - 2"
-			class="vc-page__item" 
+			class="vc-page__item"
 			@click="handleChangePage(currentPage - 2)"
 		>
 			<span>{{ currentPage - 2 }}</span>
 		</div>
-		<div 
-			v-if="currentPage - 1 > 1" 
+		<div
+			v-if="currentPage - 1 > 1"
 			:title="currentPage - 1"
-			class="vc-page__item" 
+			class="vc-page__item"
 			@click="handleChangePage(currentPage - 1)"
 		>
 			<span>{{ currentPage - 1 }}</span>
 		</div>
-	
+
 		<!-- 当前页 -->
-		<div 
-			v-if="currentPage != 1 && currentPage != totalPage" 
+		<div
+			v-if="currentPage != 1 && currentPage != totalPage"
 			:title="currentPage"
 			class="vc-page__item is-active"
 		>
@@ -66,41 +66,41 @@
 		</div>
 		<!-- 分割线 -->
 
-		<div 
-			v-if="currentPage + 1 < totalPage" 
+		<div
+			v-if="currentPage + 1 < totalPage"
 			:title="currentPage + 1"
-			class="vc-page__item" 
+			class="vc-page__item"
 			@click="handleChangePage(currentPage + 1)"
 		>
 			<span>{{ currentPage + 1 }}</span>
 		</div>
-		<div 
-			v-if="currentPage + 2 < totalPage" 
+		<div
+			v-if="currentPage + 2 < totalPage"
 			:title="currentPage + 2"
-			class="vc-page__item" 
+			class="vc-page__item"
 			@click="handleChangePage(currentPage + 2)"
 		>
 			<span>{{ currentPage + 2 }}</span>
 		</div>
-		<div 
-			v-if="totalPage - currentPage === 4" 
+		<div
+			v-if="totalPage - currentPage === 4"
 			:title="currentPage + 3"
-			class="vc-page__item" 
+			class="vc-page__item"
 			@click="handleChangePage(currentPage + 3)"
 		>
 			<span>{{ currentPage + 3 }}</span>
 		</div>
-		<div 
-			v-if="totalPage - currentPage >= 5" 
+		<div
+			v-if="totalPage - currentPage >= 5"
 			title="向后 5 页"
 			class="vc-page__item is-jump"
 			@click="handleFastNext"
 		>
 			...
 		</div>
-		<div 
-			v-if="totalPage > 1" 
-			:title="totalPage" 
+		<div
+			v-if="totalPage > 1"
+			:title="totalPage"
 			:class="{'is-active': currentPage == totalPage }"
 			class="vc-page__item"
 			@click="handleChangePage(totalPage)"
@@ -120,15 +120,15 @@
 			<div v-if="showSizer">
 				<vc-select
 					v-model="currentPageSize"
-					:placement="placement" 
-					:portal="portal" 
+					:placement="placement"
+					:portal="portal"
 					:extra="`${currentPageSize} 条/页`"
 					style="width: 90px; margin-right: 10px;"
 					@change="handleChangePageSize"
 				>
-					<vc-option 
-						v-for="item in pageSizeOpts" 
-						:key="item" 
+					<vc-option
+						v-for="item in pageSizeOptions"
+						:key="item"
 						:value="item"
 						:label="item"
 					>
@@ -182,7 +182,7 @@ export default defineComponent({
 			type: Number,
 			default: 10
 		},
-		pageSizeOpts: {
+		pageSizeOptions: {
 			type: Array,
 			default: () => ([10, 20, 30, 40])
 		},
@@ -361,7 +361,7 @@ $size: 28px;
 		}
 		@include when(active) {
 			span {
-				color: #2d8cf0 !important;	
+				color: #2d8cf0 !important;
 			}
 			&:before, &:after {
 				border-color: #2d8cf0;
@@ -369,7 +369,7 @@ $size: 28px;
 		}
 		&:hover {
 			span {
-				color: #2d8cf0 !important;	
+				color: #2d8cf0 !important;
 			}
 			&:before, &:after {
 				border-color: #2d8cf0;

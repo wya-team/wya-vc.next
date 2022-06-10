@@ -18,12 +18,12 @@ describe('Page', () => {
 
 		destroyVM(vm);
 	});
-	it('pageSizeOpts', () => {
+	it('pageSizeOptions', () => {
 		const vm = createComponent(Page, {
-			pageSizeOpts: [10, 20]
+			pageSizeOptions: [10, 20]
 		});
 
-		expect(typeof vm.$el.getAttribute('page-size-opts')).to.equal('object');
+		expect(typeof vm.$el.getAttribute('page-size-options')).to.equal('object');
 
 		destroyVM(vm);
 	});
@@ -377,7 +377,7 @@ describe('Page', () => {
 		await wait(2);
 		let page = vm.$refs.target;
 		expect(page.currentPage).to.equal(1);
-		
+
 		destroyVM(vm);
 	});
 });
