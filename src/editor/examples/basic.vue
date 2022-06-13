@@ -17,7 +17,7 @@
 				@change="handleInput"
 			/>
 		</vc-form-item>
-		<vc-editor-view :content="formValidate.value" />
+		<vc-editor-view :value="formValidate.value" />
 		<vc-button @click="handleSubmit">
 			提交
 		</vc-button>

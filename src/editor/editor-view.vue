@@ -1,11 +1,11 @@
 <template>
 	<div class="vc-quilleditor-view ql-snow">
-		<div class="ql-editor" v-html="content" />
+		<div class="ql-editor" v-html="currentValue" />
 	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, onUnmounted } from 'vue';
+import { defineComponent, computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { Load } from '@wya/utils';
 import { getUid } from '../utils/utils';
 import { lineHeight, letterSpacing } from './constant';
@@ -37,8 +37,14 @@ export default defineComponent({
 	props: {
 		content: {
 			type: String,
-			default: ""
+			default: undefined
 		},
+
+		value: {
+			type: String,
+			default: undefined
+		},
+
 		fontSize: {
 			type: Array,
 			default: () => ['12px', '14px', '16px', '18px', '20px', '22px', '24px', '50px']
@@ -57,7 +63,19 @@ export default defineComponent({
 		const styleId = getUid('editor-view-style');
 		const lineHeightStyleId = getUid('editor-toolbar-style');
 		const letterSpacingStyleId = getUid('editor-toolbar-style');
-		let images = [];
+
+		// value
+		const currentValue = computed(() => {
+			const v = typeof props.value === 'undefined' || props.value === ''
+				? props.content
+				: props.value;
+
+			return v || '';
+		});
+
+		const currentImages = computed(() => {
+			return setImages(currentValue.value) || [];
+		});
 
 		const handlePreview = (e, idx) => {
 			let pos = {};
@@ -72,7 +90,7 @@ export default defineComponent({
 
 			ImagePreview.open({
 				visible: true,
-				dataSource: images,
+				dataSource: currentImages.value,
 				options: {
 					index: idx,
 					history: false,
@@ -87,21 +105,13 @@ export default defineComponent({
 				if (it.parentNode.className.indexOf('vc-quilleditor-view ql-snow') !== -1) {
 					it.addEventListener('click', (e) => {
 						if (e.target.nodeName === 'IMG') {
-							let index = (images).indexOf(e.target.currentSrc);
+							let index = (currentImages.value).indexOf(e.target.currentSrc);
 							handlePreview(e, index);
 						}
 					});
 				}
 			});
 		};
-
-		watch(
-			() => props.content,
-			() => {
-				images = setImages() || [];
-			},
-			{ immediate: true }
-		);
 
 		onMounted(() => {
 			insertFontStyle(props.fontSize, styleId);
@@ -116,6 +126,11 @@ export default defineComponent({
 			Load.removeCSSCode(lineHeightStyleId);
 			Load.removeCSSCode(letterSpacingStyleId);
 		});
+
+		return {
+			currentValue,
+			currentImages
+		};
 	}
 });
 </script>

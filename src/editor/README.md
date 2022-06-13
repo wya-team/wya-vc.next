@@ -1,6 +1,7 @@
 ## 更新`3.x`注意事项
 - 变更属性: `imgUploadOpts -> imageUploadOptions`
 - 变更属性: `videoUploadOpts -> videoUploadOptions`
+- 变更属性: `content -> value`
 
 ## 富文本（Editor）
 富文本编辑器
