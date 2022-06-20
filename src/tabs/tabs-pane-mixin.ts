@@ -1,6 +1,9 @@
 export default {
 	props: {
 		// TODO: 同时兼容value值
+		value: {
+			type: [String, Number]
+		},
 		name: {
 			type: [String, Number]
 		},

@@ -15,8 +15,13 @@ import { getInstance } from '../hooks';
 export default defineComponent({
 	name: 'vc-dropdown-item',
 	props: {
+		value: {
+			type: [String, Number],
+			value: undefined
+		},
 		name: {
-			type: [String, Number]
+			type: [String, Number],
+			value: undefined
 		},
 		disabled: {
 			type: Boolean,
@@ -41,6 +46,14 @@ export default defineComponent({
 		const instance = getCurrentInstance();
 		const owner = getInstance('dropdown', 'dropdownId');
 
+		const currentValue = computed(() => {
+			const v = typeof props.value === 'undefined' || props.value === ''
+				? props.name
+				: props.value;
+
+			return v;
+		});
+
 		const classes = computed(() => {
 			return {
 				'is-selected': props.selected,
@@ -52,14 +65,15 @@ export default defineComponent({
 		const handleClick = (e) => {
 			if (props.disabled) return;
 
-			emit('click', props.name, e);
-			owner.emit('click', props.name, e);
+			emit('click', currentValue.value, e);
+			owner.emit('click', currentValue.value, e);
 
 			props.closable && owner.proxy.close();
 		};
 
 		return {
 			classes,
+			currentValue,
 			handleClick
 		};
 	}

@@ -12,13 +12,13 @@
 			<div>菜单(右){{ visible }}</div>
 			<template #list>
 				<vc-dropdown-menu>
-					<vc-dropdown-item name="1">
+					<vc-dropdown-item value="1">
 						驴打滚
 					</vc-dropdown-item>
-					<vc-dropdown-item name="2">
+					<vc-dropdown-item value="2">
 						炸酱面
 					</vc-dropdown-item>
-					<vc-dropdown-item name="3">
+					<vc-dropdown-item value="3">
 						豆汁儿
 					</vc-dropdown-item>
 
@@ -35,13 +35,13 @@
 						<span @click.stop>冰糖葫芦</span>
 						<template #list>
 							<vc-dropdown-menu>
-								<vc-dropdown-item name="1">
+								<vc-dropdown-item value="1">
 									驴打滚
 								</vc-dropdown-item>
-								<vc-dropdown-item name="2">
+								<vc-dropdown-item value="2">
 									炸酱面
 								</vc-dropdown-item>
-								<vc-dropdown-item name="3">
+								<vc-dropdown-item value="3">
 									豆汁儿
 								</vc-dropdown-item>
 							</vc-dropdown-menu>
@@ -60,16 +60,16 @@
 					>
 						<span @click.stop>北京烤鸭popover</span>
 						<template #content>
-							<vc-dropdown-item name="1">
+							<vc-dropdown-item value="1">
 								驴打滚
 							</vc-dropdown-item>
-							<vc-dropdown-item name="2">
+							<vc-dropdown-item value="2">
 								炸酱面
 							</vc-dropdown-item>
-							<vc-dropdown-item name="3">
+							<vc-dropdown-item value="3">
 								豆汁儿
 							</vc-dropdown-item>
-							<vc-dropdown-item name="4">
+							<vc-dropdown-item value="4">
 								冰糖葫芦
 							</vc-dropdown-item>
 						</template>
@@ -103,9 +103,9 @@
 					</vc-checkbox>
 				</div>
 				<vc-checkbox-group v-model="checkAllGroup" @change="handleCheckChange">
-					<vc-checkbox label="香蕉" />
-					<vc-checkbox label="苹果" />
-					<vc-checkbox label="西瓜" />
+					<vc-checkbox value="香蕉" />
+					<vc-checkbox value="苹果" />
+					<vc-checkbox value="西瓜" />
 				</vc-checkbox-group>
 				<vc-button 
 					style="margin-left: 100px" 
