@@ -1,5 +1,4 @@
 import { ref, watch, getCurrentInstance, inject } from 'vue';
-import { isEqualWith } from 'lodash';
 
 export default () => {
 	const instance = getCurrentInstance();
@@ -14,10 +13,9 @@ export default () => {
 	watch(
 		() => props.modelValue,
 		(v) => {
-			if (isEqualWith(v, currentValue.value)) {
-				return;
-			}
-			currentValue.value = v;
+			if (v === currentValue.value) return;
+
+			currentValue.value = v || [];
 		},
 		{ immediate: true }
 	);
@@ -85,8 +83,8 @@ export default () => {
 
 		// 嵌套时，作用于目标元素上，避免被覆盖
 		eleDrag = e.target;
-		eleDrag.item = e.target.item 
-			? e.target.item 
+		eleDrag.item = e.target.item
+			? e.target.item
 			: item;
 
 		dragging.value = true;
@@ -111,8 +109,8 @@ export default () => {
 
 		// 嵌套下，父子，托动子元素，会触发父层的drag-enter（包在内部）;
 		if (typeof item === 'object' && !item[props.valueKey]) return;
-		
-		// 频率控制			
+
+		// 频率控制
 		if (timer) return;
 		clearTimeout(timer);
 		timer = setTimeout(() => {

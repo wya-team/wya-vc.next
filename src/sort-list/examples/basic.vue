@@ -2,7 +2,7 @@
 	<div>
 		<vc-sort-list v-model="dataSource">
 			<template #default="{ it }">
-				<div 
+				<div
 					:style="{ background: `#ff33${it.id}${it.id}` }"
 					style="width: 200px;line-height: 5; color: white"
 				>
@@ -22,7 +22,7 @@
 	</div>
 </template>
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import { shuffle } from 'lodash';
 import SortList from '../sort-list';
 
@@ -33,7 +33,8 @@ export default defineComponent({
 		'vc-sort-list': SortList
 	},
 	setup() {
-		const dataSource = ref(Array.from({ length: 5 }, () => ({ id: `${count++}` })));
+		// const dataSource = ref(Array.from({ length: 5 }, () => ({ id: `${count++}` })));
+		const dataSource = ref([]);
 		return {
 			dataSource,
 			handleAdd() {
