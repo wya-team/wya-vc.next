@@ -34,22 +34,28 @@ export default defineComponent({
 		const left = ref(0);      
 		// 鼠标或手指按压标识
 		const isPressed = ref(false);
-		// 存储点信息
-		const point = reactive({ 
-			x: 0,
-			y: 0
-		}); 
+
 		// 存储每一步快照的点信息
-		const points = ref([]);
+		const historyPoints = ref([]);
 		// 存储撤销步骤快照的信息
 		const undoSnapshots = ref([]);
 		// 存储当前步骤快照的信息
 		const currentSnapshots = ref([]);
+		
 
-		let optimizedMove;
-		const initCanvas = () => {
-			const $context = context.value;
+
+		const init = () => {
 			const $canvas = canvas.value;
+			const $context = $canvas.getContext('2d');
+
+			context.value = $context;
+
+			const rect = $canvas.getBoundingClientRect();
+			w.value = props.width || rect.width;
+			h.value = props.height || rect.height;
+			top.value = rect.top;
+			left.value = rect.left;
+			
 			// 根据设备像素比优化canvas绘图
 			const devicePixelRatio = window.devicePixelRatio;
 			if (devicePixelRatio) {
@@ -71,21 +77,22 @@ export default defineComponent({
 			$context.lineJoin = 'round';
 			Object.assign($context, props.options);
 		};
-		
+
 		const getPoint = (e) => {
+			const point = {
+				x: 0,
+				y: 0
+			};
+
 			if (Device.touch) {
-				// 手机端没有e.layerX和e.offsetX
 				e = e.touches[0];
-				point.x = e.clientX - left.value;
-				point.y = e.clientY - top.value;
-			} else {
-				point.x = e.layerX || e.offsetX;
-				point.y = e.layerY || e.offsetY;
 			}
 			
-			const x = point.x;
-			const y = point.y;
-			points.value.push({ x, y });
+			point.x = e.clientX - left.value;
+			point.y = e.clientY - top.value;
+			historyPoints.value.push(point);
+
+			return point;
 		};
 
 
@@ -134,22 +141,33 @@ export default defineComponent({
 			currentSnapshots.value = [];
 			handleChange();
 		};
+
+		const resetOffset = () => {
+			const rect = canvas.value.getBoundingClientRect();
+			top.value = rect.top;
+			left.value = rect.left;
+		};
 		
 		const handleMove = (e) => {
-			e.preventDefault();
-			
-			if (isPressed.value && canvas.value.contains(e.target)) {
-				getPoint(e);
-				context.value.lineTo(point.x, point.y);
-				context.value.stroke();
-			}
+			raf(() => {
+				e.preventDefault();
+				
+				if (isPressed.value && canvas.value.contains(e.target)) {
+					const point = getPoint(e);
+					context.value.lineTo(point.x, point.y);
+					context.value.stroke();
+				}
+			});
 		};
 
-		const handleStatrt = (e) => {
+		const handleStart = (e) => {
+			resetOffset();
+
 			e.preventDefault();
 			isPressed.value = true;
-			points.value = [];
-			getPoint(e);
+			historyPoints.value = [];
+
+			const point = getPoint(e);
 			context.value.beginPath();
 			context.value.moveTo(point.x, point.y);
 			handleMove(e); // 鼠标点击画点
@@ -157,7 +175,7 @@ export default defineComponent({
 
 		const handleEnd = () => {
 			undoSnapshots.value = [];
-			currentSnapshots.value.push(points.value);
+			currentSnapshots.value.push(historyPoints.value);
 			handleChange();
 		};
 
@@ -169,8 +187,6 @@ export default defineComponent({
 			}
 		};
 
-		
-
 		/**
 		 * 回退
 		 */
@@ -178,9 +194,8 @@ export default defineComponent({
 			if (!currentSnapshots.value.length) return;
 			undoSnapshots.value.unshift(currentSnapshots.value.pop());
 			redraw();
-			currentSnapshots.value.forEach(step => {
-				draw(step);
-			});
+
+			currentSnapshots.value.forEach(draw);
 			handleChange();
 		};
 
@@ -202,33 +217,20 @@ export default defineComponent({
 			let fn = type === 'add' ? document.addEventListener.bind(canvas.value) : document.removeEventListener.bind(canvas.value);
 			
 			if (Device.touch) {
-				fn('touchstart', handleStatrt);
-				fn('touchmove', optimizedMove);
+				fn('touchstart', handleStart);
+				fn('touchmove', handleMove);
 				fn('touchend', handleEnd);
 			} else {
-				fn('mousedown', handleStatrt);
-				fn('mousemove', optimizedMove);
+				fn('mousedown', handleStart);
+				fn('mousemove', handleMove);
 				fn('mouseup', handleDrawEnd);
 				fn('mouseleave', handleDrawEnd);
 			}
 		};
 
-		const init = () => {
-			const rect = canvas.value.getBoundingClientRect();
-			w.value = props.width || rect.width;
-			h.value = props.height || rect.height;
-			top.value = rect.top;
-			left.value = rect.left;
-			context.value = canvas.value.getContext('2d');
-
-			optimizedMove = e => raf(() => handleMove(e));
-			
-			initCanvas();
-			operateDOMEvents('add');
-		};
-
 		onMounted(() => {
-			setTimeout(init, 0); // 兼容popup的动画延迟
+			init();
+			operateDOMEvents('add');
 		});
 
 		onBeforeUnmount(() => operateDOMEvents('remove'));

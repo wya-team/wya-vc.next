@@ -22,6 +22,8 @@
 			</vc-button>
 		</div>
 		<img :src="src" alt="">
+
+		<vc-button @click="handlePopup">弹层</vc-button>
 	</div>
 </template>
 
@@ -30,6 +32,7 @@ import { defineComponent, ref } from 'vue';
 import Message from '../../message';
 import Button from '../../button';
 import Artboard from '../artboard';
+import { Sign } from './popup';
 
 export default defineComponent({
 	name: 'v-artboard',
@@ -82,8 +85,11 @@ export default defineComponent({
 					undo = true;
 					redo = true;
 				}
-			}
+			},
 
+			handlePopup() {
+				Sign.popup();
+			}
 		};
 	}
 });
