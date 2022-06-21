@@ -174,6 +174,7 @@ export default defineComponent({
 		styles: {
 			type: Object
 		},
+
 		footer: {
 			type: Boolean,
 			default: true
@@ -563,6 +564,7 @@ export default defineComponent({
 	@include element(title) {
 		width: 100%;
 		line-height: 20px;
+		min-height: 20px;
 		font-size: 14px;
 		color: $c333;
 		font-weight: 400;
