@@ -93,7 +93,7 @@ export default defineComponent({
 		},
 		native: {
 			type: Boolean,
-			default: false,
+			default: Device.touch,
 		},
 
 		wrapperStyle: {
