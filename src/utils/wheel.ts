@@ -29,6 +29,14 @@ if (typeof document !== 'undefined') {
 	}
 }
 
+
+const getAngle = (start, end) => {
+	let dx = end.x - start.x;
+	let dy = end.y - start.y;
+
+	return Math.abs((360 * Math.atan(dy / dx)) / (2 * Math.PI));
+};
+
 export default class WheelHandler {
 	private scrollBehavior: boolean;
 
@@ -154,30 +162,52 @@ export default class WheelHandler {
 
 	handleMouseMove(e) {
 		if (e.which === 2) {
-			this.emitScroll(e, e.movementX, e.movementY);
+			this.emitScroll(e, {
+				x: e.movementX, 
+				y: e.movementY
+			});
 		}
 	}
 
 	handleTouchStart(e) {
 		this.isTouching = true;
 
-		this.startX = e.touches[0].screenX;
-		this.startY = e.touches[0].screenY;
+		const x = e.touches[0].screenX;
+		const y = e.touches[0].screenY;
 
-		this.moveX = this.startX;
-		this.moveY = this.startY;
+		this.startX = x;
+		this.startY = y;
+
+		this.moveX = x;
+		this.moveY = y;
 
 		this.startTime = Date.now();
 	}
 
 	handleTouchMove(e) {
-		const pixelX = this.moveX - e.touches[0].screenX;
-		const pixelY = this.moveY - e.touches[0].screenY;
+		const x = e.touches[0].screenX;
+		const y = e.touches[0].screenY;
 
-		this.moveX = e.touches[0].screenX;
-		this.moveY = e.touches[0].screenY;
+		const dx = this.moveX - x;
+		const dy = this.moveY - y;
 
-		this.emitScroll(e, pixelX, pixelY);
+		this.moveX = x;
+		this.moveY = y;
+
+		this.emitScroll(e, {
+			x: dx, 
+			y: dy,
+			angle: getAngle(
+				{
+					x: this.startX,
+					y: this.startY,
+				}, 
+				{
+					x: this.moveX,
+					y: this.moveY,
+				}
+			)
+		});
 	}
 
 	handleTouchEnd(e) {
@@ -196,7 +226,20 @@ export default class WheelHandler {
 			// 相当于再移动speed * 300的距离
 			for (let i = 0; i <= 300; i++) {
 				setTimeout(() => {
-					this.emitScroll(e, speedX, speedY);
+					this.emitScroll(e, {
+						x: speedX, 
+						y: speedY,
+						angle: getAngle(
+							{
+								x: this.startX,
+								y: this.startY,
+							}, 
+							{
+								x,
+								y,
+							}
+						)
+					});
 				}, i);
 			}
 		}
@@ -206,10 +249,25 @@ export default class WheelHandler {
 	handler(e: MouseEvent) {
 		let { pixelX, pixelY } = normalizeWheel(e);
 		
-		this.emitScroll(e, pixelX, pixelY);
+		this.emitScroll(e, {
+			x: pixelX, 
+			y: pixelY
+		});
 	}
 
-	emitScroll(e, pixelX, pixelY) {
+	/**
+	 * 在emitScroll之前:
+	 * 滑动手势X轴偏移小于30度夹角，禁止移动Y轴 -> pixelY = 0
+	 * 滑动手势Y轴偏移小于30度夹角，禁止移动X轴 -> pixelX = 0
+	 */
+	emitScroll(e, options) {
+		let { x: pixelX, y: pixelY, angle } = options || {};
+
+		if (typeof angle !== 'undefined') {
+			angle < 30 && (pixelY = 0);
+			angle > 60 && (pixelX = 0);
+		}
+
 		let deltaX = this.deltaX + pixelX;
 		let deltaY = this.deltaY + pixelY;
 		let shouldWheelX = this.shouldWheelX(deltaX, deltaY);
