@@ -108,6 +108,7 @@ export default class WheelHandler {
 		this.handleTouchStart = this.handleTouchStart.bind(this);
 		this.handleTouchMove = this.handleTouchMove.bind(this);
 		this.handleTouchEnd = this.handleTouchEnd.bind(this);
+		this.handleMouseMove = this.handleMouseMove.bind(this);
 
 		this.clear = this.clear.bind(this);
 	}
@@ -120,12 +121,16 @@ export default class WheelHandler {
 	}
 
 	private operateDOMEvents(el, type) {
-		// 让触控屏也能实现滑动(模拟)
-		if (typeof document !== 'undefined' && 'ontouchend' in document) {
-			let fn = type === 'add' ? el.addEventListener : el.removeEventListener;
+		if (typeof document === 'undefined') return;
+		let fn = type === 'add' ? el.addEventListener : el.removeEventListener;
+		if ('ontouchend' in document) {
+			// 让触控屏也能实现滑动(模拟)
 			fn('touchstart', this.handleTouchStart, false);
 			fn('touchmove', this.handleTouchMove, { passive: false });
 			fn('touchend', this.handleTouchEnd, false);
+		} else {
+			// 模拟鼠标滚轮点击
+			fn('mousemove', this.handleMouseMove, false);
 		}
 	}
 
@@ -146,6 +151,12 @@ export default class WheelHandler {
 		this.operateDOMEvents(el, 'remove');
 	}
 	// End 
+
+	handleMouseMove(e) {
+		if (e.which === 2) {
+			this.emitScroll(e, e.movementX, e.movementY);
+		}
+	}
 
 	handleTouchStart(e) {
 		this.isTouching = true;
