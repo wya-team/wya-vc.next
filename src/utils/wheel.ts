@@ -30,9 +30,9 @@ if (typeof document !== 'undefined') {
 }
 
 
-const getAngle = (start, end) => {
-	let dx = end.x - start.x;
-	let dy = end.y - start.y;
+const getAngle = (start: number[], end: number[]) => {
+	let dx = end[0] - start[0];
+	let dy = end[1] - start[1];
 
 	return Math.abs((360 * Math.atan(dy / dx)) / (2 * Math.PI));
 };
@@ -197,16 +197,7 @@ export default class WheelHandler {
 		this.emitScroll(e, {
 			x: dx, 
 			y: dy,
-			angle: getAngle(
-				{
-					x: this.startX,
-					y: this.startY,
-				}, 
-				{
-					x: this.moveX,
-					y: this.moveY,
-				}
-			)
+			angle: getAngle([this.startX, this.startY], [this.moveX, this.moveY])
 		});
 	}
 
@@ -215,6 +206,8 @@ export default class WheelHandler {
 
 		const x = e.changedTouches[0].screenX;
 		const y = e.changedTouches[0].screenY;
+
+		const angle = getAngle([this.startX, this.startY], [x, y]);
 
 		const dt = Date.now() - this.startTime;
 		if (dt <= 500 && dt > 50) {
@@ -229,16 +222,7 @@ export default class WheelHandler {
 					this.emitScroll(e, {
 						x: speedX, 
 						y: speedY,
-						angle: getAngle(
-							{
-								x: this.startX,
-								y: this.startY,
-							}, 
-							{
-								x,
-								y,
-							}
-						)
+						angle
 					});
 				}, i);
 			}
