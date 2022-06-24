@@ -20,6 +20,7 @@ transform在测试过程中会出现重绘，不会重排
 		:style="[wrapperStyle, calcWrapperStyle]" 
 		:class="[wrapperClassName, native ? 'is-native' : 'is-hidden']"
 		class="vc-scroller vc-scroller--wheel"
+		@scroll="handleNativeScroll"
 	>
 		<component
 			:is="tag"
@@ -308,6 +309,12 @@ export default defineComponent({
 			}
 		};
 
+		const handleNativeScroll = (e) => {
+			if (props.native) {
+				emit('scroll', e);
+			}
+		};
+
 		onMounted(() => {
 			if (!props.native) {
 				nextTick(refresh);
@@ -357,6 +364,8 @@ export default defineComponent({
 			refresh,
 			setScrollTop,
 			setScrollLeft,
+
+			handleNativeScroll
 		};
 	},
 });
