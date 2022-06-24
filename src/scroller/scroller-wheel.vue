@@ -254,7 +254,7 @@ export default defineComponent({
 
 		// X轴是否允许滚动
 		const shouldWheelX = (delta) => {
-			if (wrapperW.value === contentW.value) {
+			if (props.native || wrapperW.value === contentW.value) {
 				return false;
 			}
 
@@ -271,7 +271,7 @@ export default defineComponent({
 
 		// Y轴是否允许滚动
 		const shouldWheelY = (delta) => {
-			if (wrapperH.value === contentH.value) {
+			if (props.native || wrapperH.value === contentH.value) {
 				return false;
 			}
 
