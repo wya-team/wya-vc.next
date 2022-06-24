@@ -74,6 +74,13 @@ export default {
 		 */
 		el[eventKey] = id;
 		el.addEventListener(eventName, handler);
+
+		if (value 
+			&& typeof value === 'object' 
+			&& value.beforeMount
+		) {
+			value.beforeMount(el, binding);
+		}
 	},
 
 	updated(el, binding) {
@@ -85,6 +92,13 @@ export default {
 			
 		if (events[id][eventType].method !== method) {
 			events[id][eventType].method = method;
+		}
+
+		if (value 
+			&& typeof value === 'object' 
+			&& value.updated
+		) {
+			value.updated(el, binding);
 		}
 	},
 
@@ -104,6 +118,13 @@ export default {
 
 		if (Object.keys(events[id]).length === 0) {
 			delete events[id];
+		}
+
+		if (value 
+			&& typeof value === 'object' 
+			&& value.unmounted
+		) {
+			value.unmounted(el, binding);
 		}
 	}
 };

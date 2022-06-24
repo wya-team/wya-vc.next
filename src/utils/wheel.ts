@@ -48,6 +48,18 @@ export default class WheelHandler {
 
 	private onWheel: any;
 
+	private isTouching: boolean;
+
+	private startTime: Nullable<Date>;
+
+	private startX: number;
+
+	private startY: number;
+
+	private moveX: number;
+
+	private moveY: number;
+
 	timer: Nullable<TimeoutHandle>;
 
 	constructor(options: WheelOptions) {
@@ -83,7 +95,20 @@ export default class WheelHandler {
 		this.didWheel = this.didWheel.bind(this);
 	
 		this.timer = null;
+		this.isTouching = false;
+		this.startTime = null;
+
+		this.startX = 0;
+		this.startY = 0;
+
+		this.moveX = 0;
+		this.moveY = 0;
+
 		this.handler = this.handler.bind(this);
+		this.handleTouchStart = this.handleTouchStart.bind(this);
+		this.handleTouchMove = this.handleTouchMove.bind(this);
+		this.handleTouchEnd = this.handleTouchEnd.bind(this);
+
 		this.clear = this.clear.bind(this);
 	}
 
@@ -94,14 +119,88 @@ export default class WheelHandler {
 		this.deltaY = 0;
 	}
 
+	private operateDOMEvents(el, type) {
+		// 让触控屏也能实现滑动(模拟)
+		if (typeof document !== 'undefined' && 'ontouchend' in document) {
+			let fn = type === 'add' ? el.addEventListener : el.removeEventListener;
+			fn('touchstart', this.handleTouchStart, false);
+			fn('touchmove', this.handleTouchMove, { passive: false });
+			fn('touchend', this.handleTouchEnd, false);
+		}
+	}
+
 	clear() {
 		this.needThresholdWait = false;
 	}
 
+	// Start 兼容vue指令中三个钩子
+	beforeMount(el, binding) {
+		this.operateDOMEvents(el, 'add');
+	}
+
+	updated(el, binding) {
+
+	}
+
+	unmounted(el, binding) {
+		this.operateDOMEvents(el, 'remove');
+	}
+	// End 
+
+	handleTouchStart(e) {
+		this.isTouching = true;
+
+		this.startX = e.touches[0].screenX;
+		this.startY = e.touches[0].screenY;
+
+		this.moveX = this.startX;
+		this.moveY = this.startY;
+
+		this.startTime = Date.now();
+	}
+
+	handleTouchMove(e) {
+		const pixelX = this.moveX - e.touches[0].screenX;
+		const pixelY = this.moveY - e.touches[0].screenY;
+
+		this.moveX = e.touches[0].screenX;
+		this.moveY = e.touches[0].screenY;
+
+		this.emitScroll(e, pixelX, pixelY);
+	}
+
+	handleTouchEnd(e) {
+		this.isTouching = false;
+
+		const x = e.changedTouches[0].screenX;
+		const y = e.changedTouches[0].screenY;
+
+		const dt = Date.now() - this.startTime;
+		if (dt <= 500 && dt > 50) {
+			const dx = this.startX - x;
+			const dy = this.startY - y;
+			const speedX = dx / dt;
+			const speedY = dy / dt;
+
+			// 相当于再移动speed * 300的距离
+			for (let i = 0; i <= 300; i++) {
+				setTimeout(() => {
+					this.emitScroll(e, speedX, speedY);
+				}, i);
+			}
+		}
+	}
+
+	// 滚轮事件触发
 	handler(e: MouseEvent) {
-		let normalizedEvent = normalizeWheel(e);
-		let deltaX = this.deltaX + normalizedEvent.pixelX;
-		let deltaY = this.deltaY + normalizedEvent.pixelY;
+		let { pixelX, pixelY } = normalizeWheel(e);
+		
+		this.emitScroll(e, pixelX, pixelY);
+	}
+
+	emitScroll(e, pixelX, pixelY) {
+		let deltaX = this.deltaX + pixelX;
+		let deltaY = this.deltaY + pixelY;
 		let shouldWheelX = this.shouldWheelX(deltaX, deltaY);
 		let shouldWheelY = this.shouldWheelY(deltaY, deltaX);
 		if (!shouldWheelX && !shouldWheelY) {
@@ -119,8 +218,8 @@ export default class WheelHandler {
 			this.needThresholdWait = true;
 		}
 
-		this.deltaX += shouldWheelX ? normalizedEvent.pixelX : 0;
-		this.deltaY += shouldWheelY ? normalizedEvent.pixelY : 0;
+		this.deltaX += shouldWheelX ? pixelX : 0;
+		this.deltaY += shouldWheelY ? pixelY : 0;
 		// 阻止X，Y轴上的滚动时，父层滚动（mac下的父层滚动越界会带有回弹）
 		e.preventDefault();
 

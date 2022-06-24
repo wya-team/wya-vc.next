@@ -111,6 +111,9 @@
 
 	.vc-scroller--wheel {
 		overflow: hidden;
+		&.is-native {
+			overflow: auto;
+		}
 	}
 
 	thead {
