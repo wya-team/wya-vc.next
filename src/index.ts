@@ -181,8 +181,8 @@ const PickerPopup = Picker.Popup;
 const MPickerPopup = MPicker.Popup;
 const RadioGroup = Radio.Group;
 const MRadioGroup = MRadio.Group;
-const StepsItem = Steps.Item;
-const MStepsItem = MSteps.Item;
+const Step = Steps.Step;
+const MStep = MSteps.Step;
 const StepsBar = Steps.Bar;
 const MStepsBar = MSteps.Bar;
 const TableItem = Table.Item;
@@ -351,8 +351,8 @@ const Components = {
 	MSpin,
 	Steps,
 	MSteps,
-	StepsItem,
-	MStepsItem,
+	Step,
+	MStep,
 	StepsBar,
 	MStepsBar,
 	Switch,
