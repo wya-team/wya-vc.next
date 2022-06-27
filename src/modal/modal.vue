@@ -1,47 +1,47 @@
 <template>
 	<div class="vc-modal">
 		<vc-transition-fade :delay=".05">
-			<div 
+			<div
 				v-show="mask && isActive"
 				class="vc-modal__mask"
 				@click="handleClose($event, maskClosable)"
 			/>
 		</vc-transition-fade>
-		<div 
+		<div
 			ref="wrapper"
 			:style="[styles, draggable && { top: 0 }]"
 			class="vc-modal__wrapper"
 		>
-			<vc-transition-scale 
-				mode="part" 
-				@enter="handleEnter" 
+			<vc-transition-scale
+				mode="part"
+				@enter="handleEnter"
 				@after-leave="handleRemove"
 			>
-				<div 
+				<div
 					v-show="isActive"
 					ref="container"
 					:class="{ 'is-drag': draggable, 'is-large' : size === 'large' || size === 'medium'}"
 					:style="[basicStyle, draggableStyle]"
 					class="vc-modal__container"
 				>
-					<div 
+					<div
 						ref="header"
-						:class="[{ 'is-confirm': mode }]" 
-						class="vc-modal__header" 
+						:class="[{ 'is-confirm': mode }]"
+						class="vc-modal__header"
 						@mousedown="handleMouseDown"
 					>
 						<vc-icon
 							v-if="mode"
-							:type="mode" 
-							:class="`is-${mode}`" 
+							:type="mode"
+							:class="`is-${mode}`"
 							class="vc-modal__icon"
 						/>
 						<!-- 用户可以自定义，但也有默认 -->
 						<slot name="header">
 							<p class="vc-modal__title" v-html="title" />
-							<div 
-								v-if="closable && !mode" 
-								class="vc-modal__close" 
+							<div
+								v-if="closable && !mode"
+								class="vc-modal__close"
 								@click="handleClose($event, true)"
 							>
 								<vc-icon type="close" />
@@ -50,9 +50,9 @@
 					</div>
 					<div :class="[{ 'is-confirm' : mode}, portalClassName]" class="vc-modal__content">
 						<p v-if="typeof content === 'string'" v-html="content" />
-						<vc-customer 
-							v-else-if="typeof content === 'function'" 
-							:render="content" 
+						<vc-customer
+							v-else-if="typeof content === 'function'"
+							:render="content"
 						/>
 
 						<slot v-if="$slots.default" />
@@ -66,7 +66,7 @@
 							>
 								{{ cancelText }}
 							</vc-button>
-							<vc-button 
+							<vc-button
 								v-if="okText"
 								type="primary"
 								@click="handleBefore($event, handleOk)"
@@ -81,7 +81,7 @@
 	</div>
 </template>
 <script>
-import { 
+import {
 	ref,
 	watch,
 	computed,
@@ -90,7 +90,7 @@ import {
 	onUnmounted,
 	onBeforeUnmount,
 	onUpdated,
-	getCurrentInstance 
+	getCurrentInstance
 } from 'vue';
 import { debounce } from 'lodash';
 import Icon from '../icon';
@@ -215,7 +215,7 @@ export default defineComponent({
 					width = 640;
 					height = 502;
 					break;
-				case 'large': 
+				case 'large':
 					width = props.mode ? 390 : 864;
 					height = props.mode ? 198 : 662;
 					break;
@@ -252,10 +252,10 @@ export default defineComponent({
 
 		useScrollbar(isActive);
 		watch(
-			() => props.modelValue, 
+			() => props.modelValue,
 			(v, old) => {
 				isActive.value = v;
-			}, 
+			},
 			{ immediate: true }
 		);
 
@@ -342,9 +342,9 @@ export default defineComponent({
 		 * 关闭事件
 		 */
 		const handleClose = (e, closable) => {
-			if (closable 
+			if (closable
 				|| (
-					props.maskClosable 
+					props.maskClosable
 					&& e.target.classList.contains('vc-modal__wrapper')
 				)
 			) {
@@ -372,9 +372,7 @@ export default defineComponent({
 				}
 			} else if (containerHeight % 2 !== 0) {
 				$container.style.height = `${containerHeight + 1}px`;
-				
 			}
-				
 		};
 
 		const handleClick = (e) => {
@@ -511,6 +509,9 @@ export default defineComponent({
 			@media screen and (max-height: 768px) {
 				min-height: 400px !important;
 			}
+			@media screen and (max-height: 400px) {
+				min-height: 100% !important;
+			}
 		}
 	}
 
@@ -527,7 +528,7 @@ export default defineComponent({
 			padding: 24px 16px 16px 16px;
 		}
 	}
-	@include element(content) { 
+	@include element(content) {
 		overflow-y: auto;
 		padding: 16px 24px;
 		flex: 1;
