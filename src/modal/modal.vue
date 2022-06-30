@@ -20,7 +20,11 @@
 				<div
 					v-show="isActive"
 					ref="container"
-					:class="{ 'is-drag': draggable, 'is-large' : size === 'large' || size === 'medium'}"
+					:class="{ 
+						'is-drag': draggable, 
+						'is-large' : size === 'large' || size === 'medium',
+						'is-no-footer': !footer || (!cancelText && !okText)
+					}"
 					:style="[basicStyle, draggableStyle]"
 					class="vc-modal__container"
 				>
@@ -48,7 +52,7 @@
 							</div>
 						</slot>
 					</div>
-					<div :class="[{ 'is-confirm' : mode}, portalClassName]" class="vc-modal__content">
+					<div :class="[{ 'is-confirm': mode }, portalClassName]" class="vc-modal__content">
 						<p v-if="typeof content === 'string'" v-html="content" />
 						<vc-customer
 							v-else-if="typeof content === 'function'"
@@ -502,6 +506,9 @@ export default defineComponent({
 		padding-bottom: 63px;
 		display: flex;
 		flex-direction: column;
+		@include when(no-footer) {
+			padding-bottom: 0;
+		}
 		@include when(drag) {
 			position: absolute;
 		}
