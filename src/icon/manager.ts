@@ -52,7 +52,6 @@ class IconManager extends VcBasic {
 								headers: {
 									'X-Requested-With': null
 								},
-								mode: 'no-cors', // XMLHttpRequest 不支持 no-cors mode, 只有 fetch 支持
 								credentials: 'omit',
 								onAfter: ({ response }) => {
 									return {
