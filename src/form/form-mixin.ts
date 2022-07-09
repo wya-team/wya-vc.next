@@ -28,5 +28,9 @@ export default defineComponent({
 			type: String as PropType<'on' | 'off'>,
 			default: 'off'
 		},
+		styleless: {
+			type: Boolean,
+			default: false
+		}
 	}
 });

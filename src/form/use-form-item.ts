@@ -66,6 +66,10 @@ export default () => {
 		};
 	});
 
+	const isStyleless = computed(() => {
+		return props.styleless || form.props.styleless;
+	});
+
 	const fieldValue = computed(() => {
 		const model = form.props.model;
 		if (!model || !props.prop) { return; }
@@ -244,6 +248,7 @@ export default () => {
 	);
 
 	return {
+		isStyleless,
 		isRequired,
 		validateState,
 		validateMessage,

@@ -35,6 +35,11 @@ export default defineComponent({
 		// },
 		labelFor: {
 			type: String
+		},
+
+		styleless: {
+			type: Boolean,
+			default: false
 		}
 	}
 });

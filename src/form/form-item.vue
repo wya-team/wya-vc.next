@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" class="vc-form-item">
+	<div v-if="!isStyleless" :class="classes" class="vc-form-item">
 		<div v-if="label || $slots.label" :for="labelFor" :style="labelStyle" class="vc-form-item__label">
 			<label>
 				<slot name="label">{{ label }}</slot>
@@ -16,6 +16,7 @@
 			</div>
 		</div>
 	</div>
+	<slot v-else />
 </template>
 
 <script lang="ts">
