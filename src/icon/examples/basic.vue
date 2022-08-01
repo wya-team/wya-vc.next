@@ -47,12 +47,14 @@ export default defineComponent({
 		const m = computed(() => (mobile.value ? 'm' : ''));
 
 		onMounted(async () => {
+			await new Promise(_ => setTimeout(_, 0));
 			await Promise.all([
 				IconManager.basicStatus,
 				IconManager.load('//at.alicdn.com/t/font_1169912_ith92i2hims.js'),
 				IconManager.load('//at.alicdn.com/t/font_1096960_8zo6tsnmj3p.js'),
 				IconManager.load('//at.alicdn.com/t/font_1096957_cypkws8poed.js')
 			]);
+
 			items.value = Object.keys(IconManager.icons);
 		});
 
@@ -62,7 +64,7 @@ export default defineComponent({
 		};
 
 		const handleShuffle = () => {
-			items.value = shuffle(items);
+			items.value = shuffle(items.value);
 		};
 
 		const handleIconClick = (item, e) => {
