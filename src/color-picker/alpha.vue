@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
-import draggable from './draggable';
+import { useDraggable } from './use-draggable';
 
 export default defineComponent({
 	name: 'vc-color-picker-alpha',
@@ -59,14 +59,15 @@ export default defineComponent({
 			background.value = getBackground();
 		};
 
+		const dragConfig = {
+			drag: handleDrag,
+			end: handleDrag
+		};
+
+		useDraggable(() => bar.value, dragConfig);
+		useDraggable(() => thumb.value, dragConfig);
+
 		onMounted(() => {
-			const dragConfig = {
-				drag: handleDrag,
-				end: handleDrag
-			};
-			
-			draggable(bar.value, dragConfig);
-			draggable(thumb.value, dragConfig);
 			nextTick(() => update());
 		});
 

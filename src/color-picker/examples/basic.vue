@@ -31,8 +31,9 @@
 			@color-change="handleColorChange"
 			@visible-change="handleVisibleChange"
 		/>
+		<span>{{ color12 }}</span>
 		<vc-color-picker-view
-			:value="color1"
+			v-model="color12"
 			alpha
 			hue
 			recommend
@@ -62,6 +63,7 @@ export default defineComponent({
 		const color9 = ref(''); // rgb(19, 206, 102);
 		const color10 = ref(''); // rgb(19, 206, 102);
 		const color11 = ref(''); // rgb(19, 206, 102);
+		const color12 = ref(''); // rgb(19, 206, 102);
 		const predefine = ref([
 			'#ff4500',
 			'#ff8c00',
@@ -91,6 +93,7 @@ export default defineComponent({
 			color9,
 			color10,
 			color11,
+			color12,
 			predefine,
 			changePre() {
 				setTimeout(() => {

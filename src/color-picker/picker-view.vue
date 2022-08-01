@@ -31,7 +31,7 @@ export default {
 		'vc-predefine': Predefine,
 	},
 	props: {
-		value: {
+		modelValue: {
 			type: String,
 			default: ''
 		},
@@ -56,29 +56,32 @@ export default {
 			validator: v => /(hsl|hsv|hex|rgb)/.test(v),
 		}
 	},
-	emits: ['change'],
+	emits: ['change', 'update:modelValue'],
 	setup(props, { emit }) {
 		const recommendColors = ref([...COLORS]);
 		const color = reactive(new Color({
 			enableAlpha: props.alpha,
 			format: props.format,
-			value: props.value
+			value: props.modelValue
 		}));
 		
 		// 初始化时，先于watch设置color的value，防止触发change
-		color.fromString(props.value);
+		color.fromString(props.modelValue);
 
 		watch(
-			() => props.value,
+			() => props.modelValue,
 			(v) => {
-				color.fromString(v);
+				if (v !== color.value) {
+					color.fromString(v);
+				}
 			},
 		);
 
 		watch(
 			() => color,
 			(v) => {
-				emit('change', color);
+				emit('update:modelValue', color.value, color);
+				emit('change', color.value, color);
 			},
 			{ deep: true }
 		);

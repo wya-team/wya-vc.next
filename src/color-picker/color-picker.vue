@@ -43,7 +43,7 @@
 			<div class="vc-color-picker__picker">
 				<div class="vc-color-picker__wrapper">
 					<vc-color-picker-view 
-						:value="currentColor"
+						:model-value="currentColor"
 						:colors="colors"
 						:hue="hue"
 						:alpha="alpha"
@@ -195,8 +195,8 @@ export default {
 			isActive.value = false;
 		};
 
-		const handleColorChange = (color) => {
-			customColor.value = color.value;
+		const handleColorChange = (v, color) => {
+			customColor.value = v;
 			displayedColorStyle.value = getColorRgb(color, props.alpha);
 		};
 

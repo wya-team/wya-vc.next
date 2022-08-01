@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, onMounted, ref, watch, computed, nextTick } from 'vue';
-import draggable from './draggable';
+import { useDraggable } from './use-draggable';
 
 export default defineComponent({
 	name: 'vc-color-picker-panel',
@@ -66,11 +66,12 @@ export default defineComponent({
 			});
 		};
 
+		useDraggable(() => instance.vnode.el, {
+			drag: handleDrag,
+			end: handleDrag
+		});
+
 		onMounted(() => {
-			draggable(instance.vnode.el, {
-				drag: handleDrag,
-				end: handleDrag
-			});
 			nextTick(() => update());
 		});
 
