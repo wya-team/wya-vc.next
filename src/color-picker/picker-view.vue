@@ -1,5 +1,5 @@
 <template>
-	<vc-panel :color="color" />	
+	<vc-panel v-if="panel" :color="color" />	
 	<vc-hue-slider v-if="hue" :color="color" />
 	<vc-alpha v-if="alpha" :color="color" />
 	<vc-predefine 
@@ -34,6 +34,10 @@ export default {
 		modelValue: {
 			type: String,
 			default: ''
+		},
+		panel: {
+			type: Boolean,
+			default: true
 		},
 		alpha: {
 			type: Boolean,
