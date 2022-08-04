@@ -73,7 +73,7 @@ export default {
 		};
 
 		const getImage = async (opts = {}) => {
-			const { filename = 'image', getFile = true } = opts;
+			const { filename = 'image', getFile = true, ...imageOptions } = opts;
 			try {
 				let html2canvas = window.html2canvas || await import('html2canvas');
 				// 兼容webpack 3.0/4.0 写法
@@ -91,7 +91,8 @@ export default {
 				const canvas = await html2canvas(target.value, { 
 					allowTaint: false, 
 					useCORS: true,
-					...props.options
+					...props.options,
+					...(imageOptions || {})
 				});
 
 				const { file, base64Image } = await Utils.canvas2file(canvas, { filename, getFile });
