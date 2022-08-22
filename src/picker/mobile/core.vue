@@ -16,6 +16,7 @@
 			:item-style="itemStyle"
 			:cascade="cascade"
 			:allow-dispatch="false"
+			:render-label="renderLabel"
 			@picker-change="(v, index) => $emit('picker-change', v, index)"
 		/>
 	</vcm-picker-popup>
@@ -48,7 +49,8 @@ const wrapperComponent = defineComponent({
 			'dataSource',
 			'itemStyle',
 			'cols',
-			'cascade'	
+			'cascade',
+			"renderLabel"	
 		]),
 		visible: { // sync
 			type: Boolean,

@@ -8,6 +8,7 @@
 			:value="currentValue[index]"
 			:cascade="cascade"
 			:item-style="itemStyle"
+			:render-label="renderLabel"
 			@change="v => handleColChange(v, index)" 
 		/>
 	</div>
@@ -42,7 +43,8 @@ export default {
 		allowDispatch: {
 			type: Boolean,
 			default: true
-		}
+		},
+		renderLabel: Function
 	},
 	emits: ['update:modelValue', 'change', 'picker-change'],
 	setup(props, context) {

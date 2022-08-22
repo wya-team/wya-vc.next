@@ -94,7 +94,7 @@ export default defineComponent({
 				/**
 				 * 有待优化，dataSource源数据异步
 				 */
-				let { dataSource, cols, cascade, itemStyle, title, cancelText, okText, showToolbar, modelValue, show } = props;
+				let { dataSource, cols, cascade, itemStyle, title, cancelText, okText, showToolbar, modelValue, show, renderLabel } = props;
 				Func.popup({
 					dataSource,
 					cols,
@@ -106,6 +106,7 @@ export default defineComponent({
 					show,
 					okText,
 					modelValue,
+					renderLabel,
 					onClose: () => {
 						emit('close');
 					},

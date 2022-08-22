@@ -17,7 +17,18 @@
 				:style="[styleH, itemStyle]"
 				class="vcm-picker-col__item"
 			>
-				{{ typeof item === 'object' && item.label ? item.label : item }}
+				<vc-customer 
+					v-if="renderLabel" 
+					:render="renderLabel" 
+					:label="item && item.label || item"
+				/>
+				<vc-customer
+					v-else-if="typeof (item && item.label || item) === 'function'"
+					:render="item && item.label || item"
+				/>
+				<template v-else>
+					{{ item && item.label || item }}
+				</template>
 			</div>
 		</div>
 	</div>
@@ -27,10 +38,14 @@
 import { defineComponent, watch, ref, computed } from 'vue';
 import { cloneDeep } from 'lodash';
 import { TRANSFORM, TRANSFORM_KEBAB, TRANSITION } from '../../utils';
+import Customer from "../../customer/index";
 import Extends from '../../extends';
 
 export default {
 	name: 'vcm-picker-col',
+	components: {
+		'vc-customer': Customer
+	},
 	directives: {
 		...Extends.directives('event')
 	},
@@ -45,7 +60,8 @@ export default {
 		},
 		value: {
 			type: [String, Number]
-		}
+		},
+		renderLabel: Function
 	},
 	setup(props, context) {
 		const { emit } = context;
