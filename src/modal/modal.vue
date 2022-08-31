@@ -61,7 +61,7 @@
 
 						<slot v-if="$slots.default" />
 					</div>
-					<div v-if="footer" :class="{ 'is-confirm': mode }" class="vc-modal__footer">
+					<div v-if="footer && (cancelText || okText)" :class="{ 'is-confirm': mode }" class="vc-modal__footer">
 						<slot name="footer">
 							<vc-button
 								v-if="cancelText"
