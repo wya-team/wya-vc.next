@@ -45,13 +45,13 @@
         "@rollup/plugin-commonjs": "^19.0.2",
         "@rollup/plugin-node-resolve": "^13.0.4",
         "@rollup/plugin-replace": "^3.0.0",
-        "@types/lodash": "^4.14.168",
-        "@types/node": "^16.4.12",
-        "@typescript-eslint/eslint-plugin": "^4.28.1",
-        "@typescript-eslint/parser": "^4.28.1",
-        "@vitejs/plugin-vue": "^1.2.4",
-        "@vitejs/plugin-vue-jsx": "^1.1.6",
-        "@vue/compiler-sfc": "^3.2.1",
+        "@types/lodash": "^4.14.185",
+        "@types/node": "^18.7.18",
+        "@typescript-eslint/eslint-plugin": "^5.37.0",
+        "@typescript-eslint/parser": "^5.37.0",
+        "@vitejs/plugin-vue": "^3.1.0",
+        "@vitejs/plugin-vue-jsx": "^2.0.1",
+        "@vue/compiler-sfc": "^3.2.39",
         "@wya/http": "^1.5.0",
         "@wya/utils": "^1.6.6",
         "autoprefixer": "^9.8.6",
@@ -60,12 +60,13 @@
         "echarts": "^5.1.2",
         "ejs": "^3.1.6",
         "eslint": "^7.29.0",
-        "eslint-config-airbnb-base": "^14.2.1",
+        "eslint": "^8.23.1",
+        "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-babel": "^5.3.1",
-        "eslint-plugin-import": "^2.23.4",
+        "eslint-plugin-import": "^2.22.1",
         "eslint-plugin-markdown": "^2.0.0",
-        "eslint-plugin-vue": "^7.12.1",
-        "eslint-watch": "^7.0.0",
+        "eslint-plugin-vue": "^9.4.0",
+        "eslint-watch": "^8.0.0",
         "fs-extra": "^9.1.0",
         "glob": "^7.1.6",
         "html2canvas": "^1.0.0",
@@ -87,8 +88,8 @@
         "typescript": "^4.2.3",
         "upath": "^2.0.1",
         "vite": "^2.4.4",
-        "vue": "^3.2.1",
-        "vue-eslint-parser": "^7.6.0"
+        "vite": "^3.1.1",
+        "vue-eslint-parser": "^9.1.0"
     },
     "peerDependencies": {
         "@wya/http": "^1.5.0",
@@ -97,7 +98,7 @@
         "html2canvas": "^1.0.0",
         "photoswipe": "^4.1.3",
         "quill": "^1.3.7",
-        "vue": "^3.2.1"
+        "vue": "^3.2.39"
     },
     "husky": {
         "hooks": {
