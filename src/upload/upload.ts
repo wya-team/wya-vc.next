@@ -442,9 +442,10 @@ export default {
 			};
 
 			// 解决安卓手机上传图片没有拍照选项
-			if (Device.android) {
-				result.capture = true;
-			}
+			// 目前已经不需要了，否则安卓端无法打开相册，只有相机 @2022-09-17 13:45:22;如果低版本存在，在考虑适配
+			// if (Device.android) {
+			// 	result.capture = true;
+			// }
 			return result;
 		});
 		
