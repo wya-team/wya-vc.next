@@ -227,6 +227,7 @@ export default defineComponent({
 			emit('scroll', { target: wrapper.value });
 		};
 
+		// TODO: 如遇性能问题，增加节流函数
 		const refresh = () => {
 			refreshSize();
 			refreshScroll();
@@ -322,12 +323,14 @@ export default defineComponent({
 			}
 			if (props.autoResize) {
 				Resize.on(wrapper.value, refresh);
+				Resize.on(content.value, refresh);
 			}
 		});
 
 		onBeforeUnmount(() => {
 			if (props.autoResize) {
 				Resize.off(wrapper.value, refresh);
+				Resize.off(content.value, refresh);
 			}
 		});
 
