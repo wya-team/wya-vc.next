@@ -130,7 +130,7 @@ export default class WheelHandler {
 
 	private operateDOMEvents(el, type) {
 		if (typeof document === 'undefined') return;
-		let fn = type === 'add' ? el.addEventListener : el.removeEventListener;
+		let fn = (type === 'add' ? el.addEventListener : el.removeEventListener).bind(el);
 		if ('ontouchend' in document) {
 			// 让触控屏也能实现滑动(模拟)
 			fn('touchstart', this.handleTouchStart, false);

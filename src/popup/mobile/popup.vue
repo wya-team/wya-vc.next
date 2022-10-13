@@ -159,7 +159,7 @@ export default defineComponent({
 		};
 
 		const operateDOMEvents = (type) => {
-			let fn = type === 'add' ? document.addEventListener : document.removeEventListener;
+			let fn = (type === 'add' ? document.addEventListener : document.removeEventListener).bind(document);
 			fn('touchstart', handleTouchStart);
 			fn('touchmove', handleTouchMove, { passive: false }); // 是否会使用preventDefault()，false表示使用
 		};
