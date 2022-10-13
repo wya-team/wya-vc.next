@@ -144,7 +144,7 @@
 					:step="0"
 					:min="1"
 					:max="totalPage"
-					style="width: 50px; margin-right: 10px;"
+					style="width: 50px; margin-right: 10px; margin-left: 10px;"
 					autocomplete="off"
 					@input="handleInput"
 					@enter="handleEnter"
