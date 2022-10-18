@@ -2,11 +2,8 @@
 scroller-wheel
 为减少一层嵌套，为去除滚动bar的抖动，使用wheel模拟
 
-基于Chrome 91.0.4472.114版本测试：
 原生scroll事件：不会触发重排和重绘
 原生wheel事件设置scrollTop：不会触发重排和重绘
-transform在测试过程中会出现重绘，不会重排
-【以上为测试结果，和之前的Chrome可能会不一致，如以往transfrom不会触发重绘，scroll会触发重排】
 
 做抖动优化：
 使用scroll原生时，bar(可以没有),thumb都会出现抖动，这里选择用wheel代替解决该问题;

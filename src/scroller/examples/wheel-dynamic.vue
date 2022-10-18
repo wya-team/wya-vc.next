@@ -14,6 +14,12 @@
 			<h2 @click="count--">
 				-
 			</h2>
+			<h2 @click="count *= 10">
+				*
+			</h2>
+			<h2 @click="count /= 10">
+				/
+			</h2>
 		</div>
 		<vc-scroller 
 			height="200px" 
