@@ -1,4 +1,3 @@
-<!-- 开发使用的版本，如各种操作改变属性值 -->
 <template>
 	<div class="demo">
 		<vc-recycle-list 
@@ -48,6 +47,10 @@ export default defineComponent({
 			loadData(page, pageSize$) {
 				let list = [];
 				return new Promise((resolve) => {
+					if (page == 10) {
+						resolve(false);
+						return;
+					}
 					setTimeout(() => {
 						for (let i = 0; i < 50; i++) {
 							list.push({

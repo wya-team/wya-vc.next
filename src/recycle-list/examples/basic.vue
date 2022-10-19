@@ -43,7 +43,10 @@ export default defineComponent({
 			loadData(page, pageSize$) {
 				let list = [];
 				return new Promise((resolve) => {
-					// 模拟请求 50 条数据，因为 size 设置为 50
+					if (page == 10) {
+						resolve(false);
+						return;
+					}
 					setTimeout(() => {
 						for (let i = 0; i < 50; i++) {
 							list.push({
