@@ -78,8 +78,6 @@ import Option from './option/index';
 import MOption from './option/index.m';
 import Page from './page/index';
 import MPage from './page/index.m';
-// import Paging from './paging/index';
-// import MPaging from './paging/index.m';
 import Picker from './picker/index';
 import MPicker from './picker/index.m';
 import Popconfirm from './popconfirm/index';
@@ -98,8 +96,8 @@ import Radio from './radio/index';
 import MRadio from './radio/index.m';
 import Rate from './rate/index';
 import MRate from './rate/index.m';
-// import RecycleList from './recycle-list/index';
-// import MRecycleList from './recycle-list/index.m';
+import RecycleList from './recycle-list/index';
+import MRecycleList from './recycle-list/index.m';
 import Scroller from './scroller/index';
 import MScroller from './scroller/index.m';
 import Select from './select/index';
@@ -271,8 +269,6 @@ const Components = {
 	MEditorView,
 	Expand,
 	MExpand,
-	// FilesPicker,
-	// MFilesPicker,
 	Form,
 	MForm,
 	FormItem,
@@ -287,8 +283,6 @@ const Components = {
 	MImage,
 	ImageCrop,
 	MImageCrop,
-	// ImagePicker,
-	// MImagePicker,
 	ImagePreview,
 	MImagePreview,
 	ImageProcessing,
@@ -313,8 +307,6 @@ const Components = {
 	MOption,
 	Page,
 	MPage,
-	// Paging,
-	// MPaging,
 	Picker,
 	MPicker,
 	PickerView,
@@ -337,8 +329,8 @@ const Components = {
 	MRadioGroup,
 	Rate,
 	MRate,
-	// RecycleList,
-	// MRecycleList,
+	RecycleList,
+	MRecycleList,
 	Scroller,
 	MScroller,
 	Select,
@@ -528,8 +520,6 @@ export {
 	MOption,
 	Page,
 	MPage,
-	// 	Paging,
-	// 	MPaging,
 	Picker,
 	MPicker,
 	PickerView,
@@ -552,8 +542,8 @@ export {
 	MRadioGroup,
 	Rate,
 	MRate,
-	// 	RecycleList,
-	// 	MRecycleList,
+	RecycleList,
+	MRecycleList,
 	Scroller,
 	MScroller,
 	Select,
