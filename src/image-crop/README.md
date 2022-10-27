@@ -1,5 +1,6 @@
 ## 更新`3.x`注意事项
 - 组件: `vc-imgs-crop -> vc-image-crop`
+- 移除`width`, `height`, 改用	`ratio`和`destWidth`
 
 ## 图片裁剪（ImgsCrop）
 裁剪修改图片

@@ -5,8 +5,10 @@
 			:src="src" 
 			:scale="scale" 
 			:rotate="rotate" 
-			:width="375"
-			:height="230"
+			:ratio="16 / 9"
+			:border="40"
+			:dest-width="1600"
+			style="width: 50%"
 			cross-origin="anonymous"
 			@drop-file="handleFn"
 			@load-failure="handleFn"
@@ -22,7 +24,10 @@
 			保存
 		</div>
 
-		<img :src="result" width="200">
+		<img :src="result" width="300">
+		<div v-if="size">
+			{{ size }}
+		</div>
 	</div>
 </template>
 <script>
@@ -44,6 +49,7 @@ export default defineComponent({
 		const scale = ref(1);
 		const rotate = ref(0);
 		const result = ref(null);
+		const size = ref('');
 
 		return {
 			target,
@@ -51,6 +57,7 @@ export default defineComponent({
 			scale,
 			rotate,
 			result,
+			size,
 			handleFn() {
 				console.log(...arguments);
 			},
@@ -59,6 +66,12 @@ export default defineComponent({
 					const { file, base64Image } = await target.value.getImage();
 					result.value = base64Image;
 
+					let image = new Image();
+					image.src = base64Image;
+
+					image.onload = () => {
+						size.value = `${image.width} * ${image.height}`;
+					};
 				} catch (e) {
 					console.log(e, "跨域问题：需要添加 cors协议头");
 				}

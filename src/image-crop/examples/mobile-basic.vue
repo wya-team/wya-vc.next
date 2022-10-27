@@ -6,7 +6,9 @@
 				:src="src"
 				:scale="scale" 
 				:rotate="rotate" 
-				style="height: 100%; width: 100%" 
+				:ratio="16 / 9"
+				:dest-width="1600"
+				style="width: 100%" 
 				cross-origin="anonymous"
 				@drop-file="handleFn"
 				@load-failure="handleFn"
@@ -23,6 +25,9 @@
 			保存
 		</vcm-button>
 		<img :src="result">
+		<div v-if="size">
+			{{ size }}
+		</div>
 	</div>
 </template>
 <script>
@@ -48,6 +53,7 @@ export default defineComponent({
 		const scale = ref(1);
 		const rotate = ref(0);
 		const result = ref(null);
+		const size = ref('');
 
 		return {
 			target,
@@ -55,6 +61,7 @@ export default defineComponent({
 			scale,
 			rotate,
 			src,
+			size,
 			handleFn() {
 				console.log(...arguments);
 			},
@@ -62,6 +69,14 @@ export default defineComponent({
 				try {
 					const { file, base64Image } = await target.value.getImage({ getFile: true });
 					result.value = base64Image;
+
+					let image = new Image();
+					image.src = base64Image;
+
+					image.onload = () => {
+						size.value = `${image.width} * ${image.height}`;
+					};
+
 					console.log(file);
 				} catch (e) {
 					console.log(e, "跨域问题：需要添加 cors协议头");
