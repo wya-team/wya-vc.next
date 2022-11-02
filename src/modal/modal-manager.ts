@@ -9,7 +9,7 @@ const registerOptions = {
 };
 
 class ModalManager extends Portal {
-	allowMethod = ['info', 'success', 'error', 'warning']
+	allowMethod = ['info', 'success', 'error', 'warning'];
 	constructor(wrapper, globalOptions) { // eslint-disable-line
 		super(wrapper, globalOptions);
 

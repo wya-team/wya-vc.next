@@ -11,6 +11,7 @@
 			ref="wrapper"
 			:style="[styles, draggable && { top: 0 }]"
 			class="vc-modal__wrapper"
+			@click="handleClose($event, false)"
 		>
 			<vc-transition-scale
 				mode="part"
@@ -52,7 +53,11 @@
 							</div>
 						</slot>
 					</div>
-					<div :class="[{ 'is-confirm': mode }, portalClassName]" class="vc-modal__content">
+					<div 
+						ref="content$"
+						:class="[{ 'is-confirm': mode }, portalClassName]" 
+						class="vc-modal__content"
+					>
 						<p v-if="typeof content === 'string'" v-html="content" />
 						<vc-customer
 							v-else-if="typeof content === 'function'"
@@ -203,6 +208,7 @@ export default defineComponent({
 		const container = ref(null);
 		const wrapper = ref(null);
 		const header = ref(null);
+		const content$ = ref(null);
 
 		const x = ref(0);
 		const y = ref(0);
@@ -367,7 +373,8 @@ export default defineComponent({
 			}
 		};
 
-		const handleResize = () => {
+		// 当高度为基数时，解决模糊的问题
+		const handleContainerResize = () => {
 			const $container = container.value;
 			const maxheight = window.innerHeight - 20;
 			let containerHeight = $container.offsetHeight;
@@ -378,6 +385,17 @@ export default defineComponent({
 			} else if (containerHeight % 2 !== 0) {
 				$container.style.height = `${containerHeight + 1}px`;
 			}
+		};
+
+		/**
+		 * 解决handleContainerResize设置高度后
+		 * content变化，高度无法重写计算的问题，因为content有over-flow-y: auto;
+		 *
+		 * 移除后可能会再次触发handleContainerResize
+		 */
+		const handleContentResize = () => {
+			const has = !!container.value.style.getPropertyValue('height');
+			has && container.value.style.removeProperty('height');
 		};
 
 		const handleClick = (e) => {
@@ -431,7 +449,8 @@ export default defineComponent({
 		onMounted(() => {
 			document.addEventListener('keydown', handleEscClose);
 			document.addEventListener('click', handleClick, true);
-			Resize.on(container.value, handleResize);
+			Resize.on(container.value, handleContainerResize);
+			Resize.on(content$.value, handleContentResize);
 		});
 
 		onUpdated(() => {
@@ -442,7 +461,8 @@ export default defineComponent({
 		});
 
 		onBeforeUnmount(() => {
-			Resize.off(container.value, handleResize);
+			Resize.off(container.value, handleContainerResize);
+			Resize.off(content$.value, handleContentResize);
 		});
 
 		onUnmounted(() => {
@@ -456,7 +476,7 @@ export default defineComponent({
 			container,
 			wrapper,
 			header,
-
+			content$,
 			x,
 			y,
 			isActive,

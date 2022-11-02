@@ -83,9 +83,15 @@ export default defineComponent({
 				Modal.warning({
 					title: 'warning',
 					content: () => {
-						return h('input', {
-							type: 'textarea',
-						});
+						return [
+							h('input', {
+								type: 'textarea',
+							}),
+							h('img', {
+								style: 'width: 100%',
+								src: 'https://wyatest.oss-cn-hangzhou.aliyuncs.com/image/0/20221101/095826/1667267906623.jpeg'
+							})
+						];
 					},
 					okText: '啦啦啦啦',
 					mask: true,
