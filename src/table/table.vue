@@ -712,8 +712,8 @@ export default defineComponent({
 			(v) => {
 				raf(() => {
 					let className = `is-scrolling-${layout.states.scrollX ? v : 'none'}`;
-					let el = scroller.value.$el;
-					el.classList.replace(
+					let el = scroller.value?.$el;
+					el && el.classList.replace(
 						el.classList.item(el.classList.length - 1), 
 						className
 					);
