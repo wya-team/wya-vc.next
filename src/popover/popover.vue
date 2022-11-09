@@ -5,8 +5,8 @@
 		style="position: relative;"
 		@focus="isFocus && handleChange($event, { visible: true })"
 		@blur="isFocus && handleChange($event, { visible: false })"
-		@mouseenter="isHover && handleChange($event, { visible: true })"
-		@mouseleave="isHover && handleChange($event, { visible: false })"
+		@mouseenter="(isHover || isStrictHover) && handleChange($event, { visible: true })"
+		@mouseleave="(isHover || isStrictHover) && handleChange($event, { visible: false })"
 		@click="isClick && handleChange($event, { visible: !isActive })"
 	>
 		<slot />
@@ -42,7 +42,7 @@ export default defineComponent({
 		trigger: {
 			type: String,
 			default: 'hover',
-			validator: (v: string) => /(hover|click|focus|custom)/.test(v)
+			validator: (v: string) => /(hover|strictHover|click|focus|custom)/.test(v)
 		},
 		tag: {
 			type: String,
@@ -66,6 +66,9 @@ export default defineComponent({
 		const isActive = ref(false);
 		const isHover = computed(() => {
 			return props.trigger === 'hover' && !props.always;
+		});
+		const isStrictHover = computed(() => {
+			return props.trigger === 'strictHover' && !props.always;
 		});
 
 		const isClick = computed(() => {
@@ -120,7 +123,7 @@ export default defineComponent({
 
 					sync();
 				};
-				isHover.value && visible === false 
+				(isHover.value || isStrictHover.value) && visible === false 
 					? (timer = setTimeout(callback, 200))
 					: callback();
 			} 
@@ -195,6 +198,7 @@ export default defineComponent({
 		return {
 			isFocus,
 			isHover,
+			isStrictHover,
 			isClick,
 			isActive,
 			handleChange,
