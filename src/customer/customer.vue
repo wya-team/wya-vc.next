@@ -1,6 +1,7 @@
 <template>
-	<component 
+	<component
 		:is="Customer" 
+		ref="target"
 		v-bind="attrs" 
 	/>
 </template>
@@ -23,6 +24,7 @@ export default defineComponent({
 		}
 	},
 	setup(props, context) {
+		const target = ref();
 		// attrs能响应变化
 		const attrs = useAttrs();
 		// 主要目的是让插槽生效
@@ -32,6 +34,7 @@ export default defineComponent({
 
 		return {
 			attrs,
+			target,
 			Customer
 		};
 	}
