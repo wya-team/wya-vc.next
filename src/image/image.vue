@@ -158,7 +158,7 @@ export default {
 
 			// bind html attrs
 			Object.keys(its.value.attrs || {})
-				.forEach(key => img.setAttribute(key, it.value.attrs[key]));
+				.forEach(key => img.setAttribute(key, its.value.attrs[key]));
 
 			img.src = props.src;
 		};
