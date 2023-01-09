@@ -24,7 +24,7 @@
 			:element-id="elementId"
 			:readonly="true"
 			:disabled="disabled"
-			:model-value="currentLabel"
+			:model-value="currentLabel || extra"
 			:placeholder="placeholder || '请选择'"
 			:allow-dispatch="false"
 			class="vc-select__input"
@@ -177,6 +177,10 @@ export default {
 		},
 		loadData: {
 			type: Function,
+		},
+		extra: {
+			type: String,
+			default: ''
 		}
 	},
 	emits: ['ready', 'close', 'visible-change', 'clear', 'change', 'update:modelValue'],
@@ -193,7 +197,6 @@ export default {
 		const searchValue = ref('');
 		const searchRegex = ref(new RegExp());
 		const currentValue = ref(props.max > 1 ? [] : '');
-		const currentLabel = ref(props.max > 1 ? [] : '');
 
 		// vnode的写法性能一般, 建议直接传dataSource
 		const data = computed(() => {
@@ -264,6 +267,15 @@ export default {
 			};
 		});
 
+		const currentLabel = computed(() => {
+			if (!data.value.length) {
+				return multiple.value ? [] : '';
+			}
+
+			return multiple.value
+				? currentValue.value.map(getLabel.bind(null, data.value))
+				: getLabel(data.value, currentValue.value);
+		});
 		/**
 		 * v-model 同步, 外部的数据改变时不会触发
 		 */
@@ -291,24 +303,21 @@ export default {
 			}
 		}, 250, { leading: false });
 
-		const add = (v, label) => {
+		const add = (v) => {
 			if (!multiple.value) {
 				currentValue.value = v;
-				currentLabel.value = label;
 				isActive.value = false;
 			} else {
 				currentValue.value.push(v); 
-				currentLabel.value.push(label);
 			}
 
 			sync();
 		};
 
-		const remove = (v, label) => {
+		const remove = (v) => {
 			let index = currentValue.value.findIndex(i => i == v);
 
 			currentValue.value.splice(index, 1);
-			currentLabel.value.splice(index, 1);
 
 			sync();
 		};
@@ -324,7 +333,6 @@ export default {
 			emit('clear');
 
 			currentValue.value = multiple.value ? [] : '';
-			currentLabel.value = multiple.value ? [] : '';
 			isActive.value = false;
 
 			sync();
@@ -339,17 +347,6 @@ export default {
 			
 			searchRegex.value = new RegExp(escapeString(v.trim()), 'i');
 			props.loadData && _loadData();
-		};
-
-		const update = () => {
-			if (!data.value.length) {
-				currentLabel.value = multiple.value ? [] : '';
-				return;
-			}
-
-			currentLabel.value = multiple.value
-				? currentValue.value.map(getLabel.bind(null, data.value))
-				: getLabel(data.value, currentValue.value);
 		};
 
 		watch(
@@ -368,13 +365,9 @@ export default {
 				}
 
 				currentValue.value = v;
-
-				update();
 			},
 			{ immediate: true }
 		);
-
-		watch(() => data.value, (v) => update());
 
 		return {
 			selectId,
