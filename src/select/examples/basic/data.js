@@ -24,6 +24,40 @@ export const cityList = [
 		label: 'Canberra'
 	}
 ];
+
+export const cityTree = [
+	{
+		value: '1',
+		label: 'New York'
+	},
+	{
+		value: '2',
+		label: 'London'
+	},
+	{
+		value: '3',
+		label: 'Sydney'
+	},
+	{
+		value: '4',
+		label: 'Ottawa'
+	},
+	{
+		value: '5',
+		label: 'Paris'
+	},
+	{
+		value: '6',
+		label: 'Canberra',
+		children: cityList.map(i => {
+			return {
+				value: 'children' + i.value,
+				label: 'children' + i.label
+			};
+		})
+	}
+];
+
 export const cityList1 = [
 	{
 		value: '1',

@@ -101,7 +101,7 @@
 <script>
 import { defineComponent, getCurrentInstance, provide, inject, ref, computed, watch, onMounted, onUpdated, nextTick } from 'vue';
 import { pick, cloneDeep, debounce, isEqualWith } from 'lodash';
-import { getSelectedData, getUid, getLabel, escapeString } from '../utils/index';
+import { getSelectedData, getUid, getLabel, escapeString, flattenData } from '../utils/index';
 import { VcError } from '../vc/index';
 import Input from '../input/index';
 import Popover from '../popover/index';
@@ -247,6 +247,10 @@ export default {
 			});
 			return result;
 		});
+
+		const source = computed(() => {
+			return flattenData(data.value, { parent: true, cascader: true });
+		});
 		const icon = computed(() => {
 			return isActive.value ? 'up' : 'down';
 		});
@@ -273,8 +277,8 @@ export default {
 			}
 
 			return multiple.value
-				? currentValue.value.map(getLabel.bind(null, data.value))
-				: getLabel(data.value, currentValue.value);
+				? currentValue.value.map(getLabel.bind(null, source.value))
+				: getLabel(source.value, currentValue.value);
 		});
 		/**
 		 * v-model 同步, 外部的数据改变时不会触发

@@ -270,6 +270,15 @@
 				</vc-option>
 			</vc-select>
 		</div>
+		<div style="margin: 40px 0 ">
+			<vc-select 
+				v-model="formValidate.value4"
+				clearable 
+				search
+				style="width: 200px"
+				:data-source="cityTree"
+			/>
+		</div>
 	</div>
 </template>
 <script>
@@ -284,7 +293,8 @@ import {
 	cityList as $cityList, 
 	cityList1 as $cityList1, 
 	cityList2 as $cityList2, 
-	searchData as $searchData 
+	searchData as $searchData,
+	cityTree as $cityTree,
 } from './basic/data';
 import { VcInstance } from '../../vc/index';
 
@@ -307,6 +317,7 @@ export default defineComponent({
 		const cityList = ref($cityList);
 		const cityList1 = ref($cityList1);
 		const cityList2 = ref($cityList2);
+		const cityTree= ref($cityTree);
 		const value1 = ref(1);
 		const extra1 = ref('');
 		const value2 = ref(['1', '4']);
@@ -362,6 +373,7 @@ export default defineComponent({
 			cityList,
 			cityList1,
 			cityList2,
+			cityTree,
 			value1,
 			extra1,
 			value2,
