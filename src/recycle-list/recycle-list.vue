@@ -82,7 +82,8 @@ import {
 	getCurrentInstance,
 	onMounted,
 	onBeforeUnmount,
-	nextTick 
+	nextTick,
+	watch
 } from 'vue';
 import { throttle } from 'lodash';
 import { Resize } from '../utils/resize';
@@ -96,6 +97,11 @@ export default defineComponent({
 		'vc-spin': Spin
 	},
 	props: {
+		disabled: {
+			type: Boolean,
+			default: false
+		},
+
 		pageSize: {
 			type: Number,
 			default: 20
@@ -119,6 +125,7 @@ export default defineComponent({
 		const firstItemIndex = ref(0);
 		const loadings = ref([]);
 		const isEnd = ref(false);
+		const isMounted = ref(false);
 
 		// el
 		const curloads = ref({});
@@ -280,6 +287,7 @@ export default defineComponent({
 		};
 
 		const loadData = () => {
+			if (props.disabled || isEnd.value) return;
 			if (hasPlaceholder.value) {
 				const start = rebuildData.value.length;
 				rebuildData.value.length += props.pageSize;
@@ -307,10 +315,7 @@ export default defineComponent({
 
 		const handleScroll = () => {
 			const { el } = instance.vnode;
-			if (
-				!isEnd.value 
-				&& el.scrollTop + el.offsetHeight > contentH.value - props.offset
-			) {
+			if (el.scrollTop + el.offsetHeight > contentH.value - props.offset) {
 				loadData();
 			}
 			setFirstItemIndex();
@@ -336,11 +341,22 @@ export default defineComponent({
 		onMounted(() => {
 			Resize.on(wrapper.value, handleResize);
 			loadData();
+			isMounted.value = true;
 		});
 
 		onBeforeUnmount(() => {
 			Resize.off(wrapper.value, handleResize);
 		});
+
+		watch(
+			() => props.disabled,
+			(v, oldV) => {
+				isMounted.value
+					&& oldV === true 
+					&& v === false
+					&& loadData();
+			}
+		);
 
 		return {
 			// el
