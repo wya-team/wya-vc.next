@@ -3,6 +3,7 @@
 - 全局: `URL_UPLOAD_IMG_POST, URL_UPLOAD_FILE_POST` -> `url`,
 - 全局: `FORM_NAME` -> `name`,
 - 属性变更: `ajax` -> `request`,
+- 移除属性: `multiple`
 - 允许传入对象 (TODO)
 
 
@@ -120,7 +121,7 @@ export default {
 
 ### 自定义上传文件类型及其他限制
 
-- 设置`max`属性控制一次性上传文件个数，如果想要多选必须设置`multiple`为`true`或者 `directory` 为 `true`。
+- 设置`max`属性控制一次性上传文件个数
 - 设置`size`属性控制上传文件的大小，单位`Mb`。
 - 设置`accept`属性控制文件上传的类型。
 
@@ -131,7 +132,6 @@ export default {
 		<vc-upload
 			:size="100"
 			:max="5"
-			:multiple="true"
 			accept="image/*"
 			@error="handleError"
 			@begin="handleBegin"
@@ -382,8 +382,7 @@ export default {
 属性 | 说明 | 类型 | 可选值 | 默认值
 ---|---|---|---|---
 tag | 外层标签 | `String`、`Object`、`Function` | - | `span`
-multiple | 多文件上传 | `Boolean` | - | `false`
-max | 一次性最多选择的文件数量 `multiple` 为 `true` 或者 `directory` 为 `true` 时才有效 | `Number` | - | 1
+max | 一次性最多选择的文件数量 | `Number` | - | 1
 disabled | 禁用 | `Boolean` | - | `false`
 accept | 文件格式 | `String` | - | -
 mode | 文件归类（images / file）,提前定位文件类型（内置图片压缩） | `String` | - | `images`

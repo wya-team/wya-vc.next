@@ -4,9 +4,8 @@
 		<br>
 		<vc-upload
 			:size="2"
-			:max="190000"
+			:max="8"
 			:show-tips="true"
-			:multiple="true"
 			:parallel="false"
 			accept="image/*"
 			@error="handleError"
@@ -94,7 +93,7 @@ export default defineComponent({
 		return {
 			list,
 			handleError(error) {
-				console.error(error.msg);
+				console.error(error.message);
 			},
 			/**
 			 * 总线

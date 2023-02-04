@@ -21,13 +21,7 @@ export default {
 			default: false
 		},
 
-		// 单图/多图上传
-		multiple: {
-			type: Boolean,
-			default: false 
-		},
-
-		// 选择文件时最多选择文件数量， 在multiple为true 或者 directory为true的情况下有效
+		// 选择文件时最多选择文件数量，> 1 就是多选上传
 		max: {
 			type: Number,
 			default: 1
@@ -195,8 +189,8 @@ export default {
 			} = VcInstance.config.Upload || {};
 
 			// 上传前/后的回调
-			const onBefore = instance.vnode.props.onPostBefore || onPostBefore || (() => {});
-			const onAfter = instance.vnode.props.onPostAfter || onPostAfter;
+			const onBefore = instance.vnode.props?.onPostBefore || onPostBefore || (() => {});
+			const onAfter = instance.vnode.props?.onPostAfter || onPostAfter;
 
 			const { uid: $uid } = file;
 			const { request, size } = props;
@@ -249,7 +243,7 @@ export default {
 		};
 
 		const upload = (file, fileList, index) => {
-			const { onFileBefore } = instance.vnode.props;
+			const { onFileBefore } = instance.vnode.props || {};
 
 			if (!onFileBefore) {
 				// 总是异步的，以防使用react状态保存文件列表。
@@ -300,13 +294,12 @@ export default {
 				emit('error', { message: `文件格式限制：${props.accept}` });
 				return;
 			} else if (length > props.max) {
-				if (props.multiple) {
-					emit('error', { message: `可选文件数量不能超过${props.max}个` });
-					return;
-				} else if (props.directory) {
-					emit('error', { message: `文件夹内文件的数量不能超过${props.max}个` });
-					return;
-				}
+				emit('error', { 
+					message: !props.directory 
+						? `可选文件数量不能超过${props.max}个` 
+						: `文件夹内文件的数量不能超过${props.max}个`
+				});
+				return;
 			}
 			
 			// reset
@@ -433,7 +426,7 @@ export default {
 				key: uid.value,
 				type: 'file',
 				accept: props.accept,
-				multiple: props.multiple,
+				multiple: props.max > 1,
 				webkitdirectory: props.directory,
 				style: {
 					display: 'none'
