@@ -57,10 +57,9 @@
 				</template>
 			</vcm-sort-list>
 			<vcm-upload
-				v-show="!disabled && multiple[picker.type]"
+				v-show="!disabled && dynamicMax[picker.type] >= 1"
 				v-bind="currentUploadOptions[picker.type]"
 				:max="dynamicMax[picker.type]"
-				:multiple="multiple[picker.type]"
 				class="vcm-upload-picker__upload"
 				@file-before="(...args) => handleFileBefore(...args, picker.type)"
 				@file-start="(...args) => handleFileStart(...args, picker.type)"

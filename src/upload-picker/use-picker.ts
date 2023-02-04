@@ -75,17 +75,6 @@ export default () => {
 		return {};
 	});
 
-	const multiple = computed(() => {
-		const { image, video, audio, file } = dynamicMax.value;
-		return {
-			image: image >= 1,
-			video: video >= 1,
-			audio: audio >= 1,
-			file: file >= 1,
-		};
-	});
-
-
 	const sync = (v) => {
 		emit('update:modelValue', v);
 		emit('change', v);
@@ -159,7 +148,11 @@ export default () => {
 		return new Promise((resolve, reject) => {
 			const { onFileBefore } = instance.vnode.props; 
 
-			if (!onFileBefore) return resolve(file);
+			if (!onFileBefore) {
+				resolve(file);
+				return;
+			}
+			
 			const before = onFileBefore(file, fileList, type);
 			if (before && before.then) {
 				before.then((processedFile) => {
@@ -328,7 +321,6 @@ export default () => {
 		currentValue,
 		currentUploadOptions,
 		dynamicMax,
-		multiple,
 
 		delete: $delete,
 		add,
