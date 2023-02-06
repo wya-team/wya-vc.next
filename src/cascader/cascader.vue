@@ -366,6 +366,10 @@ export default defineComponent({
 				 * @type {[type]}
 				 */
 				currentValue.value = v && v.length > 0 ? [...v] : [];
+
+				if (v.some(i => typeof i === 'undefined')) {
+					throw new VcError('vc-cascader', '选项不应该存在undefined');
+				}
 			},
 			{ immediate: true }
 		);
