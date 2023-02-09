@@ -21,12 +21,46 @@ export const getMonthEndDay = (year, month) => {
 	}
 };
 
+export const value2date = (v = []) => {
+	let result = [];
+	for (let i = 0; i < 5 - v.length; i++) {
+		result.push(false);
+	}
+	result = [...v, ...result];
+	let Y = result[0] || new Date().getFullYear();
+	let M = result[1] || new Date().getMonth() * 1 + 1;
+
+	let endDate = getMonthEndDay(Y, M);
+	let nowDate = new Date().getDate();
+
+	let D = result[2] || (endDate < nowDate ? endDate : nowDate);
+
+	const target = {
+		Y,
+		M,
+		D,
+		H: result[3] || '00',
+		m: result[4] || '00',
+	};
+	return new Date(
+		target.Y,
+		target.M * 1 - 1,
+		target.D,
+		target.H,
+		target.m
+	);
+};
+
 /**
  * YMDHm: Month与Minutes冲突 -> M, m
  */
 export const date2value = (v, format = 'YMDHm') => {
 	if (!v) return;
-	
+
+	if (typeof v === 'string') {
+		v = new Date(v.replace('-', '/'));
+	}
+
 	let target = {
 		Y: v.getFullYear() + '',
 		M: v.getMonth() * 1 + 1 + '',
@@ -39,36 +73,6 @@ export const date2value = (v, format = 'YMDHm') => {
 	let result = typeArr.map(item => Utils.preZero(target[item]));
 
 	return result;
-};
-
-export const value2date = (v = []) => {
-	let result = [];
-	for (let i = 0; i < 5 - v.length; i++) {
-		result.push(false);
-	}
-	result = [...v, ...result];
-	let Y = result[0] || new Date().getFullYear();
-	let M = result[1] || new Date().getMonth() * 1 + 1;
-
-	let endDate = getMonthEndDay(Y, M);
-	let nowDate = new Date().getDate();
-	
-	let D = result[2] || (endDate < nowDate ? endDate : nowDate); 
-
-	const target = {
-		Y,
-		M,
-		D,
-		H: result[3] || '00',
-		m: result[4] || '00',
-	};
-	return new Date(
-		target.Y, 
-		target.M * 1 - 1, 
-		target.D, 
-		target.H, 
-		target.m
-	);
 };
 
 export const parseMode = (value) => {
@@ -139,7 +143,7 @@ const DATE_PARSER = (text, format) => {
 const RANGE_FORMATTER = (value, format, RANGE_SEPARATOR) => {
 	const start = value[0];
 	const end = value[1];
-		
+
 	if (Array.isArray(value) && value.length === 2 && start && end) {
 		return formatDate(start, format) + RANGE_SEPARATOR + formatDate(end, format);
 	} else if (!Array.isArray(value) && value instanceof Date) {
@@ -242,7 +246,7 @@ export const TYPE_VALUE_RESOLVER_MAP = {
 					return `${year}年第三季度`;
 				} else if (startMonth === 9 && endMonth === 11) {
 					return `${year}年第四季度`;
-				}	
+				}
 			}
 		},
 		formatter: (value = [], format) => {
@@ -273,7 +277,7 @@ export const TYPE_VALUE_RESOLVER_MAP = {
 				let startMonth = startDate.getMonth();
 				let endYear = endDate.getFullYear();
 				let endMonth = endDate.getMonth();
-				return `${startYear}年${startQuarterMap[startMonth]}${RANGE_SEPARATOR}${endYear}年${endQuarterMap[endMonth]}`;	
+				return `${startYear}年${startQuarterMap[startMonth]}${RANGE_SEPARATOR}${endYear}年${endQuarterMap[endMonth]}`;
 			}
 		},
 		formatter: (value = [], format) => {

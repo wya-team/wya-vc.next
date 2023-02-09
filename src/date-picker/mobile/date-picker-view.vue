@@ -33,7 +33,7 @@ const getQuarterMonth = (value) => {
 		case 11:
 			return '4';
 		default:
-			return false;
+			return '';
 	}
 };
 /**
