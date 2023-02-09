@@ -1,7 +1,7 @@
 import { Utils } from '@wya/utils';
 import { cloneDeep } from 'lodash';
 import { IS_SERVER } from './constant';
-import type { 
+import type {
 	Raf,
 	TreeLabel,
 	TreeValue,
@@ -89,6 +89,7 @@ export const getSelectedData = (value: TreeValue[] = [], source: TreeData[] = []
 			}, source);
 		} else {
 			value.forEach((item, index) => {
+				if (!source[index]) return; // value的长度可能超过source
 				let target = source[index].find((it: TreeData) => it.value == item);
 				data.push(target);
 				label.push(target.label);
@@ -113,11 +114,11 @@ export const flattenData = (data: TreeData, options: FlattenDataOptions = {}): T
 			const { children, ...rest } = item;
 			const items: TreeData = flattenData(children, options);
 			result = result.concat(
-				options.parent 
+				options.parent
 					? [options.cascader ? item : rest].concat(items)
 					: items
 			);
-			
+
 		} else {
 			result.push(item);
 		}
@@ -217,14 +218,14 @@ export const getComputedStyle = (el: HTMLElement, SIZING_STYLE: string[]) => {
 	if (IS_SERVER) return {};
 	const style = window.getComputedStyle(el);
 
-	const boxSizing = style.getPropertyValue('box-sizing') 
-		|| style.getPropertyValue('-moz-box-sizing') 
+	const boxSizing = style.getPropertyValue('box-sizing')
+		|| style.getPropertyValue('-moz-box-sizing')
 		|| style.getPropertyValue('-webkit-box-sizing');
 
-	const paddingSize = parseFloat(style.getPropertyValue('padding-bottom')) 
+	const paddingSize = parseFloat(style.getPropertyValue('padding-bottom'))
 		+ parseFloat(style.getPropertyValue('padding-top'));
 
-	const borderSize = parseFloat(style.getPropertyValue('border-bottom-width')) 
+	const borderSize = parseFloat(style.getPropertyValue('border-bottom-width'))
 		+ parseFloat(style.getPropertyValue('border-top-width'));
 
 	const sizingStyle = SIZING_STYLE
@@ -280,7 +281,7 @@ export const compressImage = (options: CompressOptions) => {
 		// 压缩图片需要的元素和对象
 		const img = new Image();
 		const reader = new FileReader();
-		reader.readAsDataURL(file as File); 
+		reader.readAsDataURL(file as File);
 		// 文件base64化，以便获知图片原始尺寸
 		reader.onload = (e) => {
 			img.src = (e.target as any).result as string;

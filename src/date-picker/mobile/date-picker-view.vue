@@ -278,7 +278,7 @@ export default defineComponent({
 				if (currentValue.value.length === 0 
 					|| (+new Date(v) !== +value2date(currentValue.value) && props.mode !== 'quarter') 
 					|| (props.mode === 'quarter' && currentValue.value !== v)) {
-					currentValue.value = props.mode === 'quarter' ? getQuarterValue(v) : date2value(v, props.modeArr);
+					currentValue.value = props.mode === 'quarter' ? getQuarterValue(v) : date2value(v, modeArr.value);
 					rebuildData.value = makeRebuildData();
 				}
 			},
