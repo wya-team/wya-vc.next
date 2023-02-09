@@ -1,7 +1,11 @@
 <template>
 	<div :style="its.style" :class="its.class" class="vc-image">
 		<slot v-if="isLoading" name="placeholder">
-			<div :class="{ 'is-auto': isAuto }" :style="pStyle" class="vc-image__placeholder" />
+			<div 
+				:class="{ 'is-auto': isAuto }" 
+				:style="pStyle" 
+				class="vc-image__placeholder" 
+			/>
 		</slot>
 		<slot v-else-if="isError" name="error">
 			<div class="vc-image__error">
@@ -148,6 +152,7 @@ export default {
 		};
 
 		const loadImage = () => {
+			if (!props.src) return;
 			// reset status
 			isLoading.value = true;
 			isError.value = false;
@@ -203,7 +208,10 @@ export default {
 
 		watch(
 			() => props.src,
-			() => {
+			(v) => {
+				if (!v && !isLoading.value) {
+					isLoading.value = true;
+				}
 				isActive.value && loadImage();
 			}
 		);
@@ -259,9 +267,17 @@ export default {
 	
 	@include element(placeholder) {
 		@extend %size;
-		background: #f5f7fa;
 		min-height: inherit;
 		max-height: inherit;
+		background: linear-gradient(
+			100deg,
+			rgba(255, 255, 255, 0) 40%,
+			rgba(255, 255, 255, .5) 50%,
+			rgba(255, 255, 255, 0) 60%
+		) #f5f7fa;
+		background-size: 400% 100%;
+		animation: vc-image-skeleton 1.4s ease infinite;
+
 		@include when(auto) {
 			background: inherit;
 		}
@@ -295,6 +311,16 @@ export default {
 			transform: translate(-50%, -50%);
 			display: block;
 		}
+	}
+}
+
+@keyframes vc-image-skeleton {
+	0% {
+		background-position: 100% 50%
+	}
+
+	to {
+		background-position: 0 50%
 	}
 }
 </style>
