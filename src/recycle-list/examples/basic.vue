@@ -8,10 +8,11 @@
 		>
 			<template #default="{ row }">
 				<div 
-					:id="row.id" 
+					:key="row.id" 
 					class="item" 
 					:style="{
-						height: `${row.height + (dynamicSize || 0) }px`
+						height: `${row.height + (dynamicSize || 0) }px`,
+						background: row.background
 					}"
 					@click="handleClick(row)"
 				>
@@ -27,32 +28,47 @@
 import { defineComponent, ref } from 'vue';
 import RecycleList from '..';
 
+
 export default defineComponent({
 	name: "vc-divider-basic",
 	components: {
 		'vc-recycle-list': RecycleList,
 	},
 	setup() {
-		let count = 0;
-		let dynamicSize = ref(0);
-		let pageSize = ref(20);
+		const dynamicSize = ref(0);
+		const pageSize = ref(10);
 
+		let count = 0;
+		let total = 3;
+
+		const rendomColor = () => Math.floor(Math.random() * 255);
+		const RGBA_MAP = Array
+			.from({ length: pageSize.value * total + 1 })
+			.reduce((colors, _, index) => {
+				colors[index] = `rgba(${rendomColor()}, ${rendomColor()}, ${rendomColor()}, ${Math.random()})`;
+				return colors;
+			}, {});
 		return {
 			pageSize,
 			dynamicSize,
 			loadData(page, pageSize$) {
 				let list = [];
 				return new Promise((resolve) => {
-					if (page == 10) {
+					if (page == total + 1) {
 						resolve(false);
 						return;
 					}
+
+					if (page == total) {
+						pageSize$ = 4;
+					}
 					setTimeout(() => {
-						for (let i = 0; i < 50; i++) {
+						for (let i = 0; i < pageSize$; i++) {
 							list.push({
 								id: count++,
 								page,
-								height: ((i % 10) + 1) * 20
+								height: ((i % 10) + 1) * 20,
+								background: RGBA_MAP[count]
 							});
 						}
 						resolve(list);
@@ -87,7 +103,7 @@ export default defineComponent({
 }
 .item {
 	display: flex;
-	padding: 10px 0;
+	line-height: 20px;
 	width: 100%;
 	text-align: left;
 }

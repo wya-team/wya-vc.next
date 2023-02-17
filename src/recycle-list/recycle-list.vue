@@ -20,7 +20,12 @@
 					:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
 					:style="{ opacity: +!item.loaded }"
 				>
-					<slot name="placeholder" />
+					<slot name="placeholder">
+						<vc-customer 
+							v-if="renderer.placeholder"
+							:render="renderer.placeholder"
+						/>
+					</slot>
 				</div>
 				<vc-recycle-list-item
 					v-if="!item.isPlaceholder"
@@ -48,7 +53,12 @@
 				</template>
 				
 				<div ref="placeholder" class="vc-recycle-list__item is-hidden">
-					<slot name="placeholder" />
+					<slot name="placeholder">
+						<vc-customer 
+							v-if="renderer.placeholder"
+							:render="renderer.placeholder"
+						/>
+					</slot>
 				</div>
 			</div>
 		</div>
@@ -58,19 +68,44 @@
 			:style="{ visibility: isLoading ? 'visible' : 'hidden' }"
 		>
 			<slot name="loading">
-				<div class="vc-recycle-list__center">
+				<vc-customer 
+					v-if="renderer.loading"
+					:render="renderer.loading"
+				/>
+				<div v-else class="vc-recycle-list__center">
 					<vc-spin :size="20" />
 				</div>
 			</slot>
 		</div>
 
-		<div v-show="isEnd" class="vc-recycle-list__finish">
-			<slot name="finish">
-				<div class="vc-recycle-list__center">
-					已全部加载
-				</div>
-			</slot>
-		</div>
+		<template v-if="isEnd">
+			<div v-if="data.length" class="vc-recycle-list__finish">
+				<slot name="finish">
+					<vc-customer 
+						v-if="renderer.finish"
+						:render="renderer.finish"
+					/>
+					<div v-else class="vc-recycle-list__center">
+						已全部加载
+					</div>
+				</slot>
+			</div>
+
+			<div 
+				v-else 
+				class="vc-recycle-list__empty"
+			>
+				<slot name="empty">
+					<vc-customer 
+						v-if="renderer.empty"
+						:render="renderer.empty"
+					/>
+					<div v-else class="vc-recycle-list__center">
+						暂无数据~
+					</div>
+				</slot>
+			</div>
+		</template>
 	</div>
 </template>
 
@@ -87,13 +122,16 @@ import {
 } from 'vue';
 import { throttle } from 'lodash';
 import { Resize } from '../utils/resize';
+import { VcInstance } from '../vc';
 import RecycleListItem from './recycle-list-item.vue';
+import Customer from '../customer';
 import Spin from '../spin';
 
 export default defineComponent({
 	name: 'vc-recycle-list',
 	components: {
 		'vc-recycle-list-item': RecycleListItem,
+		'vc-customer': Customer,
 		'vc-spin': Spin
 	},
 	props: {
@@ -116,7 +154,12 @@ export default defineComponent({
 		loadData: {
 			type: Function,
 			default: () => () => false
-		}
+		},
+
+		renderEmpty: Function,
+		renderFinish: Function,
+		renderLoading: Function,
+		renderPlaceholder: Function,
 	},
 	setup(props, { slots }) {
 		const instance = getCurrentInstance();
@@ -153,8 +196,18 @@ export default defineComponent({
 			});
 		});
 
+		const renderer = computed(() => {
+			const globalProps = VcInstance.config?.RecycleList || {};
+			return {
+				placeholder: props.renderPlaceholder || globalProps.renderPlaceholder,
+				loading: props.renderLoading || globalProps.renderLoading,
+				finish: props.renderFinish || globalProps.renderFinish,
+				empty: props.renderEmpty || globalProps.renderEmpty
+			};
+		});
+
 		const hasPlaceholder = computed(() => {
-			return !!slots.placeholder;
+			return !!slots.placeholder || renderer.value.placeholder;
 		});
 
 		const placeholderH = computed(() => {
@@ -178,6 +231,9 @@ export default defineComponent({
 		// 更新item.height
 		const refreshItemHeight = (index) => {
 			let current = rebuildData.value[index];
+
+			if (!current) return; // 受到`removeUnusedPlaceholders`影响，无效的会被回收
+
 			let dom = preloads.value[index] || curloads.value[index - firstItemIndex.value];
 			if (dom) {
 				current.height = dom.offsetHeight || placeholderH.value;
@@ -224,6 +280,7 @@ export default defineComponent({
 			for (cursor = start; cursor < end; cursor++) {
 				if (copy[cursor] && copy[cursor].isPlaceholder) break;
 			}
+
 			rebuildData.value = copy.slice(0, cursor);
 		};
 
@@ -378,6 +435,7 @@ export default defineComponent({
 			preData,
 			placeholderH,
 			hasPlaceholder,
+			renderer,
 			isLoading,
 
 			// method

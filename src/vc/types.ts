@@ -5,6 +5,7 @@ import { HtmlImageConfig } from '../html-image/types';
 import { IconConfig } from '../icon/types';
 import { PortalConfig } from '../portal/types';
 import { UploadConfig } from '../upload/types';
+import { RecycleListConfig } from '../recycle-list/types';
 import { UploadPickerConfig, VideoPreviewConfig } from '../upload-picker/types';
 
 /**
@@ -25,5 +26,7 @@ export interface Config {
 
 	UploadPicker?: UploadPickerConfig;
 
-	VideoPreview?: VideoPreviewConfig
+	VideoPreview?: VideoPreviewConfig,
+
+	RecycleList?: RecycleListConfig
 }

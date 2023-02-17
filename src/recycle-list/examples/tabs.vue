@@ -14,6 +14,7 @@
 			<RecycleList
 				class="list" 
 				:disabled="type != item.value"
+				:page-size="pageSize"
 				:load-data="loadData"
 			>
 				<template #default="{ row }">
@@ -21,7 +22,8 @@
 						:id="row.id" 
 						class="item" 
 						:style="{
-							height: `${row.height + (dynamicSize || 0) }px`
+							height: `${row.height + (dynamicSize || 0) }px`,
+							background: row.background
 						}"
 						@click="handleClick(row)"
 					>
@@ -43,6 +45,9 @@ import RecycleList from '..';
 
 const dynamicSize = ref(0);
 const type = ref('1');
+
+const pageSize = ref(20);
+
 const tabs = ref([
 	{ label: 'A', value: '1' }, 
 	{ label: 'B', value: '2' }
@@ -53,20 +58,35 @@ const handleChange = async (v) => {
 };
 
 let count = 0;
-const loadData = (page) => {
+let total = 10;
+
+const rendomColor = () => Math.floor(Math.random() * 255);
+const RGBA_MAP = Array
+	.from({ length: (pageSize.value * total + 1) * 2 })
+	.reduce((colors, _, index) => {
+		colors[index] = `rgba(${rendomColor()}, ${rendomColor()}, ${rendomColor()}, ${Math.random()})`;
+		return colors;
+	}, {});
+
+const loadData = (page, pageSize$) => {
 	let list = [];
 	return new Promise((resolve) => {
-		if (page == 10) {
+		if (page == total + 1) {
 			resolve(false);
 			return;
 		}
+
+		if (page == total) {
+			pageSize$ = 4;
+		}
 		setTimeout(() => {
-			for (let i = 0; i < 50; i++) {
+			for (let i = 0; i < pageSize$; i++) {
 				list.push({
 					id: count++,
 					page,
 					type: type.value,
-					height: ((i % 10) + 1) * 20
+					height: ((i % 10) + 1) * 20,
+					background: RGBA_MAP[count]
 				});
 			}
 			resolve(list);
@@ -99,7 +119,7 @@ const handleClick = (data) => {
 }
 .item {
 	display: flex;
-	padding: 10px 0;
+	line-height: 20px;
 	width: 100%;
 	text-align: left;
 }
