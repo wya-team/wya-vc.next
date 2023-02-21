@@ -66,17 +66,15 @@ export default defineComponent({
 					if (page == total) {
 						pageSize$ = 4;
 					}
-					setTimeout(() => {
-						for (let i = 0; i < pageSize$; i++) {
-							list.push({
-								id: count++,
-								page,
-								height: ((i % 10) + 1) * 20,
-								background: RGBA_MAP[count]
-							});
-						}
-						resolve(list);
-					}, Math.floor(Math.random() * 10000));
+					for (let i = 0; i < pageSize$; i++) {
+						list.push({
+							id: count++,
+							page,
+							height: ((i % 10) + 1) * 20,
+							background: RGBA_MAP[count]
+						});
+					}
+					setTimeout(() => resolve(list), Math.floor(Math.random() * 10000));
 				});
 			},
 			handleClick(data) {

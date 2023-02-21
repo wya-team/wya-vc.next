@@ -1,8 +1,10 @@
 <!-- 仅展示最基本的用法 -->
 <template>
-	<div class="demo">
+	<div class="demo" style="padding: 0 10px">
 		<vc-recycle-list 
 			class="list" 
+			:cols="3"
+			:gutter="10"
 			:page-size="pageSize" 
 			:load-data="loadData"
 		>
@@ -11,8 +13,8 @@
 					:key="row.id" 
 					class="item" 
 					:style="{
-						height: `${row.height + (dynamicSize || 0) }px`,
-						background: row.background
+						background: row.background,
+						height: `${row.height + (dynamicSize || 0) }px`
 					}"
 					@click="handleClick(row)"
 				>
@@ -36,10 +38,10 @@ export default defineComponent({
 	},
 	setup() {
 		const dynamicSize = ref(0);
-		const pageSize = ref(10);
+		const pageSize = ref(30);
 
 		let count = 0;
-		let total = 10;
+		let total = 2;
 
 		const rendomColor = () => Math.floor(Math.random() * 255);
 		const RGBA_MAP = Array
@@ -67,7 +69,7 @@ export default defineComponent({
 							list.push({
 								id: count++,
 								page,
-								height: ((i % 10) + 1) * 20,
+								height: ((i % 10) + 1) * Math.floor(Math.random() * 20 + 20),
 								background: RGBA_MAP[count]
 							});
 						}

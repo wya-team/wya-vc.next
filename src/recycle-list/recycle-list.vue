@@ -9,50 +9,62 @@
 			class="vc-recycle-list__content" 
 			:style="{ height: contentH + 'px' }"
 		>
-			<div
-				v-for="(item) in data"
-				:key="item.id"
-				class="vc-recycle-list__item"
-				:style="{ transform: 'translate(0,' + item.top + 'px)' }"
+			<div 
+				v-for="(_, columnIndex) in cols"
+				:key="columnIndex"
+				:style="{ 
+					width,
+					paddingLeft: `${(columnIndex == 0 ? 0 : gutter) / 2}px`,
+					paddingRight: `${columnIndex + 1 == cols ? 0 : gutter / 2}px`,
+					transform: 'translate(0,' + (data[columnIndex][0]?.top || 0) + 'px)'
+				}"
+				class="vc-recycle-list__column"
 			>
-				<div
-					v-if="hasPlaceholder"
-					:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
-					:style="{ opacity: +!item.loaded }"
+				<template
+					v-for="(item) in data[columnIndex]"
+					:key="item.id"
 				>
-					<slot name="placeholder">
-						<vc-customer 
-							v-if="renderer.placeholder"
-							:render="renderer.placeholder"
-						/>
-					</slot>
-				</div>
-				<vc-recycle-list-item
-					v-if="!item.isPlaceholder"
-					:ref="(v) => curloads[item.id] = v"
-					:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
-					:style="{ opacity: item.loaded }"
-					@resize="handleResize"
-				>
-					<slot :row="item.data" />
-				</vc-recycle-list-item>
+					<div
+						v-if="item.isPlaceholder && hasPlaceholder"
+						:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
+						:style="{ opacity: +!item.loaded }"
+					>
+						<slot name="placeholder">
+							<vc-customer 
+								v-if="renderer.placeholder"
+								:render="renderer.placeholder"
+							/>
+						</slot>
+					</div>
+					<vc-recycle-list-item
+						v-if="!item.isPlaceholder"
+						:ref="(v) => curloads[item.id] = v"
+						:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
+						:style="{ opacity: item.loaded }"
+						@resize="handleResize"
+					>
+						<slot :row="item.data" />
+					</vc-recycle-list-item>
+				</template>
 			</div>
-
 			<!-- preloads 以获取其高度，计算高度后将其移除 -->
-			<div class="vc-recycle-list__pool">
+			<div 
+				class="vc-recycle-list__pool" 
+			>
 				<template 
 					v-for="(item) in preData"
 					:key="item.id"
 				>
 					<div
 						:ref="(v) => preloads[item.id] = v"
-						class="vc-recycle-list__item is-hidden"
+						class="vc-recycle-list__hidden"
+						:style="{ width }"
 					>
 						<slot :row="item.data" />
 					</div>
 				</template>
 				
-				<div ref="placeholder" class="vc-recycle-list__item is-hidden">
+				<div ref="placeholder" class="vc-recycle-list__hidden">
 					<slot name="placeholder">
 						<vc-customer 
 							v-if="renderer.placeholder"
@@ -156,6 +168,16 @@ export default defineComponent({
 			default: () => () => false
 		},
 
+		cols: {
+			type: Number,
+			default: 1
+		},
+
+		gutter: {
+			type: Number,
+			default: 0
+		},
+
 		renderEmpty: Function,
 		renderFinish: Function,
 		renderLoading: Function,
@@ -182,12 +204,21 @@ export default defineComponent({
 		let originalData = []; // 原始数据
 		let promiseStack = []; // 每页数据栈信息
 
+		const width = computed(() => {
+			return `calc((100% - ${props.gutter * (props.cols - 1)}px) / ${props.cols})`;
+		});
+
 		// 用于展示的信息
 		const data = computed(() => {
-			return rebuildData.value.slice(
-				Math.max(0, firstItemIndex.value - props.pageSize), 
-				Math.min(rebuildData.value.length, firstItemIndex.value + props.pageSize)
-			);
+			const base = Array.from({ length: props.cols }).map(_ => []);
+			return rebuildData.value
+				.slice(
+					Math.max(0, firstItemIndex.value - props.pageSize), 
+					Math.min(rebuildData.value.length, firstItemIndex.value + props.pageSize)
+				).reduce((pre, cur) => {
+					cur.column >= 0 && pre[cur.column].push(cur);
+					return pre;
+				}, base);
 		});
 
 		const preData = computed(() => {
@@ -225,7 +256,10 @@ export default defineComponent({
 				height: 0,
 				top: -1000,
 				isPlaceholder: !$data,
-				loaded: $data ? 1 : 0
+				loaded: $data ? 1 : 0,
+
+				// 在第几列渲染
+				column: -1
 			};
 		};
 		// 更新item.height
@@ -243,21 +277,25 @@ export default defineComponent({
 		};
 
 		const refreshItemTop = () => {
-			let height = 0;
+			let height = Array.from({ length: props.cols }).map(_ => 0);
 			let pre;
 			let current;
 			// 循环所有数据以更新item.top和总高度
 			for (let i = 0; i < rebuildData.value.length; i++) {
 				pre = rebuildData.value[i - 1];
 				current = rebuildData.value[i];
-				if (!rebuildData.value[i]) {
-					height += 0;
-				} else {
-					current.top = pre ? pre.top + pre.height : 0;
-					height += current.height;
+
+				// TODO: minIndex挂入current
+				if (rebuildData.value[i]) {
+					let minIndex = height.indexOf(Math.min(...height));
+
+					current.top = height[minIndex] || 0;
+					current.column = minIndex;
+
+					height[minIndex] += current.height;
 				}
 			}
-			contentH.value = height;
+			contentH.value = Math.max(...height);
 		};
 
 		// 设置data首个元素的在originalData索引值
@@ -267,7 +305,7 @@ export default defineComponent({
 			for (let i = 0; i < rebuildData.value.length; i++) {
 				item = rebuildData.value[i];
 				if (!item || item.top > top) {
-					firstItemIndex.value = Math.max(0, i - 1);
+					firstItemIndex.value = Math.max(0, i - props.cols);
 					break;
 				}
 			}
@@ -375,6 +413,7 @@ export default defineComponent({
 			if (el.scrollTop + el.offsetHeight > contentH.value - props.offset) {
 				loadData();
 			}
+			
 			setFirstItemIndex();
 		};
 
@@ -431,6 +470,7 @@ export default defineComponent({
 			placeholder,
 
 			// computed
+			width,
 			data,
 			preData,
 			placeholderH,
@@ -461,18 +501,16 @@ $block: vc-recycle-list;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 
-	@include element(item) {
+	@include element(hidden) {
 		width: 100%;
-		position: absolute;
 		box-sizing: border-box;
-		@include when(hidden) {
-			top: -1000px;
-			visibility: hidden;
-		}
+
+		position: absolute;
+		top: -1000px;
+		visibility: hidden;
 	}
 
 	@include element(transition) {
-		position: absolute;
 		opacity: 0;
 		transition-property: opacity;
 		transition-duration: .5s;
@@ -487,6 +525,13 @@ $block: vc-recycle-list;
 		margin: 10px auto;
 		display: flex;
 		justify-content: center;
+	}
+
+	@include element(column) {
+		display: inline-block; 
+		box-sizing: border-box;
+		width: 100%;
+		vertical-align: top;
 	}
 }
 </style>
