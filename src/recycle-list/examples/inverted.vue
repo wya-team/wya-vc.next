@@ -3,6 +3,9 @@
 	<div class="demo">
 		<vc-recycle-list 
 			class="list" 
+			:cols="1"
+			:gutter="10"
+			inverted
 			:page-size="pageSize" 
 			:load-data="loadData"
 		>
@@ -36,7 +39,7 @@ export default defineComponent({
 	},
 	setup() {
 		const dynamicSize = ref(0);
-		const pageSize = ref(10);
+		const pageSize = ref(30);
 
 		let count = 0;
 		let total = 5;

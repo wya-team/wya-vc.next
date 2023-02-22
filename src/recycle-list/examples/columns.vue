@@ -41,7 +41,7 @@ export default defineComponent({
 		const pageSize = ref(30);
 
 		let count = 0;
-		let total = 2;
+		let total = 5;
 
 		const rendomColor = () => Math.floor(Math.random() * 255);
 		const RGBA_MAP = Array
@@ -64,17 +64,15 @@ export default defineComponent({
 					if (page == total) {
 						pageSize$ = 4;
 					}
-					setTimeout(() => {
-						for (let i = 0; i < pageSize$; i++) {
-							list.push({
-								id: count++,
-								page,
-								height: ((i % 10) + 1) * Math.floor(Math.random() * 20 + 20),
-								background: RGBA_MAP[count]
-							});
-						}
-						resolve(list);
-					}, 1000);
+					for (let i = 0; i < pageSize$; i++) {
+						list.push({
+							id: count++,
+							page,
+							height: ((i % 10) + 1) * Math.floor(Math.random() * 20 + 20),
+							background: RGBA_MAP[count]
+						});
+					}
+					setTimeout(() => resolve(list), 1000);
 				});
 			},
 			handleClick(data) {

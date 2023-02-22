@@ -5,6 +5,9 @@
 
 ### 何时使用
 - 优化滚动列表
+- 瀑布流
+- 倒置列表
+
 
 ### 基础用法
 介绍如何使用组件，通过设置属性`attr`、`attr1`来达到什么效果。
@@ -65,9 +68,17 @@ export default defineComponent({
 ### 属性
 属性 | 说明 | 类型 | 可选值 | 默认值
 ---|---|---|---|---
+disabled | 是否禁止触发loadData | `Boolean` | - | false
 pageSize | 分页的数量大小 | `Number` | - | 20
 offset | 底部拉取更多数据的距离 | `Number` | - | 100
 loadData | 获取更多数据	 | `Function` | - | `() => false`
+cols | 多列，不定高默认支持瀑布流	| `Number` | - | `1`
+gutter | 多列时边距	| `Number` | - | `0`
+inverted | 倒置	| `Boolean` | - | `false`
+renderEmpty | 渲染空数据	 | `Function` | - | -
+renderFinish | 渲染完成状态	 | `Function` | - | -
+renderLoading | 渲染加载状态	 | `Function` | - | -
+renderPlaceholder | 渲染占位状态	 | `Function` | - | -
 
 ### 事件
 事件名 | 说明 | 回调参数 | 参数说明
@@ -79,6 +90,7 @@ eventName | 事件说明 | - | -
 ---|---|---
 reset | 清空列表全部内容，重置数据 | -
 refreshLayout | 动态变化时，强制刷新布局（内部已处理） | -
+scrollTo | 滚动到指定位置 | -
 
 ### slot
 名称 | 说明 
@@ -86,16 +98,12 @@ refreshLayout | 动态变化时，强制刷新布局（内部已处理） | -
 placeholder | 未加载数据时占位用的，如骨架屏
 loading | 加载更多的提示文案的具名插槽
 finish | 无更多数据的提示文案的具名插槽
+empty | 首次加载后无数据时展示
 
 ## TODO
 
 - 加入vc-scroller
 - 下拉刷新？
-- 反转inverted
-- scrollTo?
-- 优化动态刷新高度时，尽量显示当前已展示的位置
-- 支持瀑布流
-- 支持初始数据且可展示第n个内容
 - 支持横向滚动
 
 

@@ -4,6 +4,7 @@
 		class="vc-recycle-list" 
 		@scroll="handleScroll"
 	>
+		<vc-scroll-state v-if="inverted" />
 		<div 
 			ref="content"
 			class="vc-recycle-list__content" 
@@ -18,8 +19,10 @@
 					paddingRight: `${columnIndex + 1 == cols ? 0 : gutter / 2}px`,
 					transform: 'translate(0,' + (data[columnIndex][0]?.top || 0) + 'px)'
 				}"
+				:class="{ 'is-inverted': inverted }"
 				class="vc-recycle-list__column"
 			>
+				<div v-if="inverted" :style="{ height: `${columnLevelH[columnIndex]}px` }" />
 				<template
 					v-for="(item) in data[columnIndex]"
 					:key="item.id"
@@ -74,50 +77,7 @@
 				</div>
 			</div>
 		</div>
-		<div
-			v-if="!hasPlaceholder && !isEnd"
-			class="vc-recycle-list__loading"
-			:style="{ visibility: isLoading ? 'visible' : 'hidden' }"
-		>
-			<slot name="loading">
-				<vc-customer 
-					v-if="renderer.loading"
-					:render="renderer.loading"
-				/>
-				<div v-else class="vc-recycle-list__center">
-					<vc-spin :size="20" />
-				</div>
-			</slot>
-		</div>
-
-		<template v-if="isEnd">
-			<div v-if="data.length" class="vc-recycle-list__finish">
-				<slot name="finish">
-					<vc-customer 
-						v-if="renderer.finish"
-						:render="renderer.finish"
-					/>
-					<div v-else class="vc-recycle-list__center">
-						已全部加载
-					</div>
-				</slot>
-			</div>
-
-			<div 
-				v-else 
-				class="vc-recycle-list__empty"
-			>
-				<slot name="empty">
-					<vc-customer 
-						v-if="renderer.empty"
-						:render="renderer.empty"
-					/>
-					<div v-else class="vc-recycle-list__center">
-						暂无数据~
-					</div>
-				</slot>
-			</div>
-		</template>
+		<vc-scroll-state v-if="!inverted" />
 	</div>
 </template>
 
@@ -136,15 +96,15 @@ import { throttle } from 'lodash';
 import { Resize } from '../utils/resize';
 import { VcInstance } from '../vc';
 import RecycleListItem from './recycle-list-item.vue';
+import ScrollState from './scroll-state.vue';
 import Customer from '../customer';
-import Spin from '../spin';
 
 export default defineComponent({
 	name: 'vc-recycle-list',
 	components: {
 		'vc-recycle-list-item': RecycleListItem,
 		'vc-customer': Customer,
-		'vc-spin': Spin
+		'vc-scroll-state': ScrollState
 	},
 	props: {
 		disabled: {
@@ -178,6 +138,11 @@ export default defineComponent({
 			default: 0
 		},
 
+		inverted: {
+			type: Boolean,
+			default: false
+		},
+
 		renderEmpty: Function,
 		renderFinish: Function,
 		renderLoading: Function,
@@ -187,6 +152,7 @@ export default defineComponent({
 		const instance = getCurrentInstance();
 
 		const contentH = ref(0);
+		const columnLevelH = ref([]); // 优化inverted多列时用于补齐高度
 		const firstItemIndex = ref(0);
 		const loadings = ref([]);
 		const isEnd = ref(false);
@@ -201,10 +167,14 @@ export default defineComponent({
 
 		// data
 		const rebuildData = ref([]); // 封装后的数据，包含位置信息
+		const rebuildDataIndexMap = ref({}); // 优化inverted下的find逻辑
+
 		let originalData = []; // 原始数据
 		let promiseStack = []; // 每页数据栈信息
 
 		const width = computed(() => {
+			if (props.cols === 1) return;
+			if (props.gutter === 0) return `${100 / props.cols}%`;
 			return `calc((100% - ${props.gutter * (props.cols - 1)}px) / ${props.cols})`;
 		});
 
@@ -249,8 +219,29 @@ export default defineComponent({
 			return loadings.value.length;
 		});
 
+		const scrollTo = (options) => {
+			let options$ = { x: 0, y: 0 };
+			if (typeof options === 'number') {
+				options$.y = options;
+			} else if (typeof options === 'object') {
+				options$ = Object.assign(options$, options);
+			}
+
+			const { el } = instance.vnode;
+			let x = el.scrollLeft;
+			let y = el.scrollTop;
+
+			x !== options$.x && (el.scrollLeft = options$.x);
+			y !== options$.y && (el.scrollTop = options$.y);
+		};
+
+		const scrollToIndex = (index) => {
+			let item = rebuildData.value[index];
+			item?.top && item.top >= 0 && scrollTo(item.top);
+		};
+
 		const setItemData = (index, $data) => {
-			rebuildData.value[index] = {
+			let node = {
 				id: index,
 				data: $data || {},
 				height: 0,
@@ -261,14 +252,22 @@ export default defineComponent({
 				// 在第几列渲染
 				column: -1
 			};
+			if (!props.inverted) return (rebuildData.value[index] = node);
+
+			let index$ = rebuildDataIndexMap.value[index];
+			typeof index$ === 'undefined'
+				? rebuildData.value.unshift(node)
+				: (rebuildData.value[index$] = node);
 		};
 		// 更新item.height
 		const refreshItemHeight = (index) => {
-			let current = rebuildData.value[index];
+			let current = props.inverted 
+				? rebuildData.value[rebuildDataIndexMap.value[index]]
+				: rebuildData.value[index];	
 
 			if (!current) return; // 受到`removeUnusedPlaceholders`影响，无效的会被回收
 
-			let dom = preloads.value[index] || curloads.value[index - firstItemIndex.value];
+			let dom = preloads.value[index] || curloads.value[props.inverted ? index : index - firstItemIndex.value];
 			if (dom) {
 				current.height = dom.offsetHeight || placeholderH.value;
 			} else if (current) {
@@ -295,7 +294,9 @@ export default defineComponent({
 					height[minIndex] += current.height;
 				}
 			}
+
 			contentH.value = Math.max(...height);
+			columnLevelH.value = height.map(i => contentH.value - i);
 		};
 
 		// 设置data首个元素的在originalData索引值
@@ -312,14 +313,20 @@ export default defineComponent({
 		};
 
 		const removeUnusedPlaceholders = (copy, page) => {
-			let cursor;
 			let start = (page - 1) * props.pageSize;
 			let end = page * props.pageSize;
-			for (cursor = start; cursor < end; cursor++) {
-				if (copy[cursor] && copy[cursor].isPlaceholder) break;
+			let cursor;
+			if (!props.inverted) {
+				for (cursor = start; cursor < end; cursor++) {
+					if (copy[cursor]?.isPlaceholder) break;
+				}
+				rebuildData.value = copy.slice(0, cursor);
+			} else {
+				for (cursor = 0; cursor < end - start; cursor++) {
+					if (!copy[cursor]?.isPlaceholder) break;
+				}
+				rebuildData.value = copy.slice(cursor);
 			}
-
-			rebuildData.value = copy.slice(0, cursor);
 		};
 
 		const stopScroll = (page) => {
@@ -329,30 +336,33 @@ export default defineComponent({
 			setFirstItemIndex();
 		};
 
-		const refreshLayout = (start, end) => {
+		const refreshLayout = async (start, end) => {
 			let promiseTasks = [];
 			let item;
 			for (let i = start; i < end; i++) {
-				item = rebuildData.value[i];
+				item = props.inverted 
+					? rebuildData.value[rebuildDataIndexMap.value[i]]
+					: rebuildData.value[i];	
+				
 				if (item && item.loaded) {
 					continue; // eslint-disable-line
 				}
 				setItemData(i, originalData[i]);
-				promiseTasks.push(nextTick().then(() => {
-					refreshItemHeight(i);
-				}));
+				promiseTasks.push(nextTick(() => refreshItemHeight(i)));
 			}
 			
-			Promise.all(promiseTasks).then(() => {
-				refreshItemTop();
-				setFirstItemIndex();
-			});
+			await Promise.all(promiseTasks);
+
+			refreshItemTop();
+			setFirstItemIndex();
 		};
 
-		const refreshLayoutByPage = (page) => {
+		const refreshLayoutByPage = async (page) => {
 			const start = (page - 1) * props.pageSize;
 			const end = page * props.pageSize;
-			refreshLayout(start, end);
+			await refreshLayout(start, end);
+
+			props.inverted && scrollToIndex(rebuildData.value.length - 1 - start);
 		};
 
 		const setOriginData = (page, res) => {
@@ -408,27 +418,41 @@ export default defineComponent({
 			loadData();
 		};
 
+
 		const handleScroll = () => {
 			const { el } = instance.vnode;
-			if (el.scrollTop + el.offsetHeight > contentH.value - props.offset) {
+			if (
+				(!props.inverted && el.scrollTop + el.offsetHeight > contentH.value - props.offset)
+				|| (props.inverted && el.scrollTop === 0)
+			) {
 				loadData();
 			}
 			
 			setFirstItemIndex();
 		};
 
-		const forceRefreshLayout = () => {
+		const forceRefreshLayout = async () => {
 			rebuildData.value.forEach((item) => {
 				item.loaded = 0;
 			});
-			refreshLayout(0, rebuildData.value.length);
+			await refreshLayout(0, rebuildData.value.length);
 		};
 
 		// 图片撑开时，会影响布局, 节流结束后调用
-		const handleResize = throttle(() => {
+		const handleResize = throttle(async () => {
 			const isNeedRefreshLayout = rebuildData.value.some(i => !i.isPlaceholder);
+			
+			if (isNeedRefreshLayout) {
+				let oldFirstItemIndex = firstItemIndex.value;
+				let oldTop = rebuildData.value[oldFirstItemIndex]?.top;
 
-			isNeedRefreshLayout && forceRefreshLayout();
+				await forceRefreshLayout();
+				let newTop = rebuildData.value[oldFirstItemIndex]?.top;
+
+				// 保持原来的位置
+				const { el } = instance.vnode;
+				el.scrollTop += newTop - oldTop;
+			}
 		}, 50, {
 			leading: false,
 			trailing: true
@@ -454,6 +478,17 @@ export default defineComponent({
 			}
 		);
 
+		watch(
+			() => rebuildData.value.length,
+			(v, oldV) => {
+				if (!props.inverted) return;
+				rebuildDataIndexMap.value = rebuildData.value.reduce((pre, cur, index) => {
+					pre[cur.id] = index;
+					return pre;
+				}, {});
+			}
+		);
+
 		return {
 			// el
 			wrapper,
@@ -464,6 +499,7 @@ export default defineComponent({
 			// ref
 			rebuildData,
 			contentH,
+			columnLevelH,
 			firstItemIndex,
 			loadings,
 			isEnd,
@@ -484,7 +520,9 @@ export default defineComponent({
 
 			// expose
 			reset,
-			refreshLayout: forceRefreshLayout
+			scrollTo,
+			scrollToIndex,
+			refreshLayout: forceRefreshLayout,
 		};
 	}
 });

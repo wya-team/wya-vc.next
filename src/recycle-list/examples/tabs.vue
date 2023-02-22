@@ -79,18 +79,16 @@ const loadData = (page, pageSize$) => {
 		if (page == total) {
 			pageSize$ = 4;
 		}
-		setTimeout(() => {
-			for (let i = 0; i < pageSize$; i++) {
-				list.push({
-					id: count++,
-					page,
-					type: type.value,
-					height: ((i % 10) + 1) * 20,
-					background: RGBA_MAP[count]
-				});
-			}
-			resolve(list);
-		}, 1000);
+		for (let i = 0; i < pageSize$; i++) {
+			list.push({
+				id: count++,
+				page,
+				type: type.value,
+				height: ((i % 10) + 1) * 20,
+				background: RGBA_MAP[count]
+			});
+		}
+		setTimeout(() => resolve(list), 1000);
 	});
 };
 

@@ -29,7 +29,6 @@ export default defineComponent({
 			const v = current.value.offsetHeight;
 			const changed = offsetHeight.value != v;
 			if (changed) {
-				console.log('changed');
 				offsetHeight.value = v;
 				emit('resize');
 			}
