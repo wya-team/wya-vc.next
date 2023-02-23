@@ -97,10 +97,11 @@ export default defineComponent({
 	height: 100%;
 	margin: 0 auto;
 	padding: 0;
-	border: 1px solid #ddd;
+	border: 10px solid #ddd;
 	list-style-type: none;
 	text-align: center;
 	background: #eee;
+	padding: 10px 0;;
 }
 .item {
 	display: flex;

@@ -4,7 +4,7 @@
 		class="vc-recycle-list" 
 		@scroll="handleScroll"
 	>
-		<vc-scroll-state v-if="inverted" />
+		<vc-scroll-state v-if="inverted" ref="scrollState" />
 		<div 
 			ref="content"
 			class="vc-recycle-list__content" 
@@ -77,7 +77,7 @@
 				</div>
 			</div>
 		</div>
-		<vc-scroll-state v-if="!inverted" />
+		<vc-scroll-state v-if="!inverted" ref="scrollState" />
 	</div>
 </template>
 
@@ -164,6 +164,7 @@ export default defineComponent({
 		const placeholder = ref();
 		const wrapper = ref();
 		const content = ref();
+		const scrollState = ref();
 
 		// data
 		const rebuildData = ref([]); // 封装后的数据，包含位置信息
@@ -235,9 +236,9 @@ export default defineComponent({
 			y !== options$.y && (el.scrollTop = options$.y);
 		};
 
-		const scrollToIndex = (index) => {
+		const scrollToIndex = (index, offset = 0) => {
 			let item = rebuildData.value[index];
-			item?.top && item.top >= 0 && scrollTo(item.top);
+			item?.top && item.top >= 0 && scrollTo(item.top + offset);
 		};
 
 		const setItemData = (index, $data) => {
@@ -360,9 +361,13 @@ export default defineComponent({
 		const refreshLayoutByPage = async (page) => {
 			const start = (page - 1) * props.pageSize;
 			const end = page * props.pageSize;
+			const oldH = contentH.value;
 			await refreshLayout(start, end);
 
-			props.inverted && scrollToIndex(rebuildData.value.length - 1 - start);
+			// 滚动到顶部 el.scrollTop 已经为0，只需偏移新增加的高度
+			if (props.inverted) {
+				scrollTo(contentH.value - oldH);
+			}
 		};
 
 		const setOriginData = (page, res) => {
@@ -418,12 +423,15 @@ export default defineComponent({
 			loadData();
 		};
 
-
+		/**
+		 * 最大滚动距离：el.scrollHeight - el.clientHeight
+		 * contentH.value不含loading，以及wrapper的border, padding
+		 */
 		const handleScroll = () => {
 			const { el } = instance.vnode;
 			if (
-				(!props.inverted && el.scrollTop + el.offsetHeight > contentH.value - props.offset)
-				|| (props.inverted && el.scrollTop === 0)
+				(!props.inverted && el.scrollTop > el.scrollHeight - el.clientHeight - props.offset)
+				|| (props.inverted && el.scrollTop - props.offset <= 0)
 			) {
 				loadData();
 			}
@@ -504,6 +512,7 @@ export default defineComponent({
 			loadings,
 			isEnd,
 			placeholder,
+			scrollState,
 
 			// computed
 			width,
@@ -539,6 +548,8 @@ $block: vc-recycle-list;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 
+	box-sizing: border-box;
+
 	@include element(hidden) {
 		width: 100%;
 		box-sizing: border-box;
@@ -553,16 +564,6 @@ $block: vc-recycle-list;
 		transition-property: opacity;
 		transition-duration: .5s;
 		width: 100%;
-	}
-
-	@include element(center) {
-		text-align: center;
-	}
-
-	@include element(loading) {
-		margin: 10px auto;
-		display: flex;
-		justify-content: center;
 	}
 
 	@include element(column) {

@@ -1,5 +1,6 @@
 <template>
-	<template v-if="owner">
+	<!-- 每个状态的高度保持一致，不会造成抖动 -->
+	<div v-if="owner" ref="current" class="vc-recycle-list-scroll-state">
 		<div
 			v-if="!owner.hasPlaceholder && !owner.isEnd"
 			class="vc-recycle-list__loading"
@@ -44,25 +45,80 @@
 				</slot>
 			</div>
 		</template>
-	</template>
+	</div>
 </template>
 <script lang="ts">
-import { defineComponent, getCurrentInstance } from 'vue';
+import { 
+	ref,
+	defineComponent, 
+	getCurrentInstance,
+	onMounted,
+	onBeforeUnmount
+} from 'vue';
 import Customer from '../customer';
 import Spin from '../spin';
+import { Resize } from '../utils/resize';
 
 export default defineComponent({
+	name: 'vc-recycle-list-scroll-state',
 	components: {
 		'vc-customer': Customer,
 		'vc-spin': Spin
 	},
-	setup(props, { slots }) {
+	emits: ['resize'],
+	setup(props, { slots, emit }) {
 		const instance = getCurrentInstance();
 		let owner = instance?.parent?.ctx;
 
+		const current = ref();
+		const offsetHeight = ref(0);
+
+		const handleResize = () => {
+			const v = current.value.offsetHeight;
+			const changed = offsetHeight.value != v;
+			if (changed) {
+				offsetHeight.value = v;
+				emit('resize');
+			}
+		}; 
+
+		onMounted(() => {
+			offsetHeight.value = current.value.offsetHeight;
+			Resize.on(current.value, handleResize);
+		});
+
+		onBeforeUnmount(() => {
+			Resize.off(current.value, handleResize);
+		});
+
 		return {
-			owner
+			owner,
+			current,
+			offsetHeight
 		};
 	}
 });
 </script>
+<style lang="scss">
+@import '../style/vars.scss';
+$block: vc-recycle-list;
+
+@include block($block) {
+	@include element(loading) {
+		padding: 10px 0;
+		display: flex;
+		justify-content: center;
+	}
+	@include element(center) {
+		text-align: center;
+		line-height: 20px;
+	}
+	@include element(finish) {
+		padding: 10px 0;
+	}
+
+	@include element(empty) {
+		padding: 10px 0;
+	}
+}
+</style>
