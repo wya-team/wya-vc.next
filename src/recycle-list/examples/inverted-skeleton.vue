@@ -1,7 +1,11 @@
+<!-- 仅展示最基本的用法 -->
 <template>
 	<div class="demo">
 		<vc-recycle-list 
 			class="list" 
+			:cols="1"
+			:gutter="10"
+			inverted
 			:page-size="pageSize" 
 			:load-data="loadData"
 		>
@@ -12,12 +16,12 @@
 			</template>
 			<template #default="{ row }">
 				<div 
-					:id="row.id" 
+					:key="row.id" 
+					class="item" 
 					:style="{
 						height: `${row.height + (dynamicSize || 0) }px`,
 						background: row.background
 					}"
-					class="item" 
 					@click="handleClick(row)"
 				>
 					id: {{ row.id }}
@@ -32,17 +36,18 @@
 import { defineComponent, ref } from 'vue';
 import RecycleList from '..';
 
+
 export default defineComponent({
-	name: "vc-tpl-basic",
+	name: "vc-divider-basic",
 	components: {
-		'vc-recycle-list': RecycleList
+		'vc-recycle-list': RecycleList,
 	},
 	setup() {
 		const dynamicSize = ref(0);
-		const pageSize = ref(20);
+		const pageSize = ref(30);
 
 		let count = 0;
-		let total = 10;
+		let total = 5;
 
 		const rendomColor = () => Math.floor(Math.random() * 255);
 		const RGBA_MAP = Array
@@ -51,7 +56,6 @@ export default defineComponent({
 				colors[index] = `rgba(${rendomColor()}, ${rendomColor()}, ${rendomColor()}, ${Math.random()})`;
 				return colors;
 			}, {});
-
 		return {
 			pageSize,
 			dynamicSize,
@@ -74,10 +78,11 @@ export default defineComponent({
 							background: RGBA_MAP[count]
 						});
 					}
-					setTimeout(() => resolve(list), Math.floor(Math.random() * 10000));
+					setTimeout(() => resolve(list), 1000);
 				});
 			},
 			handleClick(data) {
+				console.log(data);
 				dynamicSize.value = Math.floor(Math.random() * 20);
 			}
 		};
@@ -97,16 +102,17 @@ export default defineComponent({
 	height: 100%;
 	margin: 0 auto;
 	padding: 0;
-	border: 1px solid #ddd;
+	border: 10px solid #ddd;
 	list-style-type: none;
 	text-align: center;
+	background: #eee;
+	padding: 10px 0;;
 }
 .item {
 	display: flex;
+	line-height: 20px;
 	width: 100%;
 	text-align: left;
-	line-height: 20px;
-	padding: 0 20px;
 }
 
 .loading {

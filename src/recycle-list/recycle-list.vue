@@ -173,6 +173,8 @@ export default defineComponent({
 		let originalData = []; // 原始数据
 		let promiseStack = []; // 每页数据栈信息
 
+		let originalScrollTop = 0; // 数据load前滚动条位置
+
 		const width = computed(() => {
 			if (props.cols === 1) return;
 			if (props.gutter === 0) return `${100 / props.cols}%`;
@@ -239,6 +241,14 @@ export default defineComponent({
 		const scrollToIndex = (index, offset = 0) => {
 			let item = rebuildData.value[index];
 			item?.top && item.top >= 0 && scrollTo(item.top + offset);
+		};
+
+		const setRebuildDataMap = () => {
+			if (!props.inverted) return;
+			rebuildDataIndexMap.value = rebuildData.value.reduce((pre, cur, index) => {
+				pre[cur.id] = index;
+				return pre;
+			}, {});
 		};
 
 		const setItemData = (index, $data) => {
@@ -359,15 +369,18 @@ export default defineComponent({
 		};
 
 		const refreshLayoutByPage = async (page) => {
+			const { el } = instance.vnode;
 			const start = (page - 1) * props.pageSize;
 			const end = page * props.pageSize;
-			const oldH = contentH.value;
+			const originalH = page === 1 ? 0 : contentH.value;
 			await refreshLayout(start, end);
 
-			// 滚动到顶部 el.scrollTop 已经为0，只需偏移新增加的高度
-			if (props.inverted) {
-				scrollTo(contentH.value - oldH);
-			}
+			if (!props.inverted) return;
+
+			// 当偏移值只是新增加的高度, 提前滚动了则要显示之前的位置
+			const changed = el.scrollTop !== originalScrollTop;
+			const offset = page === 1 ? 0 : changed ? el.scrollTop : 0;
+			scrollTo(contentH.value - originalH + offset);
 		};
 
 		const setOriginData = (page, res) => {
@@ -389,6 +402,7 @@ export default defineComponent({
 				} else {
 					setOriginData(currentPage, res);
 					refreshLayoutByPage(currentPage);
+
 					if (res.length < props.pageSize) {
 						stopScroll(currentPage);
 					}
@@ -396,13 +410,31 @@ export default defineComponent({
 			});
 		};
 
-		const loadData = () => {
+		const loadData = async () => {
 			if (props.disabled || isEnd.value) return;
+			originalScrollTop = instance.vnode.el.scrollTop;
 			if (hasPlaceholder.value) {
-				const start = rebuildData.value.length;
-				rebuildData.value.length += props.pageSize;
-				const end = rebuildData.value.length;
-				refreshLayout(start, end);
+				let start;
+				let end;
+				if (props.inverted) {
+					start = rebuildData.value.length;
+					end = start + props.pageSize;
+
+					Array
+						.from({ length: props.pageSize })
+						.forEach((_, index) => {
+							setItemData(index + start);
+						});
+					setRebuildDataMap();
+				} else {
+					start = rebuildData.value.length;
+					rebuildData.value.length += props.pageSize;
+					end = rebuildData.value.length;
+				}
+
+				const originalH = contentH.value;
+				await refreshLayout(start, end);
+				props.inverted && scrollTo(contentH.value - originalH);
 				loadRemoteData();
 			} else if (!isLoading.value) {
 				loadRemoteData();
@@ -411,7 +443,9 @@ export default defineComponent({
 		
 		const reset = () => {
 			rebuildData.value = [];
+			rebuildDataIndexMap.value = {};
 			contentH.value = 0;
+			columnLevelH.value = [];
 			firstItemIndex.value = 0;
 			loadings.value = [];
 			isEnd.value = false;
@@ -427,7 +461,7 @@ export default defineComponent({
 		 * 最大滚动距离：el.scrollHeight - el.clientHeight
 		 * contentH.value不含loading，以及wrapper的border, padding
 		 */
-		const handleScroll = () => {
+		const handleScroll = (e) => {
 			const { el } = instance.vnode;
 			if (
 				(!props.inverted && el.scrollTop > el.scrollHeight - el.clientHeight - props.offset)
@@ -488,13 +522,7 @@ export default defineComponent({
 
 		watch(
 			() => rebuildData.value.length,
-			(v, oldV) => {
-				if (!props.inverted) return;
-				rebuildDataIndexMap.value = rebuildData.value.reduce((pre, cur, index) => {
-					pre[cur.id] = index;
-					return pre;
-				}, {});
-			}
+			(v, oldV) => setRebuildDataMap()
 		);
 
 		return {
