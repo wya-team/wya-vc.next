@@ -5,6 +5,7 @@
 		@scroll="handleScroll"
 	>
 		<vc-scroll-state v-if="inverted" ref="scrollState" />
+		<slot name="header" />
 		<div 
 			ref="content"
 			class="vc-recycle-list__content" 
@@ -77,6 +78,7 @@
 				</div>
 			</div>
 		</div>
+		<slot name="footer" />
 		<vc-scroll-state v-if="!inverted" ref="scrollState" />
 	</div>
 </template>

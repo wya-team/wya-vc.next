@@ -99,6 +99,8 @@ placeholder | 未加载数据时占位用的，如骨架屏
 loading | 加载更多的提示文案的具名插槽
 finish | 无更多数据的提示文案的具名插槽
 empty | 首次加载后无数据时展示
+header | 头部
+footer | 尾部
 
 ## TODO
 
