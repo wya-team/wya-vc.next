@@ -3,6 +3,7 @@
 	<div class="demo" style="padding: 0 10px">
 		<vc-recycle-list 
 			class="list" 
+			pullable
 			:cols="3"
 			:gutter="10"
 			:page-size="pageSize" 
@@ -43,11 +44,12 @@ export default defineComponent({
 		let count = 0;
 		let total = 5;
 
-		const rendomColor = () => Math.floor(Math.random() * 255);
+		const random255 = () => Math.floor(Math.random() * 255);
+		const randomColor = () => `rgba(${random255()}, ${random255()}, ${random255()}, ${Math.random()})`;
 		const RGBA_MAP = Array
 			.from({ length: pageSize.value * total + 1 })
 			.reduce((colors, _, index) => {
-				colors[index] = `rgba(${rendomColor()}, ${rendomColor()}, ${rendomColor()}, ${Math.random()})`;
+				colors[index] = randomColor();
 				return colors;
 			}, {});
 		return {
@@ -69,7 +71,7 @@ export default defineComponent({
 							id: count++,
 							page,
 							height: ((i % 10) + 1) * Math.floor(Math.random() * 20 + 20),
-							background: RGBA_MAP[count]
+							background: RGBA_MAP[count] || randomColor()
 						});
 					}
 					setTimeout(() => resolve(list), 1000);

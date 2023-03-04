@@ -1,8 +1,8 @@
 <template>
 	<!-- 每个状态的高度保持一致，不会造成抖动 -->
-	<div v-if="owner" ref="current" class="vc-recycle-list-scroll-state">
+	<div v-if="owner" ref="current" class="vc-recycle-list__scroll-state">
 		<div
-			v-if="!owner.hasPlaceholder && !owner.isEnd"
+			v-if="!owner.hasPlaceholder && !owner.isEnd && !owner.isSlientRefresh"
 			class="vc-recycle-list__loading"
 			:style="{ visibility: owner.isLoading ? 'visible' : 'hidden' }"
 		>
@@ -58,6 +58,7 @@ import {
 import Customer from '../customer';
 import Spin from '../spin';
 import { Resize } from '../utils/resize';
+import { getInstance } from '../hooks';
 
 export default defineComponent({
 	name: 'vc-recycle-list-scroll-state',
@@ -67,8 +68,8 @@ export default defineComponent({
 	},
 	emits: ['resize'],
 	setup(props, { slots, emit }) {
-		const instance = getCurrentInstance();
-		let owner = instance?.parent?.ctx;
+		const instance = getInstance('recycle-list', 'recycleListId');
+		let owner = instance.ctx;
 
 		const current = ref();
 		const offsetHeight = ref(0);

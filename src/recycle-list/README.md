@@ -105,7 +105,6 @@ footer | 尾部
 ## TODO
 
 - 加入vc-scroller
-- 下拉刷新？
 - 支持横向滚动
 
 

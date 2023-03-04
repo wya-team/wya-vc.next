@@ -1,38 +1,80 @@
 <template>
-	<div 
-		ref="wrapper" 
-		class="vc-recycle-list" 
-		@scroll="handleScroll"
+	<vc-pull-container 
+		class="vc-recycle-list"
+		:pullable="pullable" 
+		:inverted="inverted"
+		@refresh="handleRefresh"
 	>
-		<vc-scroll-state v-if="inverted" ref="scrollState" />
-		<slot name="header" />
 		<div 
-			ref="content"
-			class="vc-recycle-list__content" 
-			:style="{ height: contentH + 'px' }"
+			ref="wrapper" 
+			class="vc-recycle-list__wrapper" 
+			@scroll="handleScroll"
 		>
+			<vc-scroll-state v-if="inverted" ref="scrollState" />
+			<slot name="header" />
 			<div 
-				v-for="(_, columnIndex) in cols"
-				:key="columnIndex"
-				:style="{ 
-					width,
-					paddingLeft: `${(columnIndex == 0 ? 0 : gutter) / 2}px`,
-					paddingRight: `${columnIndex + 1 == cols ? 0 : gutter / 2}px`,
-					transform: 'translate(0,' + (data[columnIndex][0]?.top || 0) + 'px)'
-				}"
-				:class="{ 'is-inverted': inverted }"
-				class="vc-recycle-list__column"
+				ref="content"
+				class="vc-recycle-list__content" 
+				:style="{ height: contentH + 'px' }"
 			>
-				<div v-if="inverted" :style="{ height: `${columnLevelH[columnIndex]}px` }" />
-				<template
-					v-for="(item) in data[columnIndex]"
-					:key="item.id"
+				<div 
+					v-for="(_, columnIndex) in cols"
+					:key="columnIndex"
+					:style="{ 
+						width,
+						paddingLeft: `${(columnIndex == 0 ? 0 : gutter) / 2}px`,
+						paddingRight: `${columnIndex + 1 == cols ? 0 : gutter / 2}px`,
+						transform: 'translate(0,' + (data[columnIndex][0]?.top || 0) + 'px)'
+					}"
+					:class="{ 'is-inverted': inverted }"
+					class="vc-recycle-list__column"
 				>
-					<div
-						v-if="item.isPlaceholder && hasPlaceholder"
-						:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
-						:style="{ opacity: +!item.loaded }"
+					<div v-if="inverted" :style="{ height: `${columnLevelH[columnIndex]}px` }" />
+					<template
+						v-for="(item) in data[columnIndex]"
+						:key="item.id"
 					>
+						<div
+							v-if="item.isPlaceholder && hasPlaceholder"
+							:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
+							:style="{ opacity: +!item.loaded }"
+						>
+							<slot name="placeholder">
+								<vc-customer 
+									v-if="renderer.placeholder"
+									:render="renderer.placeholder"
+								/>
+							</slot>
+						</div>
+						<vc-recycle-list-item
+							v-if="!item.isPlaceholder"
+							:ref="(v) => curloads[item.id] = v"
+							:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
+							:style="{ opacity: item.loaded }"
+							@resize="handleResize"
+						>
+							<slot :row="item.data" />
+						</vc-recycle-list-item>
+					</template>
+				</div>
+				<!-- preloads 以获取其高度，计算高度后将其移除 -->
+				<div 
+					class="vc-recycle-list__pool" 
+				>
+					<template 
+						v-for="(item) in preData"
+						:key="item.id"
+					>
+						<div
+							:ref="(v) => preloads[item.id] = v"
+							class="vc-recycle-list__hidden"
+							:style="{ width }"
+						>
+							<slot :row="item.data" />
+						</div>
+					</template>
+					
+					<div ref="placeholder" class="vc-recycle-list__hidden">
 						<slot name="placeholder">
 							<vc-customer 
 								v-if="renderer.placeholder"
@@ -40,47 +82,12 @@
 							/>
 						</slot>
 					</div>
-					<vc-recycle-list-item
-						v-if="!item.isPlaceholder"
-						:ref="(v) => curloads[item.id] = v"
-						:class="{ 'vc-recycle-list__transition': hasPlaceholder }"
-						:style="{ opacity: item.loaded }"
-						@resize="handleResize"
-					>
-						<slot :row="item.data" />
-					</vc-recycle-list-item>
-				</template>
-			</div>
-			<!-- preloads 以获取其高度，计算高度后将其移除 -->
-			<div 
-				class="vc-recycle-list__pool" 
-			>
-				<template 
-					v-for="(item) in preData"
-					:key="item.id"
-				>
-					<div
-						:ref="(v) => preloads[item.id] = v"
-						class="vc-recycle-list__hidden"
-						:style="{ width }"
-					>
-						<slot :row="item.data" />
-					</div>
-				</template>
-				
-				<div ref="placeholder" class="vc-recycle-list__hidden">
-					<slot name="placeholder">
-						<vc-customer 
-							v-if="renderer.placeholder"
-							:render="renderer.placeholder"
-						/>
-					</slot>
 				</div>
 			</div>
+			<slot name="footer" />
+			<vc-scroll-state v-if="!inverted" ref="scrollState" />
 		</div>
-		<slot name="footer" />
-		<vc-scroll-state v-if="!inverted" ref="scrollState" />
-	</div>
+	</vc-pull-container>
 </template>
 
 <script lang="ts">
@@ -95,15 +102,17 @@ import {
 	watch
 } from 'vue';
 import { throttle } from 'lodash';
-import { Resize } from '../utils/resize';
+import { Resize, getUid } from '../utils/index';
 import { VcInstance } from '../vc';
 import RecycleListItem from './recycle-list-item.vue';
 import ScrollState from './scroll-state.vue';
 import Customer from '../customer';
+import PullContainer from './pull-container.vue';
 
 export default defineComponent({
 	name: 'vc-recycle-list',
 	components: {
+		'vc-pull-container': PullContainer,
 		'vc-recycle-list-item': RecycleListItem,
 		'vc-customer': Customer,
 		'vc-scroll-state': ScrollState
@@ -145,6 +154,11 @@ export default defineComponent({
 			default: false
 		},
 
+		pullable: {
+			type: Boolean,
+			default: false
+		},
+
 		renderEmpty: Function,
 		renderFinish: Function,
 		renderLoading: Function,
@@ -158,6 +172,7 @@ export default defineComponent({
 		const firstItemIndex = ref(0);
 		const loadings = ref([]);
 		const isEnd = ref(false);
+		const isSlientRefresh = ref(false);
 		const isMounted = ref(false);
 
 		// el
@@ -232,7 +247,7 @@ export default defineComponent({
 				options$ = Object.assign(options$, options);
 			}
 
-			const { el } = instance.vnode;
+			const el = wrapper.value;
 			let x = el.scrollLeft;
 			let y = el.scrollTop;
 
@@ -314,7 +329,7 @@ export default defineComponent({
 
 		// 设置data首个元素的在originalData索引值
 		const setFirstItemIndex = () => {
-			let top = instance.vnode.el.scrollTop;
+			let top = wrapper.value.scrollTop;
 			let item;
 			for (let i = 0; i < rebuildData.value.length; i++) {
 				item = rebuildData.value[i];
@@ -371,7 +386,7 @@ export default defineComponent({
 		};
 
 		const refreshLayoutByPage = async (page) => {
-			const { el } = instance.vnode;
+			const el = wrapper.value;
 			const start = (page - 1) * props.pageSize;
 			const end = page * props.pageSize;
 			const originalH = page === 1 ? 0 : contentH.value;
@@ -392,29 +407,29 @@ export default defineComponent({
 			}
 		};
 
-		const loadRemoteData = () => {
+		const loadRemoteData = async (onBeforeSetData) => {
 			const currentPage = promiseStack.length + 1;
 			const promiseFetch = props.loadData(currentPage, props.pageSize);
 			loadings.value.push('pending');
 			promiseStack.push(promiseFetch);
-			promiseFetch.then((res) => {
-				loadings.value.pop();
-				if (!res) {
-					stopScroll(currentPage);
-				} else {
-					setOriginData(currentPage, res);
-					refreshLayoutByPage(currentPage);
+			const res = await promiseFetch;
+			onBeforeSetData && onBeforeSetData();
+			loadings.value.pop();
+			if (!res) {
+				stopScroll(currentPage);
+			} else {
+				setOriginData(currentPage, res);
+				await refreshLayoutByPage(currentPage);
 
-					if (res.length < props.pageSize) {
-						stopScroll(currentPage);
-					}
+				if (res.length < props.pageSize) {
+					stopScroll(currentPage);
 				}
-			});
+			}
 		};
 
-		const loadData = async () => {
-			if (props.disabled || isEnd.value) return;
-			originalScrollTop = instance.vnode.el.scrollTop;
+		const loadData = async (onBeforeSetData) => {
+			if (props.disabled || isEnd.value || isSlientRefresh.value) return;
+			originalScrollTop = wrapper.value.scrollTop;
 			if (hasPlaceholder.value) {
 				let start;
 				let end;
@@ -437,26 +452,41 @@ export default defineComponent({
 				const originalH = contentH.value;
 				await refreshLayout(start, end);
 				props.inverted && scrollTo(contentH.value - originalH);
-				loadRemoteData();
+				await loadRemoteData(onBeforeSetData);
 			} else if (!isLoading.value) {
-				loadRemoteData();
+				await loadRemoteData(onBeforeSetData);
 			}
 		};
 		
-		const reset = () => {
-			rebuildData.value = [];
-			rebuildDataIndexMap.value = {};
-			contentH.value = 0;
-			columnLevelH.value = [];
-			firstItemIndex.value = 0;
-			loadings.value = [];
+		const reset = async (slient = false) => {		
 			isEnd.value = false;
+			loadings.value = [];
+			wrapper.value.scrollTop = 0;
 
 			originalData = [];
 			promiseStack = [];
 
-			instance.vnode.el.scrollTop = 0;
-			loadData();
+			const done = () => {
+				rebuildData.value = [];
+				rebuildDataIndexMap.value = {};
+				contentH.value = 0;
+				columnLevelH.value = [];
+				firstItemIndex.value = 0;
+				isSlientRefresh.value = false;
+			};
+			if (!slient) {
+				done();
+				await loadData();
+			} else {
+				const next = loadData(done);	
+				isSlientRefresh.value = true;
+				await next;
+			}
+		};
+
+		// 触发下拉刷新
+		const handleRefresh = async () => {
+			await reset(true);
 		};
 
 		/**
@@ -464,7 +494,7 @@ export default defineComponent({
 		 * contentH.value不含loading，以及wrapper的border, padding
 		 */
 		const handleScroll = (e) => {
-			const { el } = instance.vnode;
+			const el = wrapper.value;
 			if (
 				(!props.inverted && el.scrollTop > el.scrollHeight - el.clientHeight - props.offset)
 				|| (props.inverted && el.scrollTop - props.offset <= 0)
@@ -494,7 +524,7 @@ export default defineComponent({
 				let newTop = rebuildData.value[oldFirstItemIndex]?.top;
 
 				// 保持原来的位置
-				const { el } = instance.vnode;
+				const el = wrapper.value;
 				el.scrollTop += newTop - oldTop;
 			}
 		}, 50, {
@@ -528,6 +558,7 @@ export default defineComponent({
 		);
 
 		return {
+			recycleListId: getUid('recycle-list'),
 			// el
 			wrapper,
 			content,
@@ -552,10 +583,12 @@ export default defineComponent({
 			hasPlaceholder,
 			renderer,
 			isLoading,
+			isSlientRefresh,
 
 			// method
 			handleScroll,
 			handleResize,
+			handleRefresh,
 
 			// expose
 			reset,
@@ -573,13 +606,15 @@ export default defineComponent({
 $block: vc-recycle-list;
 
 @include block($block) {
-	position: relative;
-	overflow-x: hidden;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
+	@include element(wrapper) {
+		height: 100%;
+		position: relative;
+		overflow-x: hidden;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
 
-	box-sizing: border-box;
-
+		box-sizing: border-box;
+	}
 	@include element(hidden) {
 		width: 100%;
 		box-sizing: border-box;
