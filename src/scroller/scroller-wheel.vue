@@ -70,6 +70,7 @@ import { Resize } from '../utils/resize';
 import ScrollerBar from './bar';
 import Extends from '../extends';
 import { TRANSFORM } from '../utils';
+import { getScrollBarWidth } from './utils';
 import Wheel from '../utils/wheel';
 
 export default defineComponent({
@@ -89,11 +90,12 @@ export default defineComponent({
 			type: [String, Number],
 			default: '',
 		},
+		// TODO: 优化移动端真机滚动，达到和原生一致效果（这样这个选项可以移除）
+		// 默认情况：如果存在滚动条宽度为false, 不存在则为true
 		native: {
 			type: Boolean,
-			default: false,
+			default: !getScrollBarWidth(),
 		},
-
 		wrapperStyle: {
 			type: [String, Array, Object],
 			default: '',

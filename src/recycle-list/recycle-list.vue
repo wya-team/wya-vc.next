@@ -7,7 +7,6 @@
 	>
 		<vc-scroller 
 			ref="scroller" 
-			:native="isNative"
 			class="vc-recycle-list__wrapper" 
 			@scroll="handleScroll"
 		>
@@ -177,7 +176,6 @@ export default defineComponent({
 		const isEnd = ref(false);
 		const isSlientRefresh = ref(false);
 		const isMounted = ref(false);
-		const isNative = ref('ontouchend' in window); // 触摸屏使用原生滚动，其他使用vc-scroller
 
 		// el
 		const curloads = ref({});
@@ -580,7 +578,6 @@ export default defineComponent({
 			firstItemIndex,
 			loadings,
 			isEnd,
-			isNative,
 			placeholder,
 			scrollState,
 

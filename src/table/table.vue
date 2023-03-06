@@ -25,6 +25,7 @@
 		<vc-scroller
 			ref="scroller"
 			:always="false"
+			:native="false"
 			:wrapper-style="bodyHeight"
 			:bar-to="`.${tableId}`"
 			:track-offset-y="[
