@@ -90,8 +90,10 @@ export default defineComponent({
 			type: [String, Number],
 			default: '',
 		},
-		// TODO: 优化移动端真机滚动，达到和原生一致效果（这样这个选项可以移除）
-		// 默认情况：如果存在滚动条宽度为false, 不存在则为true
+		// TODO: 优化移动端真机滚动，达到和原生一致效果
+		// 默认情况：
+		// 	如果存在滚动条宽度为false, 不存在则为true
+		// 	为false的情况下才能使用track-offset
 		native: {
 			type: Boolean,
 			default: !getScrollBarWidth(),
