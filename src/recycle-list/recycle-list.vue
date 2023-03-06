@@ -5,8 +5,9 @@
 		:inverted="inverted"
 		@refresh="handleRefresh"
 	>
-		<div 
-			ref="wrapper" 
+		<vc-scroller 
+			ref="scroller" 
+			:native="isNative"
 			class="vc-recycle-list__wrapper" 
 			@scroll="handleScroll"
 		>
@@ -86,7 +87,7 @@
 			</div>
 			<slot name="footer" />
 			<vc-scroll-state v-if="!inverted" ref="scrollState" />
-		</div>
+		</vc-scroller>
 	</vc-pull-container>
 </template>
 
@@ -107,6 +108,7 @@ import { VcInstance } from '../vc';
 import RecycleListItem from './recycle-list-item.vue';
 import ScrollState from './scroll-state.vue';
 import Customer from '../customer';
+import Scroller from '../scroller';
 import PullContainer from './pull-container.vue';
 
 export default defineComponent({
@@ -115,7 +117,8 @@ export default defineComponent({
 		'vc-pull-container': PullContainer,
 		'vc-recycle-list-item': RecycleListItem,
 		'vc-customer': Customer,
-		'vc-scroll-state': ScrollState
+		'vc-scroll-state': ScrollState,
+		'vc-scroller': Scroller
 	},
 	props: {
 		disabled: {
@@ -174,12 +177,13 @@ export default defineComponent({
 		const isEnd = ref(false);
 		const isSlientRefresh = ref(false);
 		const isMounted = ref(false);
+		const isNative = ref('ontouchend' in window); // 触摸屏使用原生滚动，其他使用vc-scroller
 
 		// el
 		const curloads = ref({});
 		const preloads = ref({});
 		const placeholder = ref();
-		const wrapper = ref();
+		const scroller = ref();
 		const content = ref();
 		const scrollState = ref();
 
@@ -192,6 +196,9 @@ export default defineComponent({
 
 		let originalScrollTop = 0; // 数据load前滚动条位置
 
+		const wrapper = computed(() => {
+			return scroller.value?.wrapper;
+		});
 		const width = computed(() => {
 			if (props.cols === 1) return;
 			if (props.gutter === 0) return `${100 / props.cols}%`;
@@ -560,6 +567,7 @@ export default defineComponent({
 		return {
 			recycleListId: getUid('recycle-list'),
 			// el
+			scroller,
 			wrapper,
 			content,
 			preloads,
@@ -572,6 +580,7 @@ export default defineComponent({
 			firstItemIndex,
 			loadings,
 			isEnd,
+			isNative,
 			placeholder,
 			scrollState,
 

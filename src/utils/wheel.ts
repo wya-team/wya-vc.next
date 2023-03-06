@@ -258,7 +258,7 @@ export default class WheelHandler {
 		let shouldWheelY = this.shouldWheelY(deltaY, deltaX);
 		if (!shouldWheelX && !shouldWheelY) {
 			if (this.scrollBehavior && this.needThresholdWait) {
-				e.preventDefault();
+				e.cancelable && e.preventDefault();
 				this.timer && clearTimeout(this.timer);
 				this.timer = setTimeout(this.clear, wait);
 				timers.add(this);
@@ -274,7 +274,7 @@ export default class WheelHandler {
 		this.deltaX += shouldWheelX ? pixelX : 0;
 		this.deltaY += shouldWheelY ? pixelY : 0;
 		// 阻止X，Y轴上的滚动时，父层滚动（mac下的父层滚动越界会带有回弹）
-		e.preventDefault();
+		e.cancelable && e.preventDefault();
 
 		let changed = false;
 		if (this.deltaX !== 0 || this.deltaY !== 0) {

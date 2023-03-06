@@ -71,10 +71,14 @@ export default defineComponent({
 		});
 
 		let startY = 0;
+		let isStart = false;
 
 		// TODO: 多个手指同时触发拉动
 		const handleStart = (e) => {
 			if (props.inverted || !props.pullable) return;
+
+			isStart = true;
+
 			if (!startY) {
 				startY = e.touches 
 					? e.touches[0].screenY 
@@ -83,7 +87,7 @@ export default defineComponent({
 		};
 
 		const handleMove = (e) => {
-			if (props.inverted || !props.pullable) return;
+			if (!isStart || props.inverted || !props.pullable) return;
 			const allow = current.value.querySelector('.vc-recycle-list__wrapper').scrollTop == 0;
 			if (!allow) return;
 
@@ -108,8 +112,10 @@ export default defineComponent({
 		};
 
 		const handleEnd = async (e) => {
-			if (props.inverted || !props.pullable) return;
-			if (!e.targetTouches.length) {
+			if (!isStart || props.inverted || !props.pullable) return;
+			if (!('ontouchend' in window) || !e.targetTouches.length) {
+				isStart = false;
+
 				startY = 0;
 				if (status.value == 2) {
 					status.value = 3;
@@ -146,7 +152,7 @@ $block: vc-recycle-list;
 
 @include block($block) {
 	position: relative;
-	// overflow: hidden;
+	overflow: hidden; /* 配合vc-scroller让window系统下滚动时，不出现滚动条*/
 	@include element(container) {
 		height: 100%;
 		transition: transform 300ms ease-out;

@@ -103,8 +103,6 @@ header | 头部
 footer | 尾部
 
 ## TODO
-
-- 加入vc-scroller
 - 支持横向滚动
 
 
