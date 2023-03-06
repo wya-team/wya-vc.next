@@ -1,4 +1,5 @@
 <!--
+作为备选方案
 使用原生的滚动（overflow: auto）实现滚动
 
 比scroller-wheel存在两个问题
@@ -66,6 +67,7 @@ import { pick } from 'lodash';
 import { Resize } from '../utils/resize';
 import ScrollerBar from './bar';
 import { TRANSFORM } from '../utils';
+import { getScrollBarWidth } from './utils';
 
 export default defineComponent({
 	name: 'vc-scroller',
@@ -83,7 +85,7 @@ export default defineComponent({
 		},
 		native: {
 			type: Boolean,
-			default: false,
+			default: !getScrollBarWidth(),
 		},
 
 		wrapperStyle: {
