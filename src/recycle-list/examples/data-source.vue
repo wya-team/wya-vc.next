@@ -1,11 +1,11 @@
-<!-- 多列+瀑布流 -->
+<!-- 含默认值dataSource -->
 <template>
-	<div class="demo" style="padding: 0 10px">
+	<div class="demo">
 		<vc-recycle-list 
 			class="list" 
 			pullable
-			:cols="3"
-			:gutter="10"
+			:disabled="disabled"
+			:data-source="dataSource"
 			:page-size="pageSize" 
 			:load-data="loadData"
 		>
@@ -14,8 +14,8 @@
 					:key="row.id" 
 					class="item" 
 					:style="{
-						background: row.background,
-						height: `${row.height + (dynamicSize || 0) }px`
+						height: `${row.height + (dynamicSize || 0) }px`,
+						background: row.background
 					}"
 					@click="handleClick(row)"
 				>
@@ -28,9 +28,8 @@
 	</div>
 </template>
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, nextTick } from 'vue';
 import RecycleList from '..';
-
 
 export default defineComponent({
 	name: "vc-divider-basic",
@@ -39,7 +38,8 @@ export default defineComponent({
 	},
 	setup() {
 		const dynamicSize = ref(0);
-		const pageSize = ref(30);
+		const pageSize = ref(5);
+		const disabled = ref(true);
 
 		let count = 0;
 		let total = 5;
@@ -52,31 +52,44 @@ export default defineComponent({
 				colors[index] = randomColor();
 				return colors;
 			}, {});
+		const loadData = (page, pageSize$, tag) => {
+			console.log('page:', page);
+			let list = [];
+			return new Promise((resolve) => {
+				if (page == total + 1) {
+					resolve(false);
+					return;
+				}
+
+				if (page == total) {
+					pageSize$ = 4;
+				}
+				for (let i = 0; i < pageSize$; i++) {
+					let item = {
+						id: `${count++}${tag || ''}`,
+						name: count,
+						page,
+						height: ((i % 10) + 1) * 20,
+						background: RGBA_MAP[count] || randomColor()
+					};
+					list.push(item);
+				}
+				setTimeout(() => resolve(list), 1000);
+			});
+		};
+		const dataSource = ref(null);
+
+		(async () => {
+			const data = await loadData(1, pageSize.value, 'From dataSource');
+			dataSource.value = data;
+			disabled.value = false;
+		})();
 		return {
 			pageSize,
 			dynamicSize,
-			loadData(page, pageSize$) {
-				let list = [];
-				return new Promise((resolve) => {
-					if (page == total + 1) {
-						resolve(false);
-						return;
-					}
-
-					if (page == total) {
-						pageSize$ = 4;
-					}
-					for (let i = 0; i < pageSize$; i++) {
-						list.push({
-							id: count++,
-							page,
-							height: ((i % 10) + 1) * Math.floor(Math.random() * 20 + 20),
-							background: RGBA_MAP[count] || randomColor()
-						});
-					}
-					setTimeout(() => resolve(list), 1000);
-				});
-			},
+			dataSource,
+			loadData,
+			disabled,
 			handleClick(data) {
 				console.log(data);
 				dynamicSize.value = Math.floor(Math.random() * 20);

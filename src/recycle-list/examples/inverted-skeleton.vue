@@ -1,4 +1,4 @@
-<!-- 仅展示最基本的用法 -->
+<!-- 倒序骨架屏 -->
 <template>
 	<div class="demo">
 		<vc-recycle-list 

@@ -1,3 +1,4 @@
+<!-- 骨架屏 -->
 <template>
 	<div class="demo">
 		<vc-recycle-list 

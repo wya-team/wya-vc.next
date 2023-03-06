@@ -120,6 +120,9 @@ export default defineComponent({
 		'vc-scroller': Scroller
 	},
 	props: {
+		dataSource: {
+			type: Array
+		},
 		disabled: {
 			type: Boolean,
 			default: false
@@ -169,6 +172,7 @@ export default defineComponent({
 	setup(props, { slots }) {
 		const instance = getCurrentInstance();
 
+		const offsetPageSize = ref(0);
 		const contentH = ref(0);
 		const columnLevelH = ref([]); // 优化inverted多列时用于补齐高度
 		const firstItemIndex = ref(0);
@@ -209,7 +213,7 @@ export default defineComponent({
 			return rebuildData.value
 				.slice(
 					Math.max(0, firstItemIndex.value - props.pageSize), 
-					Math.min(rebuildData.value.length, firstItemIndex.value + props.pageSize)
+					Math.min(rebuildData.value.length, firstItemIndex.value + props.pageSize + offsetPageSize.value)
 				).reduce((pre, cur) => {
 					cur.column >= 0 && pre[cur.column].push(cur);
 					return pre;
@@ -412,6 +416,20 @@ export default defineComponent({
 			}
 		};
 
+		// 用于为加载一屏幕时，自动扩容pageSize
+		const setOffsetPageSize = () => {
+			if (
+				!isEnd.value 
+					&& contentH.value > 0
+					&& contentH.value <= wrapper.value?.offsetHeight
+			) {
+				offsetPageSize.value += props.pageSize;
+				return true;
+			}
+
+			return false;
+		};
+
 		const loadRemoteData = async (onBeforeSetData) => {
 			const currentPage = promiseStack.length + 1;
 			const promiseFetch = props.loadData(currentPage, props.pageSize);
@@ -461,6 +479,9 @@ export default defineComponent({
 			} else if (!isLoading.value) {
 				await loadRemoteData(onBeforeSetData);
 			}
+
+			// 未加载且小于一屏时，自动加载下一页
+			setOffsetPageSize() && loadData();
 		};
 		
 		const reset = async (slient = false) => {		
@@ -537,6 +558,33 @@ export default defineComponent({
 			trailing: true
 		});
 
+		// 设置初始数据
+		const setDataSource = async (v, oldV) => {
+			if (!Array.isArray(v) || oldV === v) return;
+
+			if (props.dataSource.length % props.pageSize > 0) {
+				isEnd.value = true;
+			} else {
+				promiseStack = Array
+					.from({ length: Math.ceil(props.dataSource.length / props.pageSize) })
+					.map(_ => Promise.resolve());
+			}
+
+			originalData = [];
+			// 这里不要originalData = toRaw(props.dataSource);
+			props.dataSource.forEach((i, index) => {
+				originalData[index] = i;
+			});
+
+			if (!originalData.length) {
+				rebuildData.value = [];
+			}
+
+			offsetPageSize.value = 0;
+			await refreshLayout(0, originalData.length);
+			setOffsetPageSize();
+		};
+
 		onMounted(() => {
 			Resize.on(wrapper.value, handleResize);
 			loadData();
@@ -548,18 +596,34 @@ export default defineComponent({
 		});
 
 		watch(
-			() => props.disabled,
-			(v, oldV) => {
-				isMounted.value
-					&& oldV === true 
-					&& v === false
-					&& loadData();
-			}
+			() => rebuildData.value.length,
+			setRebuildDataMap
 		);
 
 		watch(
-			() => rebuildData.value.length,
-			(v, oldV) => setRebuildDataMap()
+			() => props.dataSource,
+			setDataSource,
+			{ immediate: true }
+		);
+
+		// 切换值时，只有当内容高度为0时或高度不够会自动加载
+		watch(
+			() => props.disabled,
+			async (v, oldV) => {
+				if (
+					isMounted.value
+						&& oldV === true 
+						&& v === false
+						&& (contentH.value === 0 || contentH.value <= wrapper.value?.offsetHeight)
+				) {
+					/**
+					 * nextTick 为了修复watch执行的循序，此watch优先于setDataSource执行(未知原因)
+					 * 切换时可能会设置dataSouce, 需要setDataSource后有promiseStack再执行, 这里使用nextTick规避
+					 */
+					await nextTick();
+					loadData();
+				}
+			}
 		);
 
 		return {
@@ -580,6 +644,7 @@ export default defineComponent({
 			isEnd,
 			placeholder,
 			scrollState,
+			offsetPageSize,
 
 			// computed
 			width,

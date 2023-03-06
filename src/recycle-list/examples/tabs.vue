@@ -1,3 +1,4 @@
+<!-- 选项卡（disabled应用） -->
 <template>
 	<Tabs 
 		:model-value="type" 

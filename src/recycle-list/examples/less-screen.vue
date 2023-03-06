@@ -1,11 +1,9 @@
-<!-- 多列+瀑布流 -->
+<!-- 加载数据不足一屏 -->
 <template>
-	<div class="demo" style="padding: 0 10px">
+	<div class="demo">
 		<vc-recycle-list 
 			class="list" 
 			pullable
-			:cols="3"
-			:gutter="10"
 			:page-size="pageSize" 
 			:load-data="loadData"
 		>
@@ -14,8 +12,8 @@
 					:key="row.id" 
 					class="item" 
 					:style="{
-						background: row.background,
-						height: `${row.height + (dynamicSize || 0) }px`
+						height: `${row.height + (dynamicSize || 0) }px`,
+						background: row.background
 					}"
 					@click="handleClick(row)"
 				>
@@ -31,7 +29,6 @@
 import { defineComponent, ref } from 'vue';
 import RecycleList from '..';
 
-
 export default defineComponent({
 	name: "vc-divider-basic",
 	components: {
@@ -39,10 +36,10 @@ export default defineComponent({
 	},
 	setup() {
 		const dynamicSize = ref(0);
-		const pageSize = ref(30);
+		const pageSize = ref(3);
 
 		let count = 0;
-		let total = 5;
+		let total = 20;
 
 		const random255 = () => Math.floor(Math.random() * 255);
 		const randomColor = () => `rgba(${random255()}, ${random255()}, ${random255()}, ${Math.random()})`;
@@ -56,6 +53,7 @@ export default defineComponent({
 			pageSize,
 			dynamicSize,
 			loadData(page, pageSize$) {
+				console.log('page:', page);
 				let list = [];
 				return new Promise((resolve) => {
 					if (page == total + 1) {
@@ -70,7 +68,7 @@ export default defineComponent({
 						list.push({
 							id: count++,
 							page,
-							height: ((i % 10) + 1) * Math.floor(Math.random() * 20 + 20),
+							height: ((i % 10) + 1) * 20,
 							background: RGBA_MAP[count] || randomColor()
 						});
 					}

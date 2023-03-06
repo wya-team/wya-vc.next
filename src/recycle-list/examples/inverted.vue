@@ -1,4 +1,4 @@
-<!-- 仅展示最基本的用法 -->
+<!-- 倒序 -->
 <template>
 	<div class="demo">
 		<vc-recycle-list 
