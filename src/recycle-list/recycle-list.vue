@@ -3,6 +3,7 @@
 		class="vc-recycle-list"
 		:pullable="pullable" 
 		:inverted="inverted"
+		:render="renderer.refresh"
 		@refresh="handleRefresh"
 	>
 		<vc-scroller 
@@ -141,7 +142,7 @@ export default defineComponent({
 
 		loadData: {
 			type: Function,
-			default: () => () => false
+			default: () => false
 		},
 
 		cols: {
@@ -229,6 +230,7 @@ export default defineComponent({
 		const renderer = computed(() => {
 			const globalProps = VcInstance.config?.RecycleList || {};
 			return {
+				refresh: props.renderRefresh || globalProps.renderRefresh,
 				placeholder: props.renderPlaceholder || globalProps.renderPlaceholder,
 				loading: props.renderLoading || globalProps.renderLoading,
 				finish: props.renderFinish || globalProps.renderFinish,

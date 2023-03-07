@@ -3,4 +3,6 @@ export interface RecycleListConfig {
 	renderLoading?: () => any;
 	renderFinish?: () => any;
 	renderEmpty?: () => any;
+	// 下拉刷新
+	renderRefresh?: () => any;
 }

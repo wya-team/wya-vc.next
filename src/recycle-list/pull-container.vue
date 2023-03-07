@@ -13,7 +13,11 @@
 			:style="[yStyle]"
 			class="vc-recycle-list__pull"
 		>
-			<span>{{ stateText }}</span>
+			<vc-customer 
+				:render="render" 
+				:status="status" 
+				type="DOWN"
+			/>
 		</div>
 		<div 
 			:style="[yStyle]"
@@ -21,13 +25,49 @@
 		>
 			<slot />
 		</div>
+		<!-- TODO: 上拉刷新（inverted的情况下）, 场景不多，暂不考虑 -->
+		<!-- <div 
+			v-if="inverted && pullable" 
+			:style="[yStyle]"
+			class="vc-recycle-list__pull"
+		>
+			<vc-customer 
+				:render="render" 
+				:status="status" 
+				type="UP"
+			/>
+		</div> -->
 	</div>
 </template>
 <script lang="ts">
 import { ref, computed, defineComponent, getCurrentInstance } from 'vue';
+import Customer from '../customer';
+
+const DEFAULT = 1;
+const PULL = 2;
+const PENDING = 3;
+const REFRESH = 4;
+
+const STATUS_MAP = {
+	DOWN: {
+		[DEFAULT]: '~', 
+		[PULL]: '↓ 下拉刷新', 
+		[PENDING]: '↑ 释放更新', 
+		[REFRESH]: '加载中...',
+	},
+	UP: {
+		[DEFAULT]: '~', 
+		[PULL]: '↑ 上拉刷新', 
+		[PENDING]: '↓ 释放更新', 
+		[REFRESH]: '加载中...', 
+	}
+};
 
 export default defineComponent({
 	name: 'vc-recycle-list-pull-container',
+	components: {
+		'vc-customer': Customer
+	},
 	props: {
 		inverted: {
 			type: Boolean,
@@ -42,6 +82,10 @@ export default defineComponent({
 		pauseY: {
 			type: Number,
 			default: 30
+		},
+		render: {
+			type: Function,
+			default: ({ status, type }) => STATUS_MAP[type][status]
 		}
 	},
 	emits: ['refresh'],
@@ -51,23 +95,12 @@ export default defineComponent({
 		const y = ref(0);
 		const status = ref(0);
 
-		const STATUS_MAP = {
-			0: '~', 
-			1: '↓ 下拉刷新', 
-			2: '↑ 释放更新', 
-			3: '加载中...', 
-		};
-
 		const yStyle = computed(() => {
 			if (props.inverted || !props.pullable) return;
 
 			return {
 				transform: `translateY(${y.value}px)`
 			};
-		});
-
-		const stateText = computed(() => {
-			return STATUS_MAP[status.value];
 		});
 
 		let startY = 0;
@@ -102,11 +135,11 @@ export default defineComponent({
 			) {
 				e.preventDefault();
 				y.value = distanceY < props.pauseY * 3 ? distanceY : props.pauseY * 3 + (distanceY - props.pauseY * 3) / 5;
-				if (status.value == 3) return;
+				if (status.value == REFRESH) return;
 				if (y.value <= props.pauseY) {
-					status.value = 1;
+					status.value = PULL;
 				} else {
-					status.value = 2;
+					status.value = PENDING;
 				}
 			}
 		};
@@ -117,27 +150,27 @@ export default defineComponent({
 				isStart = false;
 
 				startY = 0;
-				if (status.value == 2) {
-					status.value = 3;
+				if (status.value == PENDING) {
+					status.value = REFRESH;
 					y.value = props.pauseY;
 					try {
 						await instance.vnode.props.onRefresh();
 					} finally {
-						status.value = 0;
+						status.value = DEFAULT;
 						y.value = 0;
 					}
-				} else if (status.value == 3) {
+				} else if (status.value == REFRESH) {
 					y.value = props.pauseY;
 				} else {
 					y.value = 0;
-					status.value = 0;
+					status.value = DEFAULT;
 				}
 			}
 		};
 
 		return {
 			current,
-			stateText,
+			status,
 			yStyle,
 			handleStart,
 			handleMove,
