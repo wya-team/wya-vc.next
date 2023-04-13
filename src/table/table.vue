@@ -492,10 +492,12 @@ export default defineComponent({
 		 * 当 Table 或其祖先元素由隐藏切换为显示时，可能需要调用此方法
 		 */
 		const refreshLayout = () => {
-			layout.updateColumnsWidth();
+			layout.updateColumnsWidth();			
 			if (shouldUpdateHeight.value) {
 				layout.updateElsHeight();
 			}
+
+			scroller.value.refresh();
 		};
 		/**
 		 * 用于多选表格，切换所有行的选中状态
