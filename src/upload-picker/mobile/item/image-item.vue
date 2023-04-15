@@ -3,7 +3,7 @@
 		:class="{ 'is-error': it.status == 0}"
 		class="vcm-upload-image-item"
 	>
-		<slot :it="it">
+		<slot :it="it" :current="current">
 			<vc-image 
 				v-if="typeof it !== 'object'" 
 				:src="it" 
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance } from 'vue';
+import { defineComponent, getCurrentInstance, computed } from 'vue';
 import ImagePreview from '../../../image-preview/index';
 import { VcInstance } from '../../../vc/index';
 import Icon from '../../../icon/index';
@@ -64,6 +64,16 @@ export default defineComponent({
 	emits: ['open', 'close', 'delete'],
 	setup(props, { emit }) {
 		const instance = getCurrentInstance();
+		const current = computed(() => {
+			if (props.it.status === 0) return -1;
+			const v = props.dataSource.filter(i => i.status !== 0);
+
+			return v.findIndex(i => {
+				let a = i.url || i;
+				let b = props.it?.url || props.it;
+				return a === b;
+			});
+		});
 		// 拿到可预览的图片，供预览组件使用
 		const getPreviewData = () => {
 			return props.dataSource
@@ -112,6 +122,7 @@ export default defineComponent({
 		};
 
 		return {
+			current,
 			handlePreview,
 			handleDel
 		};

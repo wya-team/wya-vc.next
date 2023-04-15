@@ -3,7 +3,7 @@
 		:class="{ 'is-error': isError}"
 		class="vcm-upload-picker-file-item"
 	>
-		<slot :it="it">
+		<slot :it="it" :current="current">
 			<div class="vcm-upload-picker-file-item__content">
 				<template v-if="isError">
 					上传失败
@@ -44,13 +44,28 @@ export default defineComponent({
 			default: ''
 		},
 		disabled: Boolean,
-		urlKey: String
+		urlKey: String,
+		dataSource: {
+			type: Array,
+			default: () => ([])
+		}
 	},
 	emits: ['delete'],
 	setup(props, { emit }) {
-		const isError = computed(() => {
-			const { retcode, percent, errorFlag } = props.it;
-			return retcode == 0 && percent == 100 || errorFlag;
+		const isErrorCheck = (v) => {
+			const { retcode, percent, errorFlag } = v || {};
+			return (retcode == 0 && percent == 100) || errorFlag;
+		};
+		const isError = computed(() => isErrorCheck(props.it));
+
+		const current = computed(() => {
+			if (isError.value) return -1;
+			const v = props.dataSource.filter(i => !isErrorCheck(v));
+			return v.findIndex(i => {
+				let a = i?.[urlKey] || i;
+				let b = props.it?.[urlKey] || props.it;
+				return a === b;
+			});
 		});
 
 		const handleDel = () => {
@@ -58,6 +73,7 @@ export default defineComponent({
 		};
 
 		return {
+			current,
 			isError,
 			handleDel
 		};

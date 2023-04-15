@@ -49,13 +49,28 @@ export default {
 			default: ''
 		},
 		disabled: Boolean,
-		urlKey: String
+		urlKey: String,
+		dataSource: {
+			type: Array,
+			default: () => ([])
+		}
 	},
 	emits: ['delete'],
 	setup(props, { emit }) {
-		const isError = computed(() => {
-			const { retcode, percent, errorFlag } = props.it || {};
+		const isErrorCheck = (v) => {
+			const { retcode, percent, errorFlag } = v || {};
 			return (retcode == 0 && percent == 100) || errorFlag;
+		};
+		const isError = computed(() => isErrorCheck(props.it));
+
+		const current = computed(() => {
+			if (isError.value) return -1;
+			const v = props.dataSource.filter(i => !isErrorCheck(v));
+			return v.findIndex(i => {
+				let a = i?.[urlKey] || i;
+				let b = props.it?.[urlKey] || props.it;
+				return a === b;
+			});
 		});
 
 		const handleDel = () => {
@@ -63,6 +78,7 @@ export default {
 		};
 
 		return {
+			current,
 			isError,
 			handleDel
 		};

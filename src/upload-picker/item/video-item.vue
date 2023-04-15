@@ -3,7 +3,7 @@
 		:class="{ 'is-error': it.status == 0 }"
 		class="vc-upload-picker-video-item"
 	>
-		<slot :it="it">
+		<slot :it="it" :current="current">
 			<div v-if="typeof it !== 'object'">
 				<video
 					:src="it"
@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 import Icon from '../../icon/index';
 import Progress from '../../progress/index';
 import { VideoPreview } from '../preview/video';
@@ -60,10 +60,25 @@ export default defineComponent({
 		it: {
 			type: [String, Object, File],
 			default: ''
+		},
+		dataSource: {
+			type: Array,
+			default: () => ([])
 		}
 	},
 	emits: ['delete'],
 	setup(props, { emit }) {
+		const current = computed(() => {
+			if (props.it.status === 0) return -1;
+			const v = props.dataSource.filter(i => i.status !== 0);
+
+			return v.findIndex(i => {
+				let a = i;
+				let b = props.it;
+				return a === b;
+			});
+		});
+
 		const handlePreview = () => {
 			const { enhancer } = VcInstance.config.VideoPreview || {} as VideoPreviewConfig;
 			if (enhancer) {
@@ -79,6 +94,7 @@ export default defineComponent({
 		};
 
 		return {
+			current,
 			handlePreview,
 			handleDel
 		};

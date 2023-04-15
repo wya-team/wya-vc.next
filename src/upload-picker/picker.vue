@@ -5,7 +5,7 @@
 			<template v-if="!sortable">
 				<component
 					:is="picker.item"
-					v-for="(item, i) in currentValue[picker.type]"
+					v-for="(item, index) in currentValue[picker.type]"
 					:key="typeof item === 'object' ? item.uid : item"
 					:it="item"
 					:disabled="disabled"
@@ -15,13 +15,18 @@
 					:audio-class-name="audioClassName"
 					:file-class-name="fileClassName"
 					:url-key="urlKey"
-					:index="i"
+					:index="index"
 					:data-source="currentValue[picker.type]"
 					class="vc-upload-picker__item"
-					@delete="handleDel(i, picker.type)"
+					@delete="handleDel(index, picker.type)"
 				>
-					<template #default="{ it }">
-						<slot :it="it" :index="i" :name="picker.type" />
+					<template #default="scopeData">
+						<slot 
+							:it="scopeData.it" 
+							:current="scopeData.current"
+							:index="index" 
+							:name="picker.type" 
+						/>
 					</template>
 				</component>
 			</template>
@@ -51,7 +56,12 @@
 						@delete="handleDel(index, picker.type)"
 					>
 						<template #default="scopeData">
-							<slot :it="scopeData.it" :index="scopeData.index" :name="picker.type" />
+							<slot 
+								:it="scopeData.it" 
+								:current="scopeData.current"
+								:index="index" 
+								:name="picker.type" 
+							/>
 						</template>
 					</component>
 				</template>
