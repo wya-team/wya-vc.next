@@ -1,4 +1,4 @@
-import { h, defineComponent } from 'vue';
+import { h, defineComponent, computed } from 'vue';
 import { debounce } from 'lodash';
 
 export default defineComponent({
@@ -16,20 +16,22 @@ export default defineComponent({
 		}
 	},
 	setup(props, { slots, attrs }) {
-		const handleClick = (callback) => {
+		const handler = computed(() => {
 			const { wait } = props;
+			const callback = attrs.onClick;
 			if (callback) {
-				return debounce(callback, wait * 1000, {
+				return debounce(callback as any, wait * 1000, {
 					leading: true,
 					trailing: false
 				});
 			}
-		};
+			return () => {};
+		});
 
 		return () => {
 			return h(props.tag, {
 				...attrs,
-				onClick: handleClick(attrs.onClick)
+				onClick: handler.value
 			}, slots.default?.());
 		};
 	}

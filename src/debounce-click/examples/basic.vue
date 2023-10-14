@@ -5,11 +5,11 @@
 		class="v-debounce-click"
 		@click="handleClick"
 	>
-		点击
+		点击 {{ count }}
 	</vc-debounce-click>
 </template>
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import DebounceClick from '..';
 
 export default defineComponent({
@@ -18,8 +18,11 @@ export default defineComponent({
 		'vc-debounce-click': DebounceClick,
 	},
 	setup() {
+		const count = ref(0);
 		return {
+			count,
 			handleClick(e) {
+				count.value++;
 				console.log(e, new Date());
 			}
 		};
