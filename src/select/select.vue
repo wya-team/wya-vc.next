@@ -350,7 +350,7 @@ export default {
 			searchValue.value = v;
 			
 			searchRegex.value = new RegExp(escapeString(v.trim()), 'i');
-			props.loadData && _loadData();
+			props.loadData && _loadData(v);
 		};
 
 		watch(
