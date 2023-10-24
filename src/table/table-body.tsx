@@ -186,7 +186,7 @@ export default defineComponent({
 			const cell = getCell(e);
 
 			if (cell) {
-				const column = getColumnByCell(table, cell);
+				const column = getColumnByCell(states.columns, cell);
 				const hoverState = { cell, column, row };
 				table.proxy.hoverState = hoverState;
 
@@ -241,7 +241,7 @@ export default defineComponent({
 			const cell = getCell(e);
 			let column;
 			if (cell) {
-				column = getColumnByCell(table, cell);
+				column = getColumnByCell(states.columns, cell);
 				if (column) {
 					table.emit(`cell-${name}`, row, column, cell, e);
 				}
@@ -353,7 +353,7 @@ export default defineComponent({
 		const renderRowWrapper = (row, $index) => {
 			const { treeData, lazyTreeNodeMap, childrenColumnName, rowKey } = props.store.states;
 			if (states.hasExpandColumn && props.store.isRowExpanded(row)) {
-				const renderExpanded = table.props.renderExpanded;
+				const renderExpanded = table.proxy.renderExpanded;
 				const tr = renderRow(row, $index);
 				if (!renderExpanded) {
 					console.error('[vc-table]: renderExpanded必填');

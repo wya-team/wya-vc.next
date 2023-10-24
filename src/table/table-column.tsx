@@ -184,7 +184,7 @@ export default defineComponent({
 						{ originRenderCell(data) }
 					</div>
 				);
-				table.renderExpanded = (data) => {
+				table.proxy.renderExpanded = (data) => {
 					return slots.default
 						? slots.default(data)
 						: slots.default;

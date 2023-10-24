@@ -109,9 +109,9 @@ export const getKeysMap = (array = [], rowKey) => {
 /**
  * 
  */
-export const getColumnById = (table, columnId) => {
+export const getColumnById = (columns, columnId) => {
 	let column = null;
-	table.columns.forEach(item => {
+	columns.forEach(item => {
 		if (item.id === columnId) {
 			column = item;
 		}
@@ -122,10 +122,10 @@ export const getColumnById = (table, columnId) => {
 /**
  * 
  */
-export const getColumnByKey = (table, columnKey) => {
+export const getColumnByKey = (columns, columnKey) => {
 	let column = null;
-	for (let i = 0; i < table.columns.length; i++) {
-		const item = table.columns[i];
+	for (let i = 0; i < columns.length; i++) {
+		const item = columns[i];
 		if (item.columnKey === columnKey) {
 			column = item;
 			break;
