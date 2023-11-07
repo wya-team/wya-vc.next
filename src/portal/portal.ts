@@ -230,7 +230,7 @@ export default class Portal<T extends Options = Options<DefineComponent>> extend
 					});
 
 					onUnmounted(() => {
-						alive && document.addEventListener('click', handleExtra, true);
+						alive && document.removeEventListener('click', handleExtra, true);
 					});
 
 					return () => h(
