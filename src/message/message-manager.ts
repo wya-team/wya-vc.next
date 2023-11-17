@@ -19,8 +19,12 @@ class MessageManager extends Portal {
 		if (IS_SERVER) return;
 		
 		let query = ['content', 'duration', 'onClose'];
-		let number = Object.keys(this.portals)
-			.filter(item => item.includes(this.globalOptions.cName)).length;
+		let number = 0;
+		this.portals.forEach((_, key) => {
+			if (key.includes(this.globalOptions.cName)) {
+				number++;
+			}
+		});
 		let top = 30 + number * 40;
 		let maxH = window.innerHeight - 100;
 		
