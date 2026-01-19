@@ -22,13 +22,13 @@
 					<vc-icon v-else :type="mode" :class="`is-${mode}`" class="vc-message__icon" />
 					<!-- content -->
 					<p 
-						v-if="typeof content === 'string'"
+						v-if="typeof currentContent === 'string'"
 						class="vc-message__content"
-						v-html="content"
+						v-html="currentContent"
 					/>
 					<vc-customer
-						v-else-if="typeof content === 'function'" 
-						:render="content" 
+						v-else-if="typeof currentContent === 'function'" 
+						:render="currentContent" 
 					/>
 					<!-- close -->
 					<vc-icon 
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import Icon from "../icon";
 import Spin from "../spin";
 import Transition from '../transition';
@@ -93,6 +93,7 @@ export default {
 	setup(props, context) {
 		const { emit } = context;
 		const isVisible = ref(false);
+		const currentContent = ref();
 
 		// 兼容Portal设计
 		const handleRemove = () => {
@@ -104,6 +105,10 @@ export default {
 			if (props.maskClosable) {
 				isVisible.value = false;
 			}
+		};
+
+		const setContent = (v) => {
+			currentContent.value = v;
 		};
 
 		let timer;
@@ -121,16 +126,20 @@ export default {
 			timer && clearTimeout(timer);
 		});
 
+		watch(() => props.content, setContent, { immediate: true });
 		let exposes = ['destroy', 'remove', 'close', 'hide']
 			.reduce((pre, key) => {
 				pre[key] = handleRemove;
 				return pre;
-			}, {});
+			}, {
+				setContent
+			});
 		
 		return {
 			isVisible,
 			handleRemove,
 			handleClose,
+			currentContent,
 			...exposes
 		};
 	}

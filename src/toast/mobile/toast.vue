@@ -11,15 +11,15 @@
 		>
 			<div v-show="isVisible" class="vcm-toast__wrapper">
 				<vcm-spin v-if="mode === 'loading'" class="vcm-toast__loading" />
-				<p v-if="content" class="vcm-toast__content" v-html="content" />
-				<vcm-customer v-else :render="content" />
+				<p v-if="currentContent" class="vcm-toast__content" v-html="currentContent" />
+				<vcm-customer v-else :render="currentContent" />
 			</div>
 		</vcm-transition-fade>
 	</div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import Customer from "../../customer/index.m";
 import Spin from "../../spin/index.m";
 import Transition from "../../transition/index.m";
@@ -51,6 +51,7 @@ export default {
 	setup(props, context) {
 		const { emit } = context;
 		const isVisible = ref(false);
+		const currentContent = ref();
 
 		// 兼容Portal设计
 		const handleRemove = () => {
@@ -62,6 +63,10 @@ export default {
 			if (props.maskClosable) {
 				isVisible.value = false;
 			}
+		};
+
+		const setContent = (v) => {
+			currentContent.value = v;
 		};
 
 		let timer;
@@ -79,16 +84,20 @@ export default {
 			timer && clearTimeout(timer);
 		});
 
+		watch(() => props.content, setContent, { immediate: true });
 		let exposes = ['destroy', 'remove', 'close', 'hide']
 			.reduce((pre, key) => {
 				pre[key] = handleRemove;
 				return pre;
-			}, {});
+			}, {
+				setContent
+			});
 		
 		return {
 			isVisible,
 			handleRemove,
 			handleClose,
+			currentContent,
 			...exposes
 		};
 	}
