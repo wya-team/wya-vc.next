@@ -417,7 +417,8 @@ export {
 	VcError,
 	Utils,
 	Hooks,
-	Extends
+	Extends,
+	Components
 };
 
 // component
