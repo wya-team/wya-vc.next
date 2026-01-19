@@ -180,7 +180,10 @@ export default () => {
 				callback();
 				return true;
 			} else {
-				rules = [{ required: true }] as FormRule[];
+				rules = [{
+					required: true,
+					message: typeof props.required === 'string' ? props.required : undefined
+				}] as FormRule[];
 			}
 		}
 

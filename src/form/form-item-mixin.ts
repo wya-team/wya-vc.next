@@ -13,7 +13,7 @@ export default defineComponent({
 			type: String
 		},
 		required: {
-			type: Boolean,
+			type: [Boolean, String],
 			default: false
 		},
 		error: {
