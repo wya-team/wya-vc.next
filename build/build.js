@@ -6,7 +6,7 @@ const glob = require('glob');
 const compiler = require('@vue/compiler-sfc');
 // css
 const postcss = require('postcss');
-const sass = require('node-sass');
+const sass = require('sass');
 // babel
 const babel = require('@babel/core');
 const jsx = require('@vue/babel-plugin-jsx');
