@@ -109,7 +109,7 @@ export default () => {
 				let { value } = getPropByPath(formRules, props.prop.replace(/\.[0-9]+\./g, '.')) || {};
 				formItemRules = value || [];
 			} catch {
-				formItemRules = formRules ? formRules[props.prop] : [];
+				formItemRules = formRules && formRules[props.prop] ? formRules[props.prop] : [];
 			}
 		}
 

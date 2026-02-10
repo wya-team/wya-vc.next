@@ -10,6 +10,9 @@
 		<vc-form-item prop="input1" label="input：">
 			<input v-model="formValidate.input1" style="width: 300px">
 		</vc-form-item>
+		<vc-form-item prop="nest.value" label="nest-input：" required="必填">
+			<input v-model="formValidate.nest.value" style="width: 300px">
+		</vc-form-item>
 		<vc-form-item>
 			<vc-form-item prop="input2" label="嵌套input：">
 				<input v-model="formValidate.input2" style="width: 300px">
@@ -91,7 +94,10 @@ export default {
 					value: '',
 					index: 1
 				}
-			]
+			],
+			nest: {
+				value: ''
+			}
 		});
 
 		const ruleValidate = reactive({
