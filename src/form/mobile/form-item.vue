@@ -1,5 +1,5 @@
 <template>
-	<div :style="{ paddingLeft: `${indent}px`}" class="vcm-form-item">
+	<div v-if="!isStyleless" :style="{ paddingLeft: `${indent}px`}" class="vcm-form-item">
 		<div :class="classes" class="vcm-form-item__wrapper">
 			<label v-if="label || $slots.label" :for="labelFor" :style="labelStyle" class="vcm-form-item__label">
 				<slot name="label">{{ label }}</slot>
@@ -9,6 +9,7 @@
 			</div>
 		</div>
 	</div>
+	<slot v-else />
 </template>
 
 <script lang="ts">

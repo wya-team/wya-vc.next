@@ -1,5 +1,5 @@
 <template>
-	<form :autocomplete="autocomplete" :class="{ 'is-border': border }" class="vcm-form">
+	<form :autocomplete="autocomplete" :class="{ 'vcm-form': !styleless, 'is-border': border && !styleless }">
 		<slot />
 	</form>
 </template>
