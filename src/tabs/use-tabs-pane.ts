@@ -10,7 +10,7 @@ export default () => {
 	const tabs = inject('tabs', {});
 
 	const isActive = computed(() => {
-		let state = tabs.currentName.value === (props.name || currentName.value);
+		let state = tabs.currentName.value === (props.value || props.name || currentName.value);
 
 		// 副作用
 		if (!isLoaded.value && state) {
@@ -37,9 +37,9 @@ export default () => {
 	};
 
 	watch(
-		() => props.name,
+		() => [props.name, props.value],
 		(v) => {
-			currentName.value = v;
+			currentName.value = props.value || props.name;
 			refresh();
 		},
 		{ immediate: true }

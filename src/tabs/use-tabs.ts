@@ -112,7 +112,7 @@ export default (options = {}) => {
 
 				if (index != -1) {
 					list.value.splice(index, 0, item.props);
-					typeof currentName.value === 'undefined' && (
+					typeof item.proxy.currentName === 'undefined' && (
 						item.proxy.currentName = index
 					);
 					return;
@@ -121,7 +121,7 @@ export default (options = {}) => {
 
 			list.value.push(item.props);
 
-			typeof currentName.value === 'undefined' && (
+			typeof item.proxy.currentName === 'undefined' && (
 				item.proxy.currentName = list.value.length - 1
 			);
 		});

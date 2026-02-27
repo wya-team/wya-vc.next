@@ -219,7 +219,7 @@ export default defineComponent({
 
 		const operateDOMScrollEvents = (type) => {
 			let fn = type === 'add' ? window.addEventListener : window.removeEventListener;
-			fn('scroll', handleScroll);
+			// fn('scroll', handleScroll);
 
 			fn('touchstart', handleTouchstart, false);
 			fn('touchmove', handleTouchmove, false);
