@@ -49,6 +49,10 @@ const getQuarterValue = (val) => {
 	return [year + '', quarter];
 };
 
+const getTimeValue = (val) => {
+	return Array.isArray(val) ? val : typeof val === 'string' ? val.split(':') : [];
+}
+
 const compareWithBoundary = (arg1 = [], arg2 = [], len = 0) => {
 	return arg1.slice(0, len).join('') == arg2.slice(0, len).join('');
 };
@@ -188,7 +192,7 @@ export default defineComponent({
 		 */
 		const sync = () => {
 			let v = currentValue.value;
-			let formaterValue = props.mode === 'quarter' ? v : value2date(v);
+			let formaterValue = props.mode === 'quarter' || props.mode === 'time' ? v : value2date(v);
 			props.allowDispatch && formItem.change?.(formaterValue);
 			emit('update:modelValue', formaterValue);
 			emit('change', formaterValue);
@@ -264,7 +268,7 @@ export default defineComponent({
 			() => props.modelValue,
 			(v) => {
 				if (
-					(v && new Date(v) == 'Invalid Date' && props.mode !== 'quarter') 
+					(v && new Date(v) == 'Invalid Date' && (props.mode !== 'quarter' && props.mode !== 'time')) 
 					|| (!Array.isArray(v) && props.mode === 'quarter')
 				) {
 					throw new VcError('m-data-picker', 'Invalid Date');
@@ -276,9 +280,13 @@ export default defineComponent({
 				 * NaN !== NaN true -> currentValue.value = undefined;
 				 */
 				if (currentValue.value.length === 0 
-					|| (+new Date(v) !== +value2date(currentValue.value) && props.mode !== 'quarter') 
-					|| (props.mode === 'quarter' && currentValue.value !== v)) {
-					currentValue.value = props.mode === 'quarter' ? getQuarterValue(v) : date2value(v, modeArr.value);
+					|| (props.mode !== 'quarter' && props.mode !== 'time' && (+new Date(v) !== +value2date(currentValue.value)))
+					|| ((props.mode === 'quarter' || props.mode === 'time') && currentValue.value !== v)) {
+					currentValue.value = props.mode === 'quarter' 
+						? getQuarterValue(v) 
+						: props.mode === 'time'
+							? getTimeValue(v)
+							: date2value(v, modeArr.value);
 					rebuildData.value = makeRebuildData();
 				}
 			},

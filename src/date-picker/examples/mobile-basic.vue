@@ -155,10 +155,11 @@ export default defineComponent({
 			ruleValidate,
 			handleClick() {
 				MDatePicker.open({
-					mode: 'datetime',
+					mode: 'time',
 					title: 'yes',
 					onOk: (res) => {
-						Toast.info(res.label.join('-'));
+						console.log(res);
+						// Toast.info(res.label.join('-'));
 					}
 				});
 			},
