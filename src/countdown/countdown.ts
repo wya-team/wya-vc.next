@@ -62,6 +62,7 @@ export default {
 		const minutes = ref("");
 		const seconds = ref("");
 		const mseconds = ref("");
+		const isComplete = ref(false);
 
 		// 周期
 		const T = computed(() => {
@@ -138,17 +139,19 @@ export default {
 
 			if (timestamp <= 0) {
 				stop();
+				if (!isComplete.value) {
+					isComplete.value = true;
+					emit("change", {
+						timestamp: 0,
+						days: '00',
+						hours: '00',
+						minutes: '00',
+						seconds: '00',
+						ms: '00',
+					});
 
-				emit("change", {
-					timestamp: 0,
-					days: '00',
-					hours: '00',
-					minutes: '00',
-					seconds: '00',
-					ms: '00',
-				});
-
-				emit("end");
+					emit("end");
+				}
 			} else {
 				emit("change", {
 					timestamp,
@@ -165,6 +168,8 @@ export default {
 		const start = () => {
 			if (targetTimestamp.value) {
 				timer && clearInterval(timer);
+				isComplete.value = false;
+				run(); // 立即执行一次，界面马上展示当前数值
 				timer = setInterval(run, T.value);
 			}
 		};
