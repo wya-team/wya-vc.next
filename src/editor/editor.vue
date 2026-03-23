@@ -184,7 +184,7 @@ export default defineComponent({
 				if (editor.value) {
 					if (v && v !== content.value) {
 						content.value = v;
-						editor.value.clipboard.dangerouslyPasteHTML(v);
+						editor.value.root.innerHTML = props.modelValue;
 					} else if (!v) {
 						editor.value.setText('');
 					}
@@ -410,7 +410,7 @@ export default defineComponent({
 			editor.value.enable(!props.disabled);
 			if (props.modelValue) {
 				editor.value.setText('');
-				editor.value.clipboard.dangerouslyPasteHTML(props.modelValue);
+				editor.value.root.innerHTML = props.modelValue;
 				let length = editor.value.getLength();
 				editor.value.setSelection(length + 1); // 光标位置
 			}
